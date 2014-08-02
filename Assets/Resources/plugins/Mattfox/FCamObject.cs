@@ -25,7 +25,8 @@ public class FCamObject : FContainer {
 		this.ListenForUpdate(Update);
 		this.ListenForResize(HandleResize);
 		
-		_bounds = new Rect(-40,-40,80,80);
+
+		_bounds = new Rect(-10,-10,20,20);
 		
 		_worldBounds = new Rect(0,0,0,0);
 		
@@ -71,7 +72,7 @@ public class FCamObject : FContainer {
                 }
                 else
                 {
-                    x = Mathf.Lerp(x, _followObject.x, .8f);// x * .8f + (_followObject.x) * .2f;
+                  //  x = _followObject.x; Mathf.Lerp(x, _followObject.x, .8f);// x * .8f + (_followObject.x) * .2f;
                 }
 			} else {
 				// follow directly
@@ -89,7 +90,7 @@ public class FCamObject : FContainer {
                 }
                 else
                 {
-                    y = Mathf.Lerp(y, _followObject.y, .8f);// y * .8f + _followObject.y * .2f;
+                //    y = _followObject.y;// Mathf.Lerp(y, _followObject.y, .8f);// y * .8f + _followObject.y * .2f;
                 }
 			} else {
 				// follow directly
