@@ -44,4 +44,10 @@ public class World : FContainer
         
         this.AddChild(player);
     }
+
+    public bool getMoveable(float xPos, float yPos)
+    {
+        return collision.getFrameNumAt(xPos, yPos) != 1 &&
+            collision.getFrameNumAt(xPos, yPos) != -1; 
+    }
 }

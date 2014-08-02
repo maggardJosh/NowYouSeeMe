@@ -24,9 +24,18 @@ public class Player : FContainer
     public override void HandleAddedToStage()
     {
         Futile.instance.SignalFixedUpdate += Update;
+        Futile.instance.SignalUpdate += ControlUpdate;
         base.HandleAddedToStage();
     }
 
+    private void ControlUpdate()
+    {
+        if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
+        {
+            yMove = jumpStrength;
+            jumpsLeft--;
+        }
+    }
     float speed = 2;
     float friction = .8f;
     float jumpStrength = 10;
@@ -37,11 +46,7 @@ public class Player : FContainer
             xMove = -speed;
         if (Input.GetKey(C.RIGHT_KEY))
             xMove = speed;
-        if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
-        {
-            yMove = jumpStrength;
-            jumpsLeft--;
-        }
+      
 
         if (xMove > 0)
             tryMoveRight(xMove);
@@ -62,8 +67,8 @@ public class Player : FContainer
     float collisionHeight = 24;
     private void tryMoveRight(float xMove)
     {
-        if (world.collision.getFrameNumAt(x + collisionWidth / 2 + xMove, y - collisionHeight*.9f / 2) != 1 &&
-            world.collision.getFrameNumAt(x + collisionWidth / 2 + xMove, y + collisionHeight*.9f / 2) != 1)
+        if (world.getMoveable(x + collisionWidth / 2 + xMove, y - collisionHeight*.9f / 2) &&
+            world.getMoveable(x + collisionWidth / 2 + xMove, y + collisionHeight*.9f / 2))
             this.x += xMove;
         else
         {
@@ -73,8 +78,8 @@ public class Player : FContainer
 
     private void tryMoveLeft(float xMove)
     {
-        if (world.collision.getFrameNumAt(x - collisionWidth / 2 + xMove, y - collisionHeight*.9f / 2) != 1 &&
-            world.collision.getFrameNumAt(x - collisionWidth / 2 + xMove, y + collisionHeight*.9f / 2) != 1)
+        if (world.getMoveable(x - collisionWidth / 2 + xMove, y - collisionHeight*.9f / 2) &&
+            world.getMoveable(x - collisionWidth / 2 + xMove, y + collisionHeight*.9f / 2))
             this.x += xMove;
         else
         {
@@ -84,8 +89,8 @@ public class Player : FContainer
 
     private void tryMoveUp(float yMove)
     {
-        if (world.collision.getFrameNumAt(x - collisionWidth*.9f / 2, y + collisionHeight / 2 + yMove) != 1 &&
-            world.collision.getFrameNumAt(x + collisionWidth*.9f / 2, y + collisionHeight / 2 + yMove) != 1)
+        if (world.getMoveable(x - collisionWidth*.9f / 2, y + collisionHeight / 2 + yMove) &&
+            world.getMoveable(x + collisionWidth*.9f / 2, y + collisionHeight / 2 + yMove))
             this.y += yMove;
         else
             this.y = Mathf.FloorToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight + (world.collision.tileHeight - collisionHeight / 2);
@@ -93,14 +98,15 @@ public class Player : FContainer
 
     private void tryMoveDown(float yMove)
     {
-        if (world.collision.getFrameNumAt(x - collisionWidth*.9f / 2, y - collisionHeight / 2 + yMove) != 1 &&
-            world.collision.getFrameNumAt(x + collisionWidth*.9f / 2, y - collisionHeight / 2 + yMove) != 1)
+        if (world.getMoveable(x - collisionWidth*.9f / 2, y - collisionHeight / 2 + yMove) &&
+            world.getMoveable(x + collisionWidth*.9f / 2, y - collisionHeight / 2 + yMove))
             this.y += yMove;
         else
         {
             this.y = Mathf.CeilToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight - (world.collision.tileHeight - collisionHeight / 2);
             this.yMove = 0;
             this.jumpsLeft = 1;
+            RXDebug.Log("LAND");
         }
     }
 }
