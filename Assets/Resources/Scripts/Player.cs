@@ -28,6 +28,10 @@ public class Player : FContainer
             x -= Time.deltaTime * speed;
         if (Input.GetKey(C.RIGHT_KEY))
             x += Time.deltaTime * speed;
+        if (Input.GetKey(C.DOWN_KEY))
+            y -= Time.deltaTime * speed;
+        if (Input.GetKey(C.UP_KEY))
+            y += Time.deltaTime * speed;
 
     }
 }
