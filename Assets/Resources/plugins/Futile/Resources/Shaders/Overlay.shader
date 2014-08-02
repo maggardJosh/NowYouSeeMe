@@ -48,7 +48,7 @@ Shader "Custom/OverlayBlend"
                 o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
                 o.color = v.color;
                 o.texcoord = TRANSFORM_TEX(v.texcoord,_MainTex);
-				
+				return o;
 				// --------------- Snapping start ---------------
 				float hpcX = _ScreenParams.x * 0.5;
 				float hpcY = _ScreenParams.y * 0.5;
