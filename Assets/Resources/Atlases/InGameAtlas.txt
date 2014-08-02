@@ -1,0 +1,28 @@
+{"frames": {
+
+"player_0":
+{
+	"frame": {"x":3,"y":3,"w":44,"h":30},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":4,"y":18,"w":44,"h":30},
+	"sourceSize": {"w":48,"h":48}
+},
+"player_1":
+{
+	"frame": {"x":3,"y":37,"w":42,"h":34},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":6,"y":14,"w":42,"h":34},
+	"sourceSize": {"w":48,"h":48}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "InGameAtlas.png",
+	"format": "RGBA8888",
+	"size": {"w":64,"h":128},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:968c62c45c83e988226ec3e3db41c971:5606b4a6909a6e53c081efd5f81188eb:2edb1cc34a22dd9e3d08d22d20125ff4$"
+}
+}
