@@ -43,6 +43,7 @@ Shader "Custom/OverlayBlend"
            
             v2f vert (appdata_t v)
             {
+				
                 v2f o;
                 o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
                 o.color = v.color;
@@ -64,12 +65,13 @@ Shader "Custom/OverlayBlend"
 				// Snap
 				float pos = floor(((o.vertex.x / o.vertex.w) * hpcX + 0.5f)/3)*3 + hpcOX;
 				o.vertex.x = pos / hpcX * o.vertex.w;
-
+                
 				pos = floor(((o.vertex.y / o.vertex.w) * hpcY + 0.5f)/3)*3 + hpcOY;
 				o.vertex.y = pos / hpcY * o.vertex.w;
 				o.color = v.color;
 				// ---------------- Snapping end ------------------------
-                return o;
+				
+                return o; 
             }
  
             fixed4 frag (v2f i) : COLOR

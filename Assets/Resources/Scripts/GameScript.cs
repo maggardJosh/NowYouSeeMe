@@ -48,13 +48,14 @@ public class GameScript : MonoBehaviour
         }));
     }
 
+    float speed = 10;
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKey(KeyCode.A))
-            playerAnim.x -= Time.deltaTime * 100;
+            playerAnim.x -= Time.deltaTime * speed;
         if (Input.GetKey(KeyCode.D))
-            playerAnim.x += Time.deltaTime * 100;
+            playerAnim.x += Time.deltaTime * speed;
     }
 
 }
