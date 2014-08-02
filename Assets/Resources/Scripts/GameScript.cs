@@ -6,7 +6,7 @@ using System.IO;
 
 public class GameScript : MonoBehaviour
 {
-
+    FAnimatedSprite playerAnim;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -24,11 +24,12 @@ public class GameScript : MonoBehaviour
         FSprite bg = new FSprite("testBG");
         Futile.stage.AddChild(bg);
 
-        FAnimatedSprite playerAnim = new FAnimatedSprite("player");
-        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0, 1 }, 200, true));
+        playerAnim = new FAnimatedSprite("player");
+        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0, 1 }, 2000, true));
         playerAnim.play("idle");
         Futile.stage.AddChild(playerAnim);
         startLoop();
+        playerAnim.y = .5f;
     }
 
     private void startLoop()
@@ -50,6 +51,10 @@ public class GameScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKey(KeyCode.A))
+            playerAnim.x -= Time.deltaTime * 100;
+        if (Input.GetKey(KeyCode.D))
+            playerAnim.x += Time.deltaTime * 100;
     }
 
 }

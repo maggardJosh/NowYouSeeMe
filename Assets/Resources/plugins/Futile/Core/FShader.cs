@@ -48,7 +48,7 @@ public class FShader
 		Basic_PixelSnap = new FShader("Basic_PixelSnap", Shader.Find("Futile/Basic_PixelSnap"));
         OverlayBlend = new FOverlayBlendShader(Color.red);
 
-		defaultShader = OverlayBlend;
+		defaultShader = Basic_PixelSnap;
 	}
 }
 

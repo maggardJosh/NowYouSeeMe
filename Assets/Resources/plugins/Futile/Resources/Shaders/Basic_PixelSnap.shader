@@ -63,10 +63,10 @@ Shader "Futile/Basic_PixelSnap" //Unlit Transparent Vertex Colored
 				#endif	
 				
 				// Snap
-				float pos = floor((OUT.vertex.x / OUT.vertex.w) * hpcX + 0.5f) + hpcOX;
+				float pos = floor(((OUT.vertex.x / OUT.vertex.w) * hpcX + 0.5f)/3)*3 + hpcOX;
 				OUT.vertex.x = pos / hpcX * OUT.vertex.w;
 
-				pos = floor((OUT.vertex.y / OUT.vertex.w) * hpcY + 0.5f) + hpcOY;
+				pos = floor(((OUT.vertex.y / OUT.vertex.w) * hpcY + 0.5f)/3)*3 + hpcOY;
 				OUT.vertex.y = pos / hpcY * OUT.vertex.w;
 				OUT.color = IN.color;
 
