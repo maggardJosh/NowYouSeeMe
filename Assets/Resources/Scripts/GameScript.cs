@@ -6,7 +6,7 @@ using System.IO;
 
 public class GameScript : MonoBehaviour
 {
-    FAnimatedSprite playerAnim;
+    Player player;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -21,22 +21,19 @@ public class GameScript : MonoBehaviour
 
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
         FTmxMap map = new FTmxMap();
-        FCamObject camera = C.getCameraInstance();
-        map.clipNode = camera;
+        
+        map.clipNode = C.getCameraInstance();
         map.LoadTMX("Maps/testMap");
         Futile.stage.AddChild(map);
 
-        playerAnim = new FAnimatedSprite("player");
-        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0 }, 2000, true));
-        playerAnim.play("idle");
-        Futile.stage.AddChild(playerAnim);
-        startLoop();
-        playerAnim.y = .5f;
-
+        FCamObject camera = C.getCameraInstance();
+        player = new Player();
 
         camera.setWorldBounds(new Rect(0, -map.height, map.width, map.height));
-        camera.follow(playerAnim);
+        camera.follow(player);
         camera.MoveToFront();
+
+        Futile.stage.AddChild(player);
         
         foreach (XMLNode node in map.objects)
         {
@@ -45,13 +42,14 @@ public class GameScript : MonoBehaviour
                 switch(node.attributes["name"].ToLower())
                 {
                     case "spawn":
-                        playerAnim.x = float.Parse(node.attributes["x"]) + float.Parse(node.attributes["width"]) / 2;
-                        playerAnim.y = -(float.Parse(node.attributes["y"]) + float.Parse(node.attributes["height"])) / 2;
+                        player.x = float.Parse(node.attributes["x"]) + float.Parse(node.attributes["width"]) / 2;
+                        player.y = -(float.Parse(node.attributes["y"]) + float.Parse(node.attributes["height"])) / 2;
                         break;
                 }
             }
         }
 
+        startLoop();
     }
 
     private void startLoop()
@@ -70,14 +68,10 @@ public class GameScript : MonoBehaviour
         }));
     }
 
-    float speed = 50;
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-            playerAnim.x -= Time.deltaTime * speed;
-        if (Input.GetKey(KeyCode.D))
-            playerAnim.x += Time.deltaTime * speed;
+      
     }
 
 }
