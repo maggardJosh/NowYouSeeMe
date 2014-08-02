@@ -31,7 +31,7 @@ public class FRepeatSprite : FSprite
 		
 		if(!_element.atlas.isSingleImage)
 		{
-			throw new FutileException("ScrollingSprite must be used with a single image, not an atlas! Use Futile.atlasManager.LoadImage()");
+			throw new FutileException("FRepeatSprite must be used with a single image, not an atlas! Use Futile.atlasManager.LoadImage()");
 		}	
 		
 		_isAlphaDirty = true;
@@ -42,8 +42,8 @@ public class FRepeatSprite : FSprite
 	override public void HandleElementChanged()
 	{
 		base.HandleElementChanged();
-        _textureWidth = _element.atlas.textureSize.x *Futile.resourceScaleInverse;
-        _textureHeight = _element.atlas.textureSize.y *Futile.resourceScaleInverse;
+		_textureWidth = _element.atlas.textureSize.x * Futile.resourceScaleInverse;
+		_textureHeight = _element.atlas.textureSize.y * Futile.resourceScaleInverse;
 
 		_areLocalVerticesDirty = true;
 		UpdateLocalVertices();

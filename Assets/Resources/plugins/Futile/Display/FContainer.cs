@@ -7,13 +7,11 @@ public class FContainer : FNode
 {
 	protected List<FNode> _childNodes = new List<FNode>(5);
 	
-	private int _oldChildNodesHash = 0;
-	
 	private bool _shouldSortByZ = false; //don't turn this on unless you really need it, it'll do a sort every redraw
 	
 	public FContainer () : base()
 	{
-
+		
 	}
 	
 	override public void Redraw(bool shouldForceDirty, bool shouldUpdateDepth)
@@ -46,7 +44,7 @@ public class FContainer : FNode
 			
 			if(_shouldSortByZ) 
 			{
-				Futile.instance.SignalUpdate += HandleUpdateAndSort;
+				Futile.instance.SignalAfterUpdate += HandleUpdateAndSort;
 			}
 		}
 		
@@ -68,16 +66,14 @@ public class FContainer : FNode
 			
 			if(_shouldSortByZ)
 			{
-				Futile.instance.SignalUpdate -= HandleUpdateAndSort;
+				Futile.instance.SignalAfterUpdate -= HandleUpdateAndSort;
 			}
 		}
 	}
 	
 	private void HandleUpdateAndSort()
 	{
-		bool didChildOrderChangeAfterSort = SortByZ();
-		
-		if(didChildOrderChangeAfterSort) //sort the order, and then if the child order was changed, repopulate the renderlayer
+		if(SortByZ()) //sort the order, and then if the child order was changed, repopulate the renderlayer
 		{
 			if(_isOnStage) _stage.HandleFacetsChanged();	
 		}
@@ -104,6 +100,11 @@ public class FContainer : FNode
 			_childNodes.Add(node);
 			if(_isOnStage) _stage.HandleFacetsChanged(); 
 		}
+	}
+
+	public void AddChildAtBack(FNode node) //a more explicit way to use AddChildAtIndex
+	{
+		AddChildAtIndex(node,0);
 	}
 	
 	public void AddChildAtIndex(FNode node, int newIndex)
@@ -164,10 +165,9 @@ public class FContainer : FNode
 	public void RemoveAllChildren()
 	{
 		int childCount = _childNodes.Count;
-
+		
 		for(int c = 0; c<childCount; c++)
 		{
-
 			FNode node = _childNodes[c];
 			
 			node.HandleRemovedFromContainer();
@@ -191,6 +191,11 @@ public class FContainer : FNode
 	{
 		return _childNodes[childIndex];
 	}
+
+	public int GetChildIndex(FNode childNode)
+	{
+		return _childNodes.IndexOf(childNode);
+	}
 	
 	public bool shouldSortByZ
 	{
@@ -205,14 +210,14 @@ public class FContainer : FNode
 				{
 					if(_isOnStage) 
 					{
-						Futile.instance.SignalUpdate += HandleUpdateAndSort;
+						Futile.instance.SignalAfterUpdate += HandleUpdateAndSort;
 					}
 				}
 				else 
 				{
 					if(_isOnStage) 
 					{
-						Futile.instance.SignalUpdate -= HandleUpdateAndSort;
+						Futile.instance.SignalAfterUpdate -= HandleUpdateAndSort;
 					}
 				}
 			}
@@ -231,29 +236,8 @@ public class FContainer : FNode
 	{
 		//using InsertionSort because it's stable (meaning equal values keep the same order)
 		//this is unlike List.Sort, which is unstable, so things would constantly shift if equal.
-		_childNodes.InsertionSort(ZComparison);
-		
-		//check if the order has changed, and if it has, update the quads/depth order
-		//http://stackoverflow.com/questions/3030759/arrays-lists-and-computing-hashvalues-vb-c
-		
-		int hash = 269;
-		
-		unchecked //don't throw int overflow exceptions
-		{
-			int childCount = _childNodes.Count;
-			for(int c = 0; c<childCount; c++)
-			{
-				hash = (hash * 17) + _childNodes[c].GetHashCode();
-			}
-		} 
-		
-		if(hash != _oldChildNodesHash)
-		{
-			_oldChildNodesHash = hash;
-			return true; //order has changed
-		}
-		
-		return false; //order hasn't changed
+		//note: it will only return true if the order changed
+		return _childNodes.InsertionSort(ZComparison);
 	}
 }
 

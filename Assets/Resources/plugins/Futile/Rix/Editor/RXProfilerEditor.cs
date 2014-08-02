@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -15,12 +17,18 @@ public class RXProfilerEditor : Editor
 	public void OnEnable()
 	{
 		//update when selected
-		Futile.instance.SignalUpdate += HandleSignalUpdate;
+		if(Futile.instance != null)
+		{
+			Futile.instance.SignalUpdate += HandleSignalUpdate;
+		}
 	}
 
 	public void OnDisable()
 	{
-		Futile.instance.SignalUpdate -= HandleSignalUpdate;
+		if(Futile.instance != null)
+		{
+			Futile.instance.SignalUpdate -= HandleSignalUpdate;
+		}
 	}
 
 	private void HandleSignalUpdate ()
@@ -45,4 +53,4 @@ public class RXProfilerEditor : Editor
 	}
 }
 
-
+#endif

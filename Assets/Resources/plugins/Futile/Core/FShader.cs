@@ -13,23 +13,16 @@ public class FShader
 	public static FShader AdditiveColor;
 	public static FShader Solid;
 	public static FShader SolidColored;
-    public static FShader Multiply;
-	
-	private static int _nextShaderIndex = 0;
-	private static List<FShader> _shaders = new List<FShader>();
-	
-	public int index;
+
+	public static FShader Basic_PixelSnap;
+    public static FOverlayBlendShader OverlayBlend;
+
 	public string name;
 	public Shader shader;
+	public bool needsApply = false;
 	
-	private FShader()
+	public FShader (string name, Shader shader) //only to be constructed inside this class using CreateShader()
 	{
-		throw new NotSupportedException("Use FShader.CreateShader() instead");
-	}
-	
-	private FShader (string name, Shader shader, int index) //only to be constructed inside this class using CreateShader()
-	{
-		this.index = index;
 		this.name = name;
 		this.shader = shader; 
 
@@ -38,34 +31,72 @@ public class FShader
 			throw new FutileException("Couldn't find Futile shader '"+name+"'");
 		}
 	}
+
+	virtual public void Apply(Material mat)
+	{
+
+	}
 	
 	public static void Init() //called by Futile
 	{
-		Basic = CreateShader("Basic", Shader.Find("Futile/Basic"));	
-		Additive = CreateShader("Additive", Shader.Find("Futile/Additive"));	
-		AdditiveColor = CreateShader("AdditiveColor", Shader.Find("Futile/AdditiveColor"));	
-		Solid = CreateShader("Solid", Shader.Find("Futile/Solid"));	
-		SolidColored = CreateShader("SolidColored", Shader.Find("Futile/SolidColored"));
-        Multiply = CreateShader("Multiply", Shader.Find("Particles/Multiply"));	
-		
-		defaultShader = Basic;
+		Basic = new FShader("Basic", Shader.Find("Futile/Basic"));	
+		Additive = new FShader("Additive", Shader.Find("Futile/Additive"));	
+		AdditiveColor = new FShader("AdditiveColor", Shader.Find("Futile/AdditiveColor"));	
+		Solid = new FShader("Solid", Shader.Find("Futile/Solid"));	
+		SolidColored = new FShader("SolidColored", Shader.Find("Futile/SolidColored"));	
+
+		Basic_PixelSnap = new FShader("Basic_PixelSnap", Shader.Find("Futile/Basic_PixelSnap"));
+        OverlayBlend = new FOverlayBlendShader(Color.red);
+
+		defaultShader = OverlayBlend;
 	}
-	
-	//create your own FShaders by creating them here
-	
-	public static FShader CreateShader(string shaderShortName, Shader shader)
-	{
-		for(int s = 0; s<_shaders.Count; s++)
-		{
-			if(_shaders[s].name == shaderShortName) return _shaders[s]; //don't add it if we have it already	
-		}
-		
-		FShader newShader = new FShader(shaderShortName, shader, _nextShaderIndex++);
-		_shaders.Add (newShader);
-		
-		return newShader;
-	}
-	
 }
+
+
+public class FBlurShader : FShader
+{
+	private float _blurAmount;
+	
+	public FBlurShader(float blurAmount) : base("BlurShader", Shader.Find("Futile/Blur"))
+	{
+		_blurAmount = blurAmount;
+		needsApply = true;
+	}
+	
+	override public void Apply(Material mat)
+	{
+		mat.SetFloat("_BlurForce",_blurAmount);
+	}
+	
+	public float blurAmount
+	{
+		get {return _blurAmount;}
+		set {if(_blurAmount != value) {_blurAmount = value; needsApply = true;}}
+	}
+}
+
+public class FOverlayBlendShader : FShader
+{
+    private Color _overlayColor;
+
+    public FOverlayBlendShader(Color overlayColor)
+        : base("OverlayBlendShader", Shader.Find("Custom/OverlayBlend"))
+    {
+        _overlayColor = overlayColor;
+        needsApply = true;
+    }
+
+    override public void Apply(Material mat)
+    {
+        mat.SetColor("_Color", _overlayColor);
+    }
+
+    public Color overlayColor
+    {
+        get { return _overlayColor; }
+        set { if (_overlayColor != value) { _overlayColor = value; needsApply = true; } }
+    }
+}
+
 
 

@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class FParticleSystem : FFacetNode
 {
-	private int _maxParticleCount;
-	private FParticle[] _particles;
-	private FParticle[] _availableParticles;
-	private int _availableParticleCount;
-	private int _unavailableParticleIndex;
-	private bool _isMeshDirty;
+	protected int _maxParticleCount;
+	protected FParticle[] _particles;
+	protected FParticle[] _availableParticles;
+	protected int _availableParticleCount;
+	protected int _unavailableParticleIndex;
+	protected bool _isMeshDirty;
 	
+	protected bool _hasInited = false;
+
 	public float accelX = 0.0f;
 	public float accelY = 0.0f;
-	
-	private bool _hasInited = false;
 
 	public bool shouldNewParticlesOverwriteExistingParticles = true;
 	
@@ -81,12 +81,14 @@ public class FParticleSystem : FFacetNode
 		float lifetime = particleDefinition.lifetime;
 		
 		particle.timeRemaining = lifetime;
+		particle.delayRemaining = particleDefinition.delay;
 	
 		particle.x = particleDefinition.x;
 		particle.y = particleDefinition.y;
 		particle.speedX = particleDefinition.speedX;
 		particle.speedY = particleDefinition.speedY;
-		
+
+		particle.startScale = particleDefinition.startScale;
 		particle.scale = particleDefinition.startScale;
 
 		float lifetimeInverse = 1.0f / lifetime; //we'll use this a few times, so invert it because multiplication is faster
@@ -171,7 +173,7 @@ public class FParticleSystem : FFacetNode
 		}
 	}
 
-	private void HandleUpdate()
+	virtual protected void HandleUpdate()
 	{
 		float deltaTime = Time.deltaTime;
 
@@ -194,6 +196,21 @@ public class FParticleSystem : FFacetNode
 			}
 			else //do the update!
 			{
+				if(particle.delayRemaining > 0)
+				{
+					particle.delayRemaining -= deltaTime;
+
+					if(particle.delayRemaining <= 0)
+					{
+						particle.scale = particle.startScale;
+					}
+					else 
+					{
+						particle.scale = 0;//don't show it yet
+						continue;
+					}
+				}
+
 				particle.timeRemaining -= deltaTime;
 
 				particle.color.r += particle.redDeltaPerSecond * deltaTime;
@@ -301,44 +318,34 @@ public class FParticleSystem : FFacetNode
 			int vertexIndex2 = vertexIndex0 + 2;
 			int vertexIndex3 = vertexIndex0 + 3;
 
+			float px;
+			float py;
+			float ps;
+
 			for(int p = 0; p<_maxParticleCount; p++)
 			{
 				FParticle particle = _particles[p];
 				
 				if(particle.timeRemaining > 0)
 				{		
-					float scale = particle.scale;
-					float px = particle.x * a + particle.y * b + tx;
-					float py = particle.x * c + particle.y * d + ty;
-					
-					vertices[vertexIndex0] = new Vector3
-					(
-						px + particle.resultTopLeftX * scale,
-						py + particle.resultTopLeftY * scale,
-						0
-					);
-					
-					vertices[vertexIndex1] = new Vector3
-					(
-						px + particle.resultTopRightX * scale,
-						py + particle.resultTopRightY * scale,
-						0
-					);
+					ps = particle.scale;
 
-					vertices[vertexIndex2] = new Vector3
-					(
-						px + particle.resultBottomRightX * scale,
-						py + particle.resultBottomRightY * scale,
-						0
-					);
+					px = particle.x+particle.resultTopLeftX*ps;
+					py = particle.y+particle.resultTopLeftY*ps;
+					vertices[vertexIndex0] = new Vector3(px*a + py*c + tx,px*b + py*d + ty,_meshZ);
 
-					vertices[vertexIndex3] = new Vector3
-						(
-						px + particle.resultBottomLeftX * scale,
-						py + particle.resultBottomLeftY * scale,
-						0
-					);
+					px = particle.x+particle.resultTopRightX*ps;
+					py = particle.y+particle.resultTopRightY*ps;
+					vertices[vertexIndex1] = new Vector3(px*a + py*c + tx,px*b + py*d + ty,_meshZ);
+
+					px = particle.x+particle.resultBottomRightX*ps;
+					py = particle.y+particle.resultBottomRightY*ps;
+					vertices[vertexIndex2] = new Vector3(px*a + py*c + tx,px*b + py*d + ty,_meshZ);
 					
+					px = particle.x+particle.resultBottomLeftX*ps;
+					py = particle.y+particle.resultBottomLeftY*ps;
+					vertices[vertexIndex3] = new Vector3(px*a + py*c + tx,px*b + py*d + ty,_meshZ);
+
 					uvs[vertexIndex0] = particle.uvTopLeft;
 					uvs[vertexIndex1] = particle.uvTopRight;
 					uvs[vertexIndex2] = particle.uvBottomRight;
@@ -374,6 +381,7 @@ public class FParticleDefinition
 	public FAtlasElement element;
 	
 	public float lifetime = 1.0f;
+	public float delay = 0.0f;
 	
 	public float x = 0.0f;
 	public float y = 0.0f;
@@ -389,6 +397,7 @@ public class FParticleDefinition
 
 	public float startRotation = 0;
 	public float endRotation = 0;
+
 	
 	public FParticleDefinition(string elementName)
 	{
@@ -409,13 +418,15 @@ public class FParticleDefinition
 public class FParticle
 {
 	public float timeRemaining;
+	public float delayRemaining;
 	
 	public float x;
 	public float y;
 	
 	public float speedX;
 	public float speedY;
-	
+
+	public float startScale;
 	public float scale;
 	public float scaleDeltaPerSecond;
 	

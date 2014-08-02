@@ -27,7 +27,6 @@ public class Futile : MonoBehaviour
 	
 	static public bool shouldRemoveAtlasElementFileExtensions = true;
 	
-	
 	//These are set in FScreen
 	static public float displayScale; //set based on the resolution setting (the unit to pixel scale)
 	static public float displayScaleInverse; // 1/displayScale
@@ -50,13 +49,16 @@ public class Futile : MonoBehaviour
 	static private bool _isDepthChangeNeeded = false;
 	
 	public delegate void FutileUpdateDelegate();
-	
+
+	public event FutileUpdateDelegate SignalPreUpdate;
 	public event FutileUpdateDelegate SignalUpdate;
+	public event FutileUpdateDelegate SignalAfterUpdate;
+	public event FutileUpdateDelegate SignalAfterDraw;
 	public event FutileUpdateDelegate SignalFixedUpdate;
 	public event FutileUpdateDelegate SignalLateUpdate;
     
 	//configuration values
-	public bool shouldTrackNodesInRXProfiler = true;
+	public bool shouldTrackNodesInRXProfiler = false;
     
     private GameObject _cameraHolder;
     private Camera _camera;
@@ -99,7 +101,6 @@ public class Futile : MonoBehaviour
 		_camera = _cameraHolder.AddComponent<Camera>();
 		_camera.tag = "MainCamera";
 		_camera.name = "Camera";
-		//_camera.clearFlags = CameraClearFlags.Depth; //TODO: check if this is faster or not?
 		_camera.clearFlags = CameraClearFlags.SolidColor;
 		_camera.nearClipPlane = 0.0f;
 		_camera.farClipPlane = 500.0f;
@@ -125,6 +126,29 @@ public class Futile : MonoBehaviour
 		stage = new FStage("Futile.stage");
 		
 		AddStage (stage);
+	}
+
+	public Camera CreateNewCamera(string name)
+	{
+		GameObject camGO = new GameObject();
+		camGO.transform.parent = gameObject.transform;
+
+		Camera cam = camGO.AddComponent<Camera>();
+		cam.name = name;
+		cam.clearFlags = _camera.clearFlags;
+		cam.nearClipPlane = _camera.nearClipPlane;
+		cam.farClipPlane = _camera.farClipPlane;
+		cam.depth = _camera.depth;
+		cam.rect = _camera.rect;
+		cam.backgroundColor = _camera.backgroundColor;
+		
+		//we multiply this stuff by scaleInverse to make sure everything is in points, not pixels
+		cam.orthographic = _camera.orthographic;
+		cam.orthographicSize = _camera.orthographicSize;
+
+		UpdateCameraPosition(cam);
+
+		return cam;
 	}
 
     public FDelayedCallback StartDelayedCallback(Action func, float delayTime)
@@ -265,6 +289,15 @@ public class Futile : MonoBehaviour
 		
 		_isDepthChangeNeeded = true;
 	}
+
+	public void ClearLayersThatUseAtlas(FAtlas atlas)
+	{
+		int stageCount = _stages.Count;
+		for(int s = 0; s<stageCount; s++)
+		{
+			_stages[s].renderer.ClearLayersThatUseAtlas(atlas);
+		}
+	}
 	
 	static public int GetStageCount()
 	{
@@ -286,7 +319,7 @@ public class Futile : MonoBehaviour
 
             callback.timeRemaining -= Time.deltaTime;
 
-            if(callback.timeRemaining < 0)
+            if(callback.timeRemaining <= 0)
             {
                 callback.func();
                 _delayedCallbacks.RemoveAt(d);
@@ -298,19 +331,25 @@ public class Futile : MonoBehaviour
 	
 	private void Update()
 	{
-        ProcessDelayedCallbacks();
-
 		screen.Update();
 		
 		touchManager.Update();
 
+		if(SignalPreUpdate != null) SignalPreUpdate();
+
+		ProcessDelayedCallbacks();
+
 		if(SignalUpdate != null) SignalUpdate();
+
+		if(SignalAfterUpdate != null) SignalAfterUpdate();
 		
 		for(int s = 0; s<_stages.Count; s++)
 		{
 			_stages[s].Redraw (false,_isDepthChangeNeeded);
 		}
-		
+
+		if(SignalAfterDraw != null) SignalAfterDraw();
+
 		_isDepthChangeNeeded = false;
 		
 		if(_shouldRunGCNextUpdate)
@@ -330,6 +369,8 @@ public class Futile : MonoBehaviour
 		}
 		
 		if(SignalLateUpdate != null) SignalLateUpdate();
+
+		touchManager.CleanUpEndedAndCanceledTouches();
 	}	
 	
 	private void FixedUpdate()
@@ -349,12 +390,17 @@ public class Futile : MonoBehaviour
 	
 	public void UpdateCameraPosition()
 	{
-		_camera.orthographicSize = screen.pixelHeight/2 * displayScaleInverse;
+		UpdateCameraPosition(_camera);
+	}
+	
+	public void UpdateCameraPosition(Camera cam)
+	{
+		cam.orthographicSize = screen.pixelHeight/2 * displayScaleInverse;
 		
 		float camXOffset = ((screen.originX - 0.5f) * -screen.pixelWidth)*displayScaleInverse + screenPixelOffset;
 		float camYOffset = ((screen.originY - 0.5f) * -screen.pixelHeight)*displayScaleInverse - screenPixelOffset;
-	
-		_camera.transform.position = new Vector3(camXOffset, camYOffset, -10.0f); 	
+		
+		cam.transform.position = new Vector3(camXOffset, camYOffset, -10.0f); 	
 	}
 
 	public void ForceGarbageCollectionNextUpdate()
@@ -365,6 +411,11 @@ public class Futile : MonoBehaviour
 	new public Camera camera
 	{
 		get {return _camera;}	
+	}
+
+	public FutileParams futileParams
+	{
+		get {return _futileParams;}
 	}
 	
 	//

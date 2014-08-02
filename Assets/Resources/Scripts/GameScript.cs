@@ -6,7 +6,7 @@ using System.IO;
 
 public class GameScript : MonoBehaviour
 {
-  
+
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -21,17 +21,35 @@ public class GameScript : MonoBehaviour
 
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
 
+        FSprite bg = new FSprite("testBG");
+        Futile.stage.AddChild(bg);
+
         FAnimatedSprite playerAnim = new FAnimatedSprite("player");
-        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0, 1 }, 100, true));
+        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0, 1 }, 200, true));
         playerAnim.play("idle");
         Futile.stage.AddChild(playerAnim);
-      
+        startLoop();
+    }
+
+    private void startLoop()
+    {
+        Go.killAllTweensWithTarget(FShader.OverlayBlend);
+        FShader.OverlayBlend.overlayColor = new Color(.2f, .7f, .4f);
+        Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.2f, .4f, .7f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween a) =>
+        {
+            Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.7f, .4f, .2f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween b) =>
+            {
+                Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.2f, .7f, .4f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween c) =>
+                {
+                    startLoop();
+                }));
+            }));
+        }));
     }
 
     // Update is called once per frame
     void Update()
     {
-     
     }
 
 }

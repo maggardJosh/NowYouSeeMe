@@ -34,8 +34,8 @@ public class FButton : FContainer, FSingleTouchableInterface
 	protected bool _isEnabled = true;
 	protected bool _supportsOver = false;
 	protected bool _isTouchDown = false;
-    protected bool _isOver = false;
 
+	public bool isTouchOver = false;
 	
 	public FButton (string upElementName, string downElementName, string overElementName, string clickSoundName)
 	{
@@ -121,12 +121,17 @@ public class FButton : FContainer, FSingleTouchableInterface
 
 	virtual public FLabel AddLabel (string fontName, string text, Color color)
 	{
+		return this.AddLabel(fontName,text,new FTextParams(),color);
+	}
+	
+	virtual public FLabel AddLabel (string fontName, string text, FTextParams textParams, Color color)
+	{
 		if(_label != null) 
 		{
 			RemoveChild(_label);
 		}
 
-		_label = new FLabel(fontName, text);
+		_label = new FLabel(fontName, text, textParams);
 		AddChild(_label);
 		_label.color = color;
 		_label.anchorX = _label.anchorY = 0.5f;
@@ -143,15 +148,12 @@ public class FButton : FContainer, FSingleTouchableInterface
 	
 	virtual protected void UpdateOverState()
 	{
-        _isOver = false;
 		if(_isTouchDown) return; //if the touch is down then we don't have to worry about over states
 		
 		Vector2 mousePos = GetLocalMousePosition();
 		
 		if(_hitRect.Contains(mousePos))
 		{
-            _isOver = true;
-            if(_overElement != null)
 			_sprite.element = _overElement;
 			if (_shouldUseCustomColors)
 			{
@@ -181,10 +183,10 @@ public class FButton : FContainer, FSingleTouchableInterface
 		
 		if(!_shouldUseCustomHitRect)
 		{
-			_hitRect = _sprite.textureRect;
+			_hitRect = _sprite.textureRect.CloneAndScale(_sprite.scaleX,_sprite.scaleY);
 		}
 		
-		Vector2 touchPos = _sprite.GetLocalTouchPosition(touch);
+		Vector2 touchPos = GetLocalTouchPosition(touch);
 		
 		if(_hitRect.Contains(touchPos))
 		{
@@ -200,6 +202,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 				
 				if(SignalPress != null) SignalPress(this);
 				
+				isTouchOver = true;
 				_isTouchDown = true;
 			}
 			
@@ -211,8 +214,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 	
 	virtual public void HandleSingleTouchMoved(FTouch touch)
 	{
-
-        Vector2 touchPos = _sprite.GetLocalTouchPosition(touch);
+        Vector2 touchPos = GetLocalTouchPosition(touch);
 		
 		//expand the hitrect so that it has more error room around the edges
 		//this is what Apple does on iOS and it makes for better usability
@@ -225,6 +227,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 			{
 				_sprite.color = _downColor;
 			}
+			isTouchOver = true;
 			_isTouchDown = true;
 		}
 		else
@@ -234,6 +237,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 			{
 				_sprite.color = _upColor;
 			}
+			isTouchOver = false;
 			_isTouchDown = false;
 		}
 	}
@@ -241,7 +245,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 	virtual public void HandleSingleTouchEnded(FTouch touch)
 	{
 		_isTouchDown = false;
-
+		isTouchOver = false;
 		
 		_sprite.element = _upElement;
 		if (_shouldUseCustomColors)
@@ -249,7 +253,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 			_sprite.color = _upColor;
 		}
 		
-        Vector2 touchPos = _sprite.GetLocalTouchPosition(touch);
+        Vector2 touchPos = GetLocalTouchPosition(touch);
 		
 		//expand the hitrect so that it has more error room around the edges
 		//this is what Apple does on iOS and it makes for better usability
@@ -257,12 +261,11 @@ public class FButton : FContainer, FSingleTouchableInterface
 		
 		if(expandedRect.Contains(touchPos))
 		{
-			if(_isEnabled && SignalRelease != null) SignalRelease(this);
+			if(SignalRelease != null) SignalRelease(this);
 			
 			if(_supportsOver && _hitRect.Contains(touchPos)) //go back to the over image if we're over the button
 			{
-                if(_overElement!=null)
-				    _sprite.element = _overElement;	
+				_sprite.element = _overElement;	
 				if (_shouldUseCustomColors)
 				{
 					_sprite.color = _overColor;
@@ -278,6 +281,7 @@ public class FButton : FContainer, FSingleTouchableInterface
 	virtual public void HandleSingleTouchCanceled(FTouch touch)
 	{
 		_isTouchDown = false;
+		isTouchOver = false;
 		
 		_sprite.element = _upElement;
 		if (_shouldUseCustomColors)

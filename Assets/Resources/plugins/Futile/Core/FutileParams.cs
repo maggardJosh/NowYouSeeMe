@@ -28,6 +28,9 @@ public class FutileParams
 	public Color backgroundColor = Color.black;
 	
 	public bool shouldLerpToNearestResolutionLevel = true;
+	public FResolutionLevelPickMode resolutionLevelPickMode = FResolutionLevelPickMode.Upwards;
+
+	public FResolutionLevelPickDimension resolutionLevelPickDimension = FResolutionLevelPickDimension.Longest;
 	
 	public FutileParams(bool supportsLandscapeLeft, bool supportsLandscapeRight, bool supportsPortrait, bool supportsPortraitUpsideDown)
 	{
@@ -69,4 +72,16 @@ public class FutileParams
 
 }
 
+public enum FResolutionLevelPickMode
+{
+	Upwards, //default behavior, rounds upwards, won't take a resolution level with a maxlength LOWER than the screen size
+	Downwards, //rounds downwards, the moment max is equal or bigger than the reslevel, it takes it
+	Closest //gets the closest resolution level by comparing the deltas of (reslevel.maxlength - longestScreenDimension)
+}
+
+public enum FResolutionLevelPickDimension
+{
+	Shortest, //compares against the shortest dimension
+	Longest //compares against the longest dimension
+}
 

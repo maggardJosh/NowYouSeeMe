@@ -47,6 +47,12 @@ public class FAtlasElement
 		
 		return element;
 	}
+
+	public void UseTrimmedSizeAsBounds()//this will alter the element so that it uses the trimmed area as its bounds
+	{
+		sourceSize.x = sourceRect.width; 
+		sourceSize.y = sourceRect.height;
+	}
 }
 
 public class FAtlas
@@ -67,6 +73,8 @@ public class FAtlas
 	private bool _isSingleImage;
 	
 	private bool _isTextureAnAsset = false;
+
+	private FAtlasElement _fullElement; //an element that represents the entire atlas
 	
 	//TODO: allow users to pass a dictionary of pre-built atlas data if they want
 	public FAtlas (string name, Texture texture, int index) //single image
@@ -79,7 +87,7 @@ public class FAtlas
 		_texture = texture;
 		_textureSize = new Vector2(_texture.width,_texture.height);
 		
-		CreateAtlasFromSingleImage();
+		CreateElementForEntireAtlas();
 	}
 	
 	public FAtlas (string name, string dataPath, Texture texture, int index) //atlas with data path
@@ -94,6 +102,7 @@ public class FAtlas
 		
 		_isSingleImage = false;
 		LoadAtlasData();
+		CreateElementForEntireAtlas();
 	}
 	
 	public FAtlas (string name, string imagePath, string dataPath, int index, bool shouldLoadAsSingleImage)
@@ -109,12 +118,13 @@ public class FAtlas
 		if(shouldLoadAsSingleImage)
 		{
 			_isSingleImage = true;
-			CreateAtlasFromSingleImage();
+			CreateElementForEntireAtlas();
 		}
 		else
 		{
 			_isSingleImage = false;
 			LoadAtlasData();
+			CreateElementForEntireAtlas();
 		}
 	}
 	
@@ -230,7 +240,7 @@ public class FAtlas
 		Resources.UnloadAsset(dataAsset);
 	}
 	
-	private void CreateAtlasFromSingleImage()
+	private void CreateElementForEntireAtlas()
 	{
 		FAtlasElement element = new FAtlasElement();
 		
@@ -260,6 +270,84 @@ public class FAtlas
 		
 		_elements.Add (element);
 		_elementsByName.Add (element.name, element);
+
+		_fullElement = element;
+	}
+
+	public void UpdateElement (FAtlasElement element, float leftX, float bottomY, float pixelWidth, float pixelHeight)
+	{
+		//		TODO: decide whether to scale by resScale or not
+		//		float resScale = Futile.resourceScale;
+		//		leftX *= resScale;
+		//		bottomY *= resScale;
+		//		pixelWidth *= resScale;
+		//		pixelHeight *= resScale;
+		
+		element.atlas = this;
+		element.atlasIndex = _index;
+		
+		float scaleInverse = Futile.resourceScaleInverse;
+		
+		//the uv coordinate rectangle within the atlas
+		Rect uvRect = new Rect
+			(
+				leftX/_textureSize.x,
+				bottomY/_textureSize.y,
+				pixelWidth/_textureSize.x,
+				pixelHeight/_textureSize.y
+				);
+
+		element.uvRect = uvRect;
+		
+		element.uvTopLeft.Set(uvRect.xMin,uvRect.yMax);
+		element.uvTopRight.Set(uvRect.xMax,uvRect.yMax);
+		element.uvBottomRight.Set(uvRect.xMax,uvRect.yMin);
+		element.uvBottomLeft.Set(uvRect.xMin,uvRect.yMin);
+		
+		//the source size is the untrimmed size
+		element.sourcePixelSize.x = pixelWidth;	
+		element.sourcePixelSize.y = pixelHeight;	
+		
+		element.sourceSize.x = element.sourcePixelSize.x * scaleInverse;	
+		element.sourceSize.y = element.sourcePixelSize.y * scaleInverse;
+		
+		//sourceRect is the trimmed rect, inside the other rect, for now always as if untrimmed
+		element.sourceRect = new Rect(0,0,pixelWidth*scaleInverse,pixelHeight*scaleInverse);
+	}
+
+	public FAtlasElement CreateUnnamedElement (float leftX, float bottomY, float pixelWidth, float pixelHeight)
+	{
+		//note that this element has no name, so it is not stored in the atlas or atlasmanager
+
+		FAtlasElement element = new FAtlasElement();
+
+		element.atlas = this;
+		element.atlasIndex = _index;
+
+		UpdateElement(element,leftX,bottomY,pixelWidth,pixelHeight);
+
+		return element;
+	}
+
+	public FAtlasElement CreateNamedElement (string elementName, float leftX, float bottomY, float pixelWidth, float pixelHeight)
+	{
+		FAtlasElement element = _elementsByName[elementName];
+
+		if(element == null) //it doesn't exist, so create it (if it does exist we just update it)
+		{
+			element = new FAtlasElement();
+			element.name = elementName;
+			element.atlas = this;
+			element.atlasIndex = _index;
+			
+			_elementsByName.Add(elementName,element);
+			_elements.Add(element);
+			Futile.atlasManager.AddElement(element);
+		}
+
+		UpdateElement(element,leftX,bottomY,pixelWidth,pixelHeight);
+
+		return element;
 	}
 
 	public void Unload ()
@@ -308,6 +396,11 @@ public class FAtlas
 	public bool isSingleImage
 	{
 		get {return _isSingleImage;}	
+	}
+
+	public FAtlasElement fullElement
+	{
+		get {return _fullElement;}	
 	}
 }
 

@@ -22,9 +22,12 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 	private float _anchorX = 0.5f;
 	private float _anchorY = 0.5f;
 	
-	public float expansionAmount = 10;
+	public float expansionAmount = 3;
 	
-	private bool _isEnabled = true;
+	private bool _isEnabled = true; 
+	private bool _isTouchable = true;
+
+	public bool isTouchOver = false;
 	
 	public FSliceButton (float width, float height, string upElementName, string downElementName, Color upColor, Color downColor, string soundName)
 	{
@@ -35,7 +38,7 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 		
 		_soundName = soundName;
 					
-		_bg = new FSliceSprite(_upElement.name, width, height, 16, 16, 16, 16);
+		_bg = new FSliceSprite(_upElement.name, width, height, 12, 12, 12, 12);
 		_bg.anchorX = _anchorX;
 		_bg.anchorY = _anchorY;
 		_bg.color = _upColor;
@@ -105,12 +108,14 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 	
 	public bool HandleSingleTouchBegan(FTouch touch)
 	{
+		if(!_isTouchable) return false;
 		if(!_isEnabled) return false;
 		
 		Vector2 touchPos = _bg.GlobalToLocal(touch.position);
 		
 		if(_bg.textureRect.Contains(touchPos))
 		{
+			isTouchOver = true;
 			_bg.element = _downElement;
 			_bg.color = _downColor;
 			
@@ -136,16 +141,20 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 		{
 			_bg.element = _downElement;	
 			_bg.color = _downColor;
+			isTouchOver = true;
 		}
 		else
 		{
 			_bg.element = _upElement;	
 			_bg.color = _upColor;
+			isTouchOver = false;
 		}
 	}
 	
 	public void HandleSingleTouchEnded(FTouch touch)
 	{
+		isTouchOver = false;
+
 		_bg.element = _upElement;
 		_bg.color = _upColor;
 		
@@ -167,6 +176,7 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 	
 	public void HandleSingleTouchCanceled(FTouch touch)
 	{
+		isTouchOver = false;
 		_bg.element = _upElement;
 		_bg.color = _upColor;
 		if(SignalReleaseOutside != null) SignalReleaseOutside(this);
@@ -177,8 +187,15 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 		this.anchorX = x;
 		this.anchorY = y;
 	}
+
+	public void SetElements(string upElementName, string downElementName)
+	{
+		_upElement = Futile.atlasManager.GetElementWithName(upElementName);
+		_downElement = Futile.atlasManager.GetElementWithName(downElementName);
+		_bg.element = _upElement;
+	}
 	
-	public FSprite sprite
+	public FSliceSprite sprite
 	{
 		get { return _bg;}
 	}
@@ -222,12 +239,36 @@ public class FSliceButton : FContainer, FSingleTouchableInterface
 				}
 				else
 				{
-					RXColorHSL hsl = RXColor.HSLFromColor(_upColor);
-					hsl.s = 0.25f;
-					hsl.l = 0.6f;
-					Color greyscale = RXColor.ColorFromHSL(hsl);
-					_bg.color = greyscale;
+					_bg.color = GetDesaturatedColor();
 				}
+			}
+		}
+	}
+
+	public void SetColors(Color upColor, Color downColor)
+	{
+		_upColor = upColor;
+		_downColor = downColor;
+
+		_bg.color = _upColor;
+	}
+
+	public Color GetDesaturatedColor()
+	{
+		RXColorHSL hsl = RXColor.HSLFromColor(_upColor);
+		hsl.s = 0.25f;
+		hsl.l = 0.6f;
+		return RXColor.ColorFromHSL(hsl);
+	}
+
+	public bool isTouchable
+	{
+		get {return _isTouchable;}
+		set 
+		{
+			if(_isTouchable != value)
+			{
+				_isTouchable = value;
 			}
 		}
 	}

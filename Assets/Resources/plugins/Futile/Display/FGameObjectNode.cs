@@ -4,11 +4,17 @@ using System;
 public class FGameObjectNode : FNode, FRenderableLayerInterface
 {
 	protected GameObject _gameObject;
+
+	protected int _renderQueueDepth = -1;
+
 	protected bool _shouldLinkPosition;
 	protected bool _shouldLinkRotation;
 	protected bool _shouldLinkScale;
-	protected int _renderQueueDepth = -1;
-	
+
+	protected Vector3 _initialGameObjectScale = new Vector3(1.0f,1.0f,1.0f);
+	protected float _initialGameObjectRotationZ = 0.0f;
+	protected float _previousGameObjectRotationZ = 0.0f;
+
 	public bool shouldDestroyOnRemoveFromStage = true;
 	
 	public FGameObjectNode (GameObject gameObject, bool shouldLinkPosition, bool shouldLinkRotation, bool shouldLinkScale)
@@ -27,6 +33,10 @@ public class FGameObjectNode : FNode, FRenderableLayerInterface
 		_shouldLinkPosition = shouldLinkPosition;
 		_shouldLinkRotation = shouldLinkRotation;
 		_shouldLinkScale = shouldLinkScale;
+
+		_initialGameObjectScale = gameObject.transform.localScale;
+		_initialGameObjectRotationZ = gameObject.transform.rotation.eulerAngles.z;
+		_previousGameObjectRotationZ = _initialGameObjectRotationZ;
 		
 		Setup();
 	}
@@ -41,14 +51,19 @@ public class FGameObjectNode : FNode, FRenderableLayerInterface
 			{
 				_gameObject.renderer.material.renderQueue = _renderQueueDepth;
 			}
+			
+			_gameObject.layer = _stage.layer;
+			
+			UpdateGameObject();
 		}
-		
-		UpdateGameObject();
 	}
 	
 	protected void Unsetup()
 	{
-		_gameObject.transform.parent = null;
+		if(_gameObject != null)
+		{
+			_gameObject.transform.parent = null;
+		}
 	}
 	
 	override public void HandleAddedToStage()
@@ -130,21 +145,40 @@ public class FGameObjectNode : FNode, FRenderableLayerInterface
 			_gameObject.renderer.material.renderQueue = _renderQueueDepth;
 		}
 	}
+
+	virtual public void PostUpdate()
+	{
+
+	}
 	
 	public void UpdateGameObject()
 	{
 		if(_isOnStage) 
-		{
-			//TODO: Get these values correctly using the full matrix
-			//do it with scale too
-			
-			//need to use the FULL global matrix
-			
+		{	
 			FMatrix matrix = this.screenConcatenatedMatrix;
 			
 			if(_shouldLinkPosition) _gameObject.transform.localPosition = matrix.GetVector3FromLocalVector2(Vector2.zero,0);
-			if(_shouldLinkRotation) _gameObject.transform.eulerAngles = new Vector3(_gameObject.transform.eulerAngles.x,_gameObject.transform.eulerAngles.y,matrix.GetRotation());
-			if(_shouldLinkScale) _gameObject.transform.localScale = new Vector3(matrix.GetScaleX(), matrix.GetScaleY (), _gameObject.transform.localScale.z);
+			if(_shouldLinkRotation)
+			{	
+				float newRotation = matrix.GetRotation();
+				//_gameObject.transform.eulerAngles = new Vector3(_gameObject.transform.eulerAngles.x,_gameObject.transform.eulerAngles.y,matrix.GetRotation());
+				_gameObject.transform.Rotate(0,0,_previousGameObjectRotationZ - _initialGameObjectRotationZ - newRotation, Space.World);
+				_previousGameObjectRotationZ = _initialGameObjectRotationZ + newRotation;
+
+			}
+			if(_shouldLinkScale) 
+			{
+				//_gameObject.transform.localScale = new Vector3(matrix.GetScaleX(), matrix.GetScaleY (), _gameObject.transform.localScale.z);
+
+				_gameObject.transform.localScale = new Vector3
+				(
+					_initialGameObjectScale.x * matrix.GetScaleX(), 
+					_initialGameObjectScale.y * matrix.GetScaleY(), 
+					_initialGameObjectScale.z
+				);
+			}
+
+			_gameObject.layer = _stage.layer;
 		}
 	}
 	

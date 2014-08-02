@@ -33,7 +33,7 @@ public class FKerningInfo
 	public float amount;
 }
 
-public struct FLetterQuad
+public class FLetterQuad
 {
 	public FCharInfo charInfo;
 	public Rect rect;
@@ -120,7 +120,7 @@ public class FTextParams
 	}
 }
 
-public struct FLetterQuadLine
+public class FLetterQuadLine
 {
 	public Rect bounds;
 	public int letterCount;
@@ -163,8 +163,9 @@ public class FFont
 		_element = element;
 		_configPath = configPath;
 		_textParams = textParams;
-		_offsetX = offsetX * Futile.displayScale / Futile.resourceScale;
-		_offsetY = offsetY * Futile.displayScale / Futile.resourceScale;
+
+		_offsetX = offsetX; 
+		_offsetY = offsetY;
 		
 		LoadAndParseConfigFile();
 	}
@@ -213,8 +214,6 @@ public class FFont
 		float resourceScaleInverse = Futile.resourceScaleInverse;
 		
 		Vector2 textureSize = _element.atlas.textureSize;
-
-		Debug.Log("texture width " + textureSize.x);
 
 		bool wasKerningFound = false;
 		
@@ -507,16 +506,10 @@ public class FFont
 					}
 				}
 				
-				//TODO: Reuse letterquads with pooling!
 				FLetterQuad letterQuad = new FLetterQuad();
-				
-				if(_charInfosByID.ContainsKey(letter))
+
+				if(!_charInfosByID.TryGetValue(letter,out charInfo))
 				{
-					charInfo = _charInfosByID[letter];
-				}
-				else //we don't have that character in the font
-				{
-					//blank,  character (could consider using the "char not found square")
 					charInfo = _charInfosByID[0];
 				}
 				
@@ -560,8 +553,44 @@ public class FFont
 		{
 			lines[lineCount].bounds = new Rect(minX,minY,maxX-minX,maxY-minY);
 		}
-		
+
+		for(int n = 0; n<lineCount+1; n++)
+		{
+			lines[n].bounds.height += labelTextParams.scaledLineHeightOffset + _textParams.scaledLineHeightOffset;
+		}
+
 		return lines;
+	}
+
+	public FAtlasElement GetElementForChar(char character)
+	{
+		FCharInfo charInfo;
+
+		if(!_charInfosByID.TryGetValue(character,out charInfo))
+		{
+			return null;
+		}
+
+		FAtlasElement charElement = new FAtlasElement();
+		charElement.atlas = _element.atlas;
+		charElement.atlasIndex = _element.atlasIndex;
+		charElement.indexInAtlas = -1;
+		charElement.isTrimmed = true;
+		charElement.name = ""; //_name + "_" + character.ToString();
+
+		charElement.uvRect = charInfo.uvRect;
+		charElement.sourceRect = new Rect(0,0,charInfo.width,charInfo.height);
+		charElement.sourceSize = new Vector2(charInfo.width,charInfo.height);
+		charElement.sourcePixelSize = new Vector2(charInfo.width*Futile.resourceScale,charInfo.height*Futile.resourceScale);
+
+		Rect uvRect = charElement.uvRect;
+
+		charElement.uvTopLeft.Set(uvRect.xMin,uvRect.yMax);
+		charElement.uvTopRight.Set(uvRect.xMax,uvRect.yMax);
+		charElement.uvBottomRight.Set(uvRect.xMax,uvRect.yMin);
+		charElement.uvBottomLeft.Set(uvRect.xMin,uvRect.yMin);
+
+		return charElement;
 	}
 	
 	public string name

@@ -7,6 +7,8 @@ using System.Collections.Generic;
 
 public class FLabel : FFacetElementNode
 {
+	public Action SignalTextChange;
+
 	public static float defaultAnchorX = 0.5f;
 	public static float defaultAnchorY = 0.5f;
 	
@@ -31,6 +33,8 @@ public class FLabel : FFacetElementNode
 	protected Rect _textRect;
 	
 	protected FTextParams _textParams;
+
+	protected bool _shouldSnapToPixels = false;
 	
 	public FLabel (string fontName, string text) : this(fontName, text, new FTextParams())
 	{
@@ -91,17 +95,11 @@ public class FLabel : FFacetElementNode
 		for(int i = 0; i<lineCount; i++)
 		{
 			FLetterQuadLine line = _letterQuadLines[i];
-            foreach(FLetterQuad character in line.quads)
-            {
-                minY = Math.Min(character.rect.yMin, minY);
-                maxY = Math.Max(character.rect.yMax, maxY);
-            }
-			//minY = Math.Min (line.bounds.yMin,minY);
-			//maxY = Math.Max (line.bounds.yMax,maxY);
+			minY = Math.Min (line.bounds.yMin,minY);
+			maxY = Math.Max (line.bounds.yMax,maxY);
 		}
-
-
-        float offsetY = -(minY + ((maxY-minY)*_anchorY));
+		
+		float offsetY = -(minY + ((maxY-minY)*_anchorY));
 		
 		for(int i = 0; i<lineCount; i++)
 		{
@@ -166,6 +164,13 @@ public class FLabel : FFacetElementNode
 		if(_isOnStage && _firstFacetIndex != -1)
 		{
 			_isMeshDirty = false;
+
+			//check if the label is empty so we don't have to bother trying to draw anything
+			if(_letterQuadLines.Length == 0 || _letterQuadLines[0].quads.Length == 0)
+			{
+				_renderLayer.HandleVertsChange();
+				return; 
+			}
 			
 			Vector3[] vertices = _renderLayer.vertices;
 			Vector2[] uvs = _renderLayer.uvs;
@@ -175,6 +180,18 @@ public class FLabel : FFacetElementNode
 			int vertexIndex1 = vertexIndex0 + 1;
 			int vertexIndex2 = vertexIndex0 + 2;
 			int vertexIndex3 = vertexIndex0 + 3;
+
+			Vector2 topLeft = _letterQuadLines[0].quads[0].topLeft;
+
+			FMatrix matrixToUse = _concatenatedMatrix;
+
+			if(_shouldSnapToPixels)
+			{
+				matrixToUse = matrixToUse.Clone();
+
+				matrixToUse.tx += (Mathf.Round(topLeft.x * Futile.displayScale) * Futile.displayScaleInverse) - topLeft.x;
+				matrixToUse.ty += (Mathf.Round(topLeft.y * Futile.displayScale) * Futile.displayScaleInverse) - topLeft.y;
+			}
 			
 			int lineCount = _letterQuadLines.Length;
 			for(int i = 0; i<lineCount; i++)
@@ -189,10 +206,10 @@ public class FLabel : FFacetElementNode
 					FLetterQuad quad = quads[q];
 					FCharInfo charInfo = quad.charInfo;
 					
-					_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex0], quad.topLeft,0);
-					_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex1], quad.topRight,0);
-					_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex2], quad.bottomRight,0);
-					_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex3], quad.bottomLeft,0);
+					matrixToUse.ApplyVector3FromLocalVector2(ref vertices[vertexIndex0], quad.topLeft,0);
+					matrixToUse.ApplyVector3FromLocalVector2(ref vertices[vertexIndex1], quad.topRight,0);
+					matrixToUse.ApplyVector3FromLocalVector2(ref vertices[vertexIndex2], quad.bottomRight,0);
+					matrixToUse.ApplyVector3FromLocalVector2(ref vertices[vertexIndex3], quad.bottomLeft,0);
 					
 					uvs[vertexIndex0] = charInfo.uvTopLeft;
 					uvs[vertexIndex1] = charInfo.uvTopRight;
@@ -233,7 +250,7 @@ public class FLabel : FFacetElementNode
         }
     }
 	
-	public string text
+	virtual public string text
 	{
 		get {return _text;}
 		set 
@@ -243,6 +260,7 @@ public class FLabel : FFacetElementNode
 				_text = value; 
 				_doesTextNeedUpdate = true;
 				CreateTextQuads(); //lazily creating the quads was causing too many issues, so just create them when .text is set
+				if(SignalTextChange != null) SignalTextChange();
 			}
 		}
 	}
@@ -294,6 +312,12 @@ public class FLabel : FFacetElementNode
 			if(_doesLocalPositionNeedUpdate) UpdateLocalPosition();
 			return _textRect;
 		}	
+	}
+
+	public bool shouldSnapToPixels
+	{
+		get { return _shouldSnapToPixels; }
+		set { _shouldSnapToPixels = value; }
 	}
 
 	[Obsolete("FLabel's boundsRect is obsolete, use textRect instead")]

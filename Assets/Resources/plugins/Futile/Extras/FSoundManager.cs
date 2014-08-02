@@ -4,12 +4,14 @@ using System.Collections.Generic;
 
 public class FSoundManager
 {
-	static public String resourcePrefix = "Audio/";
+	public const string PREFS_KEY = "FSoundManager_IsAudioMuted";
+	static public string resourcePrefix = "Audio/";
 	
 	static private GameObject _gameObject;
 	static private AudioSource _soundSource;
 	static private AudioSource _musicSource;
 	static private string _currentMusicPath = "";
+	static private bool _isMuted = false;
 	
 	static private Dictionary<string, AudioClip> _soundClips = new Dictionary<string, AudioClip>();
 	static private AudioClip _currentMusicClip = null;
@@ -18,14 +20,16 @@ public class FSoundManager
 	
 	static public void Init()
 	{
+		if(_gameObject != null) return; //no multiple inits
+
 		_gameObject = new GameObject("FSoundManager");
 		_musicSource = _gameObject.AddComponent<AudioSource>();
 		_soundSource = _gameObject.AddComponent<AudioSource>();
 		_gameObject.AddComponent<AudioListener>(); //we don't need a reference to it, we just need it to exist
 		
-		if(PlayerPrefs.HasKey("FSoundManager_IsAudioMuted"))
+		if(PlayerPrefs.HasKey(PREFS_KEY))
 		{
-			FSoundManager.isMuted = (PlayerPrefs.GetInt("FSoundManager_IsAudioMuted") == 1);
+			FSoundManager.isMuted = (PlayerPrefs.GetInt(PREFS_KEY) == 1);
 		}
 	}
 	
@@ -59,7 +63,9 @@ public class FSoundManager
 
 	static public void PlaySound (String resourceName, float volume) //it is not necessary to preload sounds in order to play them
 	{
-		if(_soundSource == null) Init ();
+		if (_isMuted) return;
+
+		if (_soundSource == null) Init();
 		
 		string fullPath = resourcePrefix+resourceName;
 		
@@ -99,7 +105,9 @@ public class FSoundManager
 
 	static public void PlayMusic (string resourceName, float volume, bool shouldRestartIfSameSongIsAlreadyPlaying)
 	{
-		if(_musicSource == null) Init ();
+		if (_isMuted) return;
+
+		if (_musicSource == null) Init();
 		
 		string fullPath = resourcePrefix+resourceName;
 		
@@ -191,6 +199,21 @@ public class FSoundManager
 		UnloadAllSounds();
 		UnloadMusic();
 	}
+
+	static public GameObject gameObject
+	{
+		get {return _gameObject;}
+	}
+
+	static public AudioSource soundSource
+	{
+		get {return _soundSource;}
+	}
+
+	static public AudioSource musicSource
+	{
+		get {return _musicSource;}
+	}
 	
 	static public float volume
 	{
@@ -198,7 +221,7 @@ public class FSoundManager
 		{ 
 			_volume = value;
 			
-			if(AudioListener.pause)
+			if(_isMuted)
 			{
 				AudioListener.volume = 0.0f;
 			}
@@ -215,10 +238,11 @@ public class FSoundManager
 	{
 		set 
 		{ 
-			AudioListener.pause = value; 
-			PlayerPrefs.SetInt("FSoundManager_IsAudioMuted", value ? 1 : 0);
+			_isMuted = value;
+
+			PlayerPrefs.SetInt(PREFS_KEY, value ? 1 : 0);
 			
-			if(AudioListener.pause)
+			if(_isMuted)
 			{
 				AudioListener.volume = 0.0f;
 			}
@@ -227,7 +251,7 @@ public class FSoundManager
 				AudioListener.volume = _volume; 
 			}
 		}
-		get { return AudioListener.pause; }
+		get  {return _isMuted;}
 	}
 }
 

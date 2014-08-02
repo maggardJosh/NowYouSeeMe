@@ -122,10 +122,10 @@ public class FSprite : FFacetElementNode
 			Vector2[] uvs = _renderLayer.uvs;
 			Color[] colors = _renderLayer.colors;
 			
-			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex0], _localVertices[0],0);
-			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex1], _localVertices[1],0);
-			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex2], _localVertices[2],0);
-			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex3], _localVertices[3],0);
+			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex0], _localVertices[0], _meshZ);
+			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex1], _localVertices[1], _meshZ);
+			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex2], _localVertices[2], _meshZ);
+			_concatenatedMatrix.ApplyVector3FromLocalVector2(ref vertices[vertexIndex3], _localVertices[3], _meshZ);
 			
 			uvs[vertexIndex0] = _element.uvTopLeft;
 			uvs[vertexIndex1] = _element.uvTopRight;
@@ -145,6 +145,12 @@ public class FSprite : FFacetElementNode
 	public Rect GetTextureRectRelativeToContainer()
 	{
 		return _textureRect.CloneAndScaleThenOffset(_scaleX,_scaleY,_x,_y);
+	}
+
+	//Note: this does not consider rotation at all!
+	public Rect GetLocalRectRelativeToContainer()
+	{
+		return _localRect.CloneAndScaleThenOffset(_scaleX,_scaleY,_x,_y);
 	}
 	
 	virtual public Rect textureRect //the full rect as if the sprite hadn't been trimmed

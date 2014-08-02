@@ -14,7 +14,7 @@ public class FAtlasManager
 	private List<FFont> _fonts = new List<FFont>();
 	private Dictionary<string,FFont> _fontsByName = new Dictionary<string, FFont>();
 	
-	public FAtlasManager () //new DAtlasManager() called by Futile
+	public FAtlasManager () //new FAtlasManager() called by Futile
 	{
 		
 	}
@@ -39,27 +39,31 @@ public class FAtlasManager
 		return false;
 	}
 
-	public void LoadAtlasFromTexture (string name, Texture texture)
+	public FAtlas LoadAtlasFromTexture (string name, Texture texture)
 	{
-		if(DoesContainAtlas(name)) return; //we already have it, don't load it again
+		if(DoesContainAtlas(name)) return GetAtlasWithName(name); //we already have it, don't load it again
 		
 		FAtlas atlas = new FAtlas(name, texture, _nextAtlasIndex++);
 		
 		AddAtlas(atlas);
+
+		return atlas;
 	}
 	
-	public void LoadAtlasFromTexture (string name, string dataPath, Texture texture)
+	public FAtlas LoadAtlasFromTexture (string name, string dataPath, Texture texture)
 	{
-		if(DoesContainAtlas(name)) return; //we already have it, don't load it again
+		if(DoesContainAtlas(name)) return GetAtlasWithName(name); //we already have it, don't load it again
 		
 		FAtlas atlas = new FAtlas(name, dataPath, texture, _nextAtlasIndex++);
 		
 		AddAtlas(atlas);
+
+		return atlas;
 	}
 	
-	public void ActuallyLoadAtlasOrImage(string name, string imagePath, string dataPath)
+	public FAtlas ActuallyLoadAtlasOrImage(string name, string imagePath, string dataPath)
 	{
-		if(DoesContainAtlas(name)) return; //we already have it, don't load it again
+		if(DoesContainAtlas(name)) return GetAtlasWithName(name); //we already have it, don't load it again
 		
 		//if dataPath is empty, load it as a single image
 		bool isSingleImage = (dataPath == "");
@@ -67,6 +71,8 @@ public class FAtlasManager
 		FAtlas atlas = new FAtlas(name, imagePath, dataPath, _nextAtlasIndex++, isSingleImage);
 		
 		AddAtlas(atlas);
+
+		return atlas;
 	}
 	
 	private void AddAtlas(FAtlas atlas)
@@ -91,36 +97,50 @@ public class FAtlasManager
 		
 		_atlases.Add(atlas); 
 	}
-	
-	public void LoadAtlas(string atlasPath)
+
+	public FAtlas LoadAtlas(string atlasPath)
 	{
-		if(DoesContainAtlas(atlasPath)) return; //we already have it, don't load it again
-		
-		string filePath = atlasPath+Futile.resourceSuffix+"_png";
-		
-		TextAsset imageBytes = Resources.Load (filePath, typeof(TextAsset)) as TextAsset;
-		
-		if(imageBytes != null) //do we have png bytes?
-		{
-			Texture2D texture = new Texture2D(0,0,TextureFormat.ARGB32,false);
-			
-			texture.LoadImage(imageBytes.bytes);
-			
-			Resources.UnloadAsset(imageBytes);
-			
-			LoadAtlasFromTexture(atlasPath,atlasPath+Futile.resourceSuffix, texture);
-		}
-		else //load it as a normal Unity image asset
-		{
-			ActuallyLoadAtlasOrImage(atlasPath, atlasPath+Futile.resourceSuffix, atlasPath+Futile.resourceSuffix);
-		}
+		return LoadAtlas(atlasPath,true);
 	}
 	
-	public void LoadImage(string imagePath)
+	public FAtlas LoadAtlas(string atlasPath, bool shouldUseResourceSuffix)
 	{
-		if(DoesContainAtlas(imagePath)) return; //we already have it
+		if(DoesContainAtlas(atlasPath)) return GetAtlasWithName(atlasPath); //we already have it, don't load it again
+
+		string pathWithSuffix = shouldUseResourceSuffix ? atlasPath+Futile.resourceSuffix : atlasPath;
+		string filePath = pathWithSuffix+"_png";
+
+		TextAsset imageBytes = Resources.Load (filePath, typeof(TextAsset)) as TextAsset;
 		
-		string filePath = imagePath+Futile.resourceSuffix+"_png";
+		if(imageBytes != null) //do we have png bytes?
+		{
+			Texture2D texture = new Texture2D(0,0,TextureFormat.ARGB32,false);
+			
+			texture.LoadImage(imageBytes.bytes);
+			
+			Resources.UnloadAsset(imageBytes);
+
+			texture.Apply(false,true);
+			
+			return LoadAtlasFromTexture(atlasPath,pathWithSuffix, texture);
+		}
+		else //load it as a normal Unity image asset
+		{
+			return ActuallyLoadAtlasOrImage(atlasPath, pathWithSuffix, pathWithSuffix);
+		}
+	}
+
+	public FAtlas LoadImage(string imagePath)
+	{
+		return LoadImage(imagePath,true);
+	}
+	
+	public FAtlas LoadImage(string imagePath, bool shouldUseResourceSuffix)
+	{
+		if(DoesContainAtlas(imagePath)) return GetAtlasWithName(imagePath); //we already have it
+
+		string pathWithSuffix = shouldUseResourceSuffix ? imagePath+Futile.resourceSuffix : imagePath;
+		string filePath = pathWithSuffix+"_png";
 		
 		TextAsset imageBytes = Resources.Load (filePath, typeof(TextAsset)) as TextAsset;
 		
@@ -131,12 +151,14 @@ public class FAtlasManager
 			texture.LoadImage(imageBytes.bytes);
 			
 			Resources.UnloadAsset(imageBytes);
+
+			texture.Apply(false,true);
 			
-			LoadAtlasFromTexture(imagePath, texture);
+			return LoadAtlasFromTexture(imagePath, texture);
 		}
 		else //load it as a normal Unity image asset
 		{
-			ActuallyLoadAtlasOrImage(imagePath, imagePath+Futile.resourceSuffix,"");
+			return ActuallyLoadAtlasOrImage(imagePath, pathWithSuffix,"");
 		}
 	}
 	
@@ -163,16 +185,50 @@ public class FAtlasManager
 				_atlases.RemoveAt(a);
 				
 				wasAtlasRemoved = true;
+
+				Futile.stage.renderer.ClearLayersThatUseAtlas(atlas);
 			}
 		}
 		
 		if(wasAtlasRemoved)
 		{
-			Futile.stage.renderer.Clear();
 			Resources.UnloadUnusedAssets();
 		}
 	}
-	
+
+	//assuming resourceSuffix of _ipad, will attempt to load suffix _0_ipad, _1_ipad, etc until it misses
+	//this is the TexturePacker default multiple atlas format
+
+	public void LoadSequentialAtlases(string atlasPath)
+	{
+		LoadSequentialAtlases(atlasPath,true);
+	}
+
+	public void LoadSequentialAtlases(string atlasPath, bool shouldUseResourceSuffix)
+	{
+		int index = 0;
+		while(true) 
+		{
+			string filePath = atlasPath + "_" + index;
+			if(DoesContainAtlas(atlasPath)) return; //we already have it, don't load it again
+			
+			string fullFilePath = shouldUseResourceSuffix ? filePath + Futile.resourceSuffix : filePath;
+			
+			TextAsset text = Resources.Load (fullFilePath, typeof(TextAsset)) as TextAsset;
+
+			if(text == null)
+			{
+				break;
+			}
+			else
+			{
+				Resources.UnloadAsset(text);
+				LoadAtlas (filePath);
+			}
+
+			index++;			
+		}
+	}
 	
 	public void UnloadAtlas(string atlasPath)
 	{
@@ -182,6 +238,11 @@ public class FAtlasManager
 	public void UnloadImage(string imagePath)
 	{
 		ActuallyUnloadAtlasOrImage(imagePath);	
+	}
+
+	public bool DoesContainElementWithName(string elementName)
+	{
+		return _allElementsByName.ContainsKey(elementName);
 	}
 
 	public FAtlasElement GetElementWithName (string elementName)
@@ -260,6 +321,18 @@ public class FAtlasManager
 	
 		_fonts.Add(font);
 		_fontsByName.Add (name, font);
+	}
+
+	public void AddElement (FAtlasElement element) //It's recommended to use myAtlas.CreateElement() instead of this
+	{
+		if(_allElementsByName.ContainsKey(element.name))
+		{
+			throw new FutileException("Duplicate element name '" + element.name +"' found! All element names must be unique!");	
+		}
+		else 
+		{
+			_allElementsByName.Add (element.name, element);
+		}
 	}
 
 	public void LogAllElementNames()

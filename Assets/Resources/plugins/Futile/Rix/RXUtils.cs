@@ -88,7 +88,47 @@ public static class RXUtils
 		string[] parts = input.Split(new char[] {','});	
 		return new Vector2(float.Parse(parts[0]), float.Parse(parts[1]));
 	}
-	
+
+	//a bit of a hacky (and very slow) way to do it, but it makes it readable enough for debugging purposes
+	public static string PrettyifyJson(string output)
+	{
+		output = output.Replace("{","\n{\n");
+		output = output.Replace("}","\n}");
+		output = output.Replace("[","\n[\n");
+		output = output.Replace("]","\n]");
+		output = output.Replace(",",",\n");
+		return output;
+	}
+
+	public static bool AreListsEqual<T>(List<T> listA, List<T> listB)
+	{
+		if(listA.Count != listB.Count)
+		{
+			return false;
+		}
+
+		int count = listA.Count;
+
+		for(int c = 0; c<count; c++)
+		{
+			if(!listA[c].Equals(listB[c])) return false;
+		}
+
+		return true;
+	}
+}
+
+public static class RXArrayUtil
+{
+	public static T[] CreateArrayFilledWithItem<T> (T item, int count)
+	{
+		T[] result = new T[count];
+		for(int c = 0; c<count; c++)
+		{
+			result[c] = item;
+		}
+		return result;
+	}
 }
 
 public class RXColorHSL
@@ -261,17 +301,20 @@ public class RXMath
 	public const float PI = Mathf.PI;
 	public const float INVERSE_PI = 1.0f/Mathf.PI;
 	public const float INVERSE_DOUBLE_PI = 1.0f/(Mathf.PI*2.0f);
-	
-	public static int Wrap(int input, int range)
+
+	//Mod is basically a version of mod (%) that works with negative numbers
+	public static int Mod(int input, int range)
 	{
-		return (input + (range*1000000)) % range;	
+		int result = input % range;
+		return (result < 0) ? result + range : result;
 	}
-	
-	public static float Wrap(float input, float range)
+
+	//Mod is basically a version of mod (%) that works with negative numbers
+	public static float Mod(float input, float range) 
 	{
-		return (input + (range*1000000)) % range;	
+		float result = input % range;
+		return (result < 0) ? result + range : result;
 	}
-	
 	
 	public static float GetDegreeDelta(float startAngle, float endAngle) //chooses the shortest angular distance
 	{
@@ -304,19 +347,81 @@ public class RXMath
 		if(first < 0.5f) return first*2.0f;
 		else return 1.0f - ((first - 0.5f)*2.0f); 
 	}
-	
+
+	//turns input from 0 to 1 into a saw pattern from 0 to 1 and back to 0... so when input is 0.5, the output is 1 etc.
+	public static float Saw(float input)
+	{
+		input = Mod(input,1.0f);
+		if(input < 0.5f) return input*2f;
+		return 2f-input*2f; 
+	}
+
+	//turn input from 0 to 1 into a circular sin pattern
+	public static float Circ(float input)
+	{
+		input = Mod(input,1.0f);
+		return Mathf.Sin(input * Mathf.PI);
+	}
+
+	public static Vector2 GetOffsetFromAngle(float angle, float distance)
+	{
+		float radians = angle * RXMath.DTOR;
+		return new Vector2(Mathf.Cos(radians) * distance, -Mathf.Sin(radians) * distance);
+	}
+
+	//returns the percentage across a subrange... 
+	//so for example (0.75,0.25,1.0) would return 0.666, because 0.75f is 66% of the way between 0.25 and 1.0f
+	public static float GetSubPercent(float fullPercent, float lowEnd, float highEnd)
+	{
+		return Mathf.Clamp01((fullPercent-lowEnd)/(highEnd-lowEnd));
+	}
+	public static int RoundUpToNearest(float source, float roundAmount)
+	{
+		return (int)(Mathf.Ceil(source/roundAmount)*roundAmount); 
+	}
 }
 
 public static class RXRandom
 {
+	private static Stack<System.Random> _randomSources = new Stack<System.Random>();
 	private static System.Random _randomSource = new System.Random();
-	
+
+	public static void PushSeed()
+	{
+		_randomSources.Push(_randomSource);//add the old one to the stack
+		_randomSource = new System.Random();
+	}
+
+	public static void PushSeed(int seed)
+	{
+		_randomSources.Push(_randomSource);
+		_randomSource = new System.Random(seed);
+	}
+
+	public static void PopSeed()
+	{
+		if(_randomSources.Count > 0) 
+		{
+			//remove the last randomSource nad make it the new _randomSource
+			_randomSource = _randomSources.Pop();
+		}
+	}
+
+	public static void ResetSeed()
+	{
+		while(_randomSources.Count > 0) 
+		{
+			//remove the last randomSource nad make it the new _randomSource
+			_randomSource = _randomSources.Pop();
+		}
+	}
+
 	public static float Float()
 	{
 		return (float)_randomSource.NextDouble();
 	}
 	
-	public static float Float(int seed)
+	public static float SeedFloat(int seed)
 	{
 		return (float)new System.Random(seed).NextDouble();
 	}
@@ -335,6 +440,11 @@ public static class RXRandom
 	{
 		return _randomSource.Next();
 	}
+
+	public static int SeedInt(int seed)
+	{
+		return new System.Random(seed).Next();
+	}
 	
 	public static int Int(int max)
 	{
@@ -346,12 +456,26 @@ public static class RXRandom
 	{
 		return low + (high-low)*(float)_randomSource.NextDouble();
 	}
-	
+
+	public static float SeedRange(int seed, float low, float high)
+	{
+		return low + (high-low)*(float)new System.Random(seed).NextDouble();
+	}
+
+	//note, this will never return the high value (so if you enter Range(0,2) you'll only get 0 and 1)
 	public static int Range(int low, int high)
 	{
 		int delta = high - low;
-		if(delta == 0) return 0;
+		if(delta == 0) return low;
 		return low + _randomSource.Next() % delta; 
+	}
+
+	//note, this will never return the high value (so if you enter Range(0,2) you'll only get 0 and 1)
+	public static int SeedRange(int seed, int low, int high)
+	{
+		int delta = high - low;
+		if(delta == 0) return low;
+		return low + new System.Random(seed).Next() % delta; 
 	}
 	
 	public static bool Bool()
@@ -359,24 +483,49 @@ public static class RXRandom
 		return _randomSource.NextDouble() < 0.5;	
 	}
 
+	public static bool Bool(float chanceOfTrue)
+	{
+		return _randomSource.NextDouble() < chanceOfTrue;	
+	}
+
 	//random item from all passed arguments/params - RXRandom.Select(one, two, three);
-	public static object Select(params object[] objects)
+	public static object GetRandomItem(params object[] objects)
 	{
 		return objects[_randomSource.Next() % objects.Length];
 	}
 
+	public static string GetRandomString(params string[] strings)
+	{
+		return strings[_randomSource.Next() % strings.Length];
+	}
+	public static Color Color(float alpha)
+	{
+		return new Color(RXRandom.Float(),RXRandom.Float(),RXRandom.Float(),alpha);
+	}
 	//random item from an array
-	public static T AnyItem<T>(T[] items)
+	public static T GetRandomItem<T>(T[] items)
 	{
 		if(items.Length == 0) return default(T); //null
 		return items[_randomSource.Next() % items.Length];
 	}
 
+	//replaces one item at random with a new one 
+	public static void ReplaceRandomItem<T>(T[] items, T item)
+	{
+		items[_randomSource.Next() % items.Length] = item;
+	}
+
 	//random item from a list
-	public static T AnyItem<T>(List<T> items)
+	public static T GetRandomItem<T>(List<T> items)
 	{
 		if(items.Count == 0) return default(T); //null
 		return items[_randomSource.Next() % items.Count];
+	}
+
+	//replaces one item at random with a new one 
+	public static void ReplaceRandomItem<T>(List<T> items, T item)
+	{
+		items[_randomSource.Next() % items.Count] = item;
 	}
 	
 	//this isn't really perfectly randomized, but good enough for most purposes
@@ -400,11 +549,23 @@ public static class RXRandom
 		list.Sort(RandomComparison);
 	}
 
-	private static int RandomComparison<T>(T a, T b) 
+	public static int RandomComparison<T>(T a, T b) 
 	{
 		if(_randomSource.Next() % 2 == 0) return -1;
 
 		return 1;
+	}
+
+	public const string randomChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+	public static string GenerateRandomString(int numChars)
+	{
+		string result = "";
+		for(int n = 0; n<numChars; n++)
+		{
+			result += randomChars[(_randomSource.Next() % randomChars.Length)];
+		}
+		return result;
 	}
 
 }
@@ -435,71 +596,189 @@ public class RXCircle
 	}
 }
 
-//This class is incomplete, I just have to get around to converting all the equations to this simplified format
+//these equations shamelessly stolen from Chevy Ray's AutoMotion ;) (https://github.com/UnityPatterns/AutoMotion/) 
+//note that they only take a t variable (which should be between 0 and 1) and return a value between 0 and 1
 public static class RXEase
 {
-	//based on GoKit's easing equations: https://github.com/prime31/GoKit/tree/master/Assets/Plugins/GoKit/easing
-	//but simplified to work with only normalized values (0..1)
-	//t = current time, b = starting value, c = final value, d = duration
-	//for our purposes, t = input, b = 0, d = 1, c = 1 :::: note that (t/d = input)
+	public delegate float Dele(float t);
 
-	public static float QuadOut(float input)
-	{
-		return -input * (input - 2.0f);
-	}
+	public static Dele Linear = (t) => 		{ return t; };
+	public static Dele QuadIn = (t) => 		{ return t * t; };
+	public static Dele QuadOut = (t) => 	{ return 1f - QuadIn(1f - t); };
+	public static Dele QuadInOut = (t) => 	{ return (t <= 0.5f) ? QuadIn(t * 2f) * 0.5f : QuadOut(t * 2f - 1f) * 0.5f + 0.5f; };
+	public static Dele CubeIn = (t) => 		{ return t * t * t; };
+	public static Dele CubeOut = (t) => 	{ return 1f - CubeIn(1f - t); };
+	public static Dele CubeInOut = (t) => 	{ return (t <= 0.5f) ? CubeIn(t * 2f) * 0.5f : CubeOut(t * 2f - 1f) * 0.5f + 0.5f; };
+	public static Dele BackIn = (t) => 		{ return t * t * (2.70158f * t - 1.70158f); };
+	public static Dele BackOut = (t) => 	{ return 1f - BackIn(1f - t); };
+	public static Dele BackInOut = (t) => 	{ return (t <= 0.5f) ? BackIn(t * 2f) * 0.5f : BackOut(t * 2f - 1f) * 0.5f + 0.5f; };
+	public static Dele ExpoIn = (t) => 		{ return Mathf.Pow(2f, 10f * (t-1.0f)); };
+	public static Dele ExpoOut = (t) => 	{ return 1f - Mathf.Pow(2f, -10f * t); };
+	public static Dele ExpoInOut = (t) => 	{ return t < .5f ? ExpoIn(t * 2f) * 0.5f : ExpoOut(t * 2f - 1f) * 0.5f + 0.5f; };
+	public static Dele SineIn = (t) => 		{ return -Mathf.Cos(Mathf.PI * 0.5f * t) + 1f; };
+	public static Dele SineOut = (t) => 	{ return Mathf.Sin(Mathf.PI * 0.5f * t); };
+	public static Dele SineInOut = (t) => 	{ return -Mathf.Cos(Mathf.PI * t) * 0.5f + .5f; };
+	public static Dele ElasticIn = (t) => 	{ return 1f - ElasticOut(1f - t); };
+	public static Dele ElasticOut = (t) => 	{ return Mathf.Pow(2f, -10f * t) * Mathf.Sin((t - 0.075f) * (2f * Mathf.PI) / 0.3f) + 1f; };
+	public static Dele ElasticInOut = (t) =>{ return (t <= 0.5f) ? ElasticIn(t * 2f) / 2f : ElasticOut(t * 2f - 1f) * 0.5f + 0.5f; };
 
-	public static float QuadIn(float input)
+	//turns input from 0 to 1 into a eased saw pattern from 0 to 1 and back to 0... so when input is 0.5, the output is 1 etc.
+	public static float UpDown(float input, Dele easeFunc)
 	{
-		return input * input;
-	}
-
-	public static float QuadInOut(float input)
-	{
-		if (input < 0.5f) return 2.0f * input * input;
-		input = (input-0.5f) * 2.0f;
-		return 0.5f - 0.5f * input * (input - 2.0f);
-	}
-
-	public static float ExpoOut(float input)
-	{
-		return -Mathf.Pow( 2.0f, -10.0f * input) + 1.0f;
-	}
-
-	public static float ExpoIn(float input)
-	{
-		return Mathf.Pow(2.0f,10.0f * (input - 1.0f));
+		if(input < 0.5f) return easeFunc(input*2f);
+		return easeFunc(2f-input*2f); 
 	}
 
-	public static float ExpoInOut(float input)
-	{
-		if (input < 0.5f) return Mathf.Pow(2.0f,10.0f * (input*2.0f - 1.0f)) * 0.5f;
-		else return 0.5f + (-Mathf.Pow( 2.0f, -20.0f * (input-0.5f)) + 1.0f) * 0.5f;
-	}
-	
-	public static float BackOut(float input) {return BackOut(input,1.7f);}
-	public static float BackOut(float input, float backAmount)
-	{
-		input = input - 1.0f;
-		return (input * input * ((backAmount + 1) * input + backAmount) + 1);
-	}
-
-	public static float BackIn(float input) {return BackIn(input,1.7f);}
-	public static float BackIn(float input, float backAmount)
-	{
-		return  input * input * ((backAmount + 1.0f) * input - backAmount);
-	}
-
-	public static float BackInOut(float input) {return BackInOut(input,1.7f);}
-	public static float BackInOut(float input, float backAmount)
-	{
-		if (input < 0.5f) return BackIn(input*2.0f,backAmount)*0.5f;
-		else return 0.5f + BackOut((input-0.5f)*2.0f,backAmount)*0.5f;
-	}
-
-	public static float SinInOut(float input)
-	{
-		return -0.5f * (Mathf.Cos(Mathf.PI*input) - 1.0f);
-	}
 }
 
 
+//converts the simple equations in RXEase into the standard t b c d format
+//where t = current time, b = starting value, c = final value, d = duration
+//(I don't really have a great use case for this, but it was a fun class to make :D)
+public static class RXEaseStandard
+{
+	public static Dele Linear = 		Standardize(RXEase.Linear);
+	public static Dele QuadIn = 		Standardize(RXEase.QuadIn);
+	public static Dele QuadOut = 		Standardize(RXEase.QuadOut);
+	public static Dele QuadInOut = 		Standardize(RXEase.QuadInOut);
+	public static Dele CubeIn = 		Standardize(RXEase.CubeIn);
+	public static Dele CubeOut = 		Standardize(RXEase.CubeOut);
+	public static Dele CubeInOut = 		Standardize(RXEase.CubeInOut);
+	public static Dele BackIn = 		Standardize(RXEase.BackIn);
+	public static Dele BackOut = 		Standardize(RXEase.BackOut);
+	public static Dele BackInOut = 		Standardize(RXEase.BackInOut);
+	public static Dele ExpoIn = 		Standardize(RXEase.ExpoIn);
+	public static Dele ExpoOut = 		Standardize(RXEase.ExpoOut);
+	public static Dele ExpoInOut = 		Standardize(RXEase.ExpoInOut);
+	public static Dele SineIn = 		Standardize(RXEase.SineIn);
+	public static Dele SineOut = 		Standardize(RXEase.SineOut);
+	public static Dele SineInOut = 		Standardize(RXEase.SineInOut);
+	public static Dele ElasticIn = 		Standardize(RXEase.ElasticIn);
+	public static Dele ElasticOut = 	Standardize(RXEase.ElasticOut);
+	public static Dele ElasticInOut = 	Standardize(RXEase.ElasticInOut);
+	
+	public delegate float Dele(float currentTime,float startingValue,float finalValue,float duration);
+
+	public static Dele Standardize(RXEase.Dele simpleFunc)
+	{
+		return (t,b,c,d) =>
+		{
+			return c * simpleFunc(t) / d + b;
+		};
+	}
+}
+
+//a handy class for keeping tweened values encapsulated
+public class RXTweenable
+{
+	private float _amount;
+
+	public Action SignalChange;
+
+	public RXTweenable(float amount)
+	{
+		_amount = amount;
+	}
+
+	public RXTweenable(float amount, Action SignalChange)
+	{
+		this.SignalChange = SignalChange;
+	}
+
+	public float amount
+	{
+		get {return _amount;}
+		set 
+		{
+			if(_amount != value)
+			{
+				_amount = value; 
+				if(SignalChange != null) SignalChange();
+			}
+		}
+	}
+
+	public void To(float targetAmount, float duration)
+	{
+		this.To(targetAmount,duration, new TweenConfig());
+	}
+
+	public void To(float targetAmount, float duration, TweenConfig tc)
+	{
+		Go.killAllTweensWithTarget(this);
+		tc.floatProp("amount", targetAmount);
+		Go.to(this,duration,tc);
+	}
+	public static RXTweenable DelayAction(float delay, Action action)
+	{
+		RXTweenable rt = new RXTweenable(0.0f);
+		rt.To(1.0f,delay,new TweenConfig().onComplete((t)=>{action();}));
+		return rt;
+	}
+}
+
+//the GoKit tweenchain was causing errors so I decided to make a simpler one
+public class RXTweenChain
+{
+	public List<Tween> tweensToDo = new List<Tween>();
+
+	public RXTweenChain()
+	{
+	}
+
+	public RXTweenChain Add(object target, float duration, TweenConfig config)
+	{
+		config.onComplete(HandleTweenComplete);
+		Tween tween = new Tween(target,duration,config,null);
+		tweensToDo.Add(tween);
+		return this;
+	}
+
+	void HandleTweenComplete(AbstractTween tween)
+	{
+		StartNextTween();
+	}
+
+	public void Play()
+	{
+		StartNextTween();
+	}
+
+	public void StartNextTween()
+	{
+		if(tweensToDo.Count == 0) return;
+		Tween nextTween = tweensToDo.Shift();
+		Go.addTween(nextTween);
+		nextTween.play();
+	}
+}
+
+public class BoxedLong
+{
+	public long value;
+	public BoxedLong(long value) {this.value = value;}
+}
+
+public class BoxedInt
+{
+	public int value;
+	public BoxedInt(int value) {this.value = value;}
+}
+
+public class BoxedFloat
+{
+	public float value;
+	public BoxedFloat(float value) {this.value = value;}
+}
+
+public class BoxedDouble
+{
+	public double value;
+	public BoxedDouble(double value) {this.value = value;}
+}
+
+public class BoxedBool
+{
+	public bool value;
+	public BoxedBool(bool value) {this.value = value;}
+}

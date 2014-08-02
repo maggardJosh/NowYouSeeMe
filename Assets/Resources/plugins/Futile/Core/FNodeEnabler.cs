@@ -18,6 +18,27 @@ public class FNodeEnabler
 	}
 }
 
+public class FNodeEnablerForPreUpdate : FNodeEnabler
+{
+	public Futile.FutileUpdateDelegate handleUpdateCallback;
+	
+	public FNodeEnablerForPreUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
+	{
+		this.handleUpdateCallback = handleUpdateCallback;	
+	}
+	
+	override public void Connect()
+	{
+		Futile.instance.SignalPreUpdate += handleUpdateCallback;
+	}
+	
+	override public void Disconnect()
+	{
+		Futile.instance.SignalPreUpdate -= handleUpdateCallback;
+	}
+}
+
+
 public class FNodeEnablerForUpdate : FNodeEnabler
 {
 	public Futile.FutileUpdateDelegate handleUpdateCallback;
@@ -38,6 +59,27 @@ public class FNodeEnablerForUpdate : FNodeEnabler
 	}
 }
 
+public class FNodeEnablerForAfterUpdate : FNodeEnabler
+{
+	public Futile.FutileUpdateDelegate handleUpdateCallback;
+	
+	public FNodeEnablerForAfterUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
+	{
+		this.handleUpdateCallback = handleUpdateCallback;	
+	}
+	
+	override public void Connect()
+	{
+		Futile.instance.SignalAfterUpdate += handleUpdateCallback;
+	}
+	
+	override public void Disconnect()
+	{
+		Futile.instance.SignalAfterUpdate -= handleUpdateCallback;
+	}
+}
+
+
 public class FNodeEnablerForLateUpdate : FNodeEnabler
 {
 	public Futile.FutileUpdateDelegate handleUpdateCallback;
@@ -57,6 +99,25 @@ public class FNodeEnablerForLateUpdate : FNodeEnabler
 	}
 }
 
+public class FNodeEnablerForAfterDraw : FNodeEnabler
+{
+	public Futile.FutileUpdateDelegate handleUpdateCallback;
+	
+	public FNodeEnablerForAfterDraw(Futile.FutileUpdateDelegate handleUpdateCallback)
+	{
+		this.handleUpdateCallback = handleUpdateCallback;	
+	}
+	
+	override public void Connect()
+	{
+		Futile.instance.SignalAfterDraw += handleUpdateCallback;
+	}
+	
+	override public void Disconnect()
+	{
+		Futile.instance.SignalAfterDraw -= handleUpdateCallback;
+	}
+}
 public class FNodeEnablerForFixedUpdate : FNodeEnabler
 {
 	public Futile.FutileUpdateDelegate handleUpdateCallback;
@@ -126,6 +187,29 @@ public class FNodeEnablerForMultiTouch : FNodeEnabler
 	}
 }
 
+public class FNodeEnablerForSmartTouch : FNodeEnabler
+{
+	public FSmartTouchableInterface smartTouchable;
+	
+	public FNodeEnablerForSmartTouch(FNode node)
+	{
+		smartTouchable = node as FSmartTouchableInterface;
+		if(smartTouchable == null)
+		{
+			throw new FutileException("Trying to enable single touch on a node that doesn't implement FSmartTouchableInterface");	
+		}
+	}
+	
+	override public void Connect()
+	{
+		Futile.touchManager.AddSmartTouchTarget(smartTouchable);	
+	}
+	
+	override public void Disconnect()
+	{
+		Futile.touchManager.RemoveSmartTouchTarget(smartTouchable);	
+	}
+}
 public class FNodeEnablerForResize : FNodeEnabler
 {
 	public FScreen.ScreenResizeDelegate handleResizeCallback;
@@ -165,5 +249,28 @@ public class FNodeEnablerForOrientationChange : FNodeEnabler
 		Futile.screen.SignalOrientationChange -= handleOrientationChangeCallback;
 	}
 }
+
+public class FNodeEnablerForAddedOrRemoved : FNodeEnabler
+{
+	public delegate void Delegate(bool wasAdded);
+
+	public Delegate handleAddedOrRemovedCallback;
+
+	public FNodeEnablerForAddedOrRemoved(Delegate handleAddedOrRemovedCallback)
+	{
+		this.handleAddedOrRemovedCallback = handleAddedOrRemovedCallback;	
+	}
+
+	override public void Connect()
+	{
+		handleAddedOrRemovedCallback.Invoke(true);
+	}
+
+	override public void Disconnect()
+	{
+		handleAddedOrRemovedCallback.Invoke(false);
+	}
+}
+
 
 

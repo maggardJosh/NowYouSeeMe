@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-public struct FStageTransform
+public class FStageTransform
 {
 	public Vector3 position;
 	public Quaternion rotation;
@@ -78,7 +78,7 @@ public class FStage : FContainer
 		{
 			_isMatrixDirty = false;
 			
-			_matrix.SetScaleThenRotate(_x,_y,_scaleX,_scaleY,_rotation * -RXMath.DTOR);
+			_matrix.SetScaleThenRotate(_x,_y,_scaleX*_visibleScale,_scaleY*_visibleScale,_rotation * -RXMath.DTOR);
 			_concatenatedMatrix.CopyValues(_matrix);	
 			
 			_inverseConcatenatedMatrix.InvertAndCopyValues(_concatenatedMatrix);
@@ -90,7 +90,7 @@ public class FStage : FContainer
 		{
 			_isAlphaDirty = false;
 			
-			_concatenatedAlpha = _alpha*_visibleAlpha;
+			_concatenatedAlpha = _alpha;
 		}	
 	}
 		
@@ -117,6 +117,8 @@ public class FStage : FContainer
 		for(int c = 0; c<childCount; c++)
 		{
 			//key difference between Stage and Container: Stage doesn't force dirty if matrix is dirty
+			//in other words, you can move the stage all you want and it won't force its children to redraw
+			//this is especially handy for scrolling/zooming purposes
 			_childNodes[c].Redraw(shouldForceDirty || wasAlphaDirty, shouldUpdateDepth); //if the alpha is dirty or we're supposed to force it, do it!
 		}
 		
@@ -134,7 +136,7 @@ public class FStage : FContainer
 			
 			_transform.position = new Vector3(_x,_y,0);
 			_transform.rotation = Quaternion.AngleAxis(_rotation,Vector3.back);
-			_transform.localScale = new Vector3(_scaleX, _scaleX, _scaleX); //uniform scale (should be better performance)
+			_transform.localScale = new Vector3(_scaleX*_visibleScale, _scaleX*_visibleScale, _scaleX*_visibleScale); //uniform scale (should be better performance)
 			
 			_renderer.UpdateLayerTransforms();
 		}

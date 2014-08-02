@@ -2,7 +2,7 @@
 
 "player_0":
 {
-	"frame": {"x":3,"y":3,"w":44,"h":30},
+	"frame": {"x":167,"y":3,"w":44,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":4,"y":18,"w":44,"h":30},
@@ -10,19 +10,27 @@
 },
 "player_1":
 {
-	"frame": {"x":3,"y":37,"w":42,"h":34},
+	"frame": {"x":167,"y":37,"w":42,"h":34},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":6,"y":14,"w":42,"h":34},
 	"sourceSize": {"w":48,"h":48}
+},
+"testBG":
+{
+	"frame": {"x":3,"y":3,"w":160,"h":144},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":160,"h":144},
+	"sourceSize": {"w":160,"h":144}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker ",
 	"version": "1.0",
 	"image": "InGameAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":64,"h":128},
+	"size": {"w":256,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:968c62c45c83e988226ec3e3db41c971:5606b4a6909a6e53c081efd5f81188eb:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:c20b1ec91a574d869af33ee5ddca5f0f:31b101a896379dfa39700516ca89dffa:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

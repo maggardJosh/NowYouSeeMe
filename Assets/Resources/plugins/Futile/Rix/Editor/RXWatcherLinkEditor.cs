@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +12,7 @@ public class RXWatcherLinkEditor : Editor
 	public static Type STRING = typeof(string);
 	public static Type COLOR = typeof(Color);
 	public static Type VECTOR2 = typeof(Vector2);
+	public static Type BOOL = typeof(bool);
 
 	public RXWatcherLink link = null;
 
@@ -17,14 +20,13 @@ public class RXWatcherLinkEditor : Editor
 	{
 		link = target as RXWatcherLink;
 
+		EditorApplication.update += HandleSignalUpdate;
 		//Watcher objects in the inspector update every frame, but only when selected.
-
-		Futile.instance.SignalUpdate += HandleSignalUpdate;
 	}
 	
 	public void OnDisable()
 	{
-		Futile.instance.SignalUpdate -= HandleSignalUpdate;
+		EditorApplication.update -= HandleSignalUpdate;
 	}
 	
 	private void HandleSignalUpdate ()
@@ -34,6 +36,9 @@ public class RXWatcherLinkEditor : Editor
 	
 	override public void OnInspectorGUI() 
 	{
+		//the target has been GC'd, so do nothing
+		if(link.GetTarget() == null) return;
+
 		GUILayout.Label(link.name, EditorStyles.boldLabel);
 		
 		EditorGUILayout.Separator();
@@ -67,6 +72,10 @@ public class RXWatcherLinkEditor : Editor
 			{
 				newValue = EditorGUILayout.Vector2Field(member.name, (Vector2)oldValue);
 			}
+			else if(member.memberType == BOOL)
+			{
+				newValue = EditorGUILayout.Toggle(member.name, (bool)oldValue);
+			}
 
 			if(newValue != null && !newValue.Equals(oldValue))
 			{
@@ -76,4 +85,4 @@ public class RXWatcherLinkEditor : Editor
 	}
 }
 
-
+#endif

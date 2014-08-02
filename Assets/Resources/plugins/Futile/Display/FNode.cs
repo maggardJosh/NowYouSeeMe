@@ -10,7 +10,8 @@ public class FNode
 	protected float _scaleX = 1f;
 	protected float _scaleY = 1f;
 	protected float _rotation = 0f;
-	
+
+	protected float _meshZ = 0f;
 	protected float _sortZ = 0f; //sortZ is used for depth sorting but ONLY if the node container's shouldSortByZ = true;
 	
 	protected bool _isMatrixDirty = false;
@@ -29,6 +30,8 @@ public class FNode
 	protected float _alpha = 1f;
 	protected float _concatenatedAlpha = 1f;
 	protected bool _isAlphaDirty = false;
+
+	protected float _visibleScale = 1f;
 	
 	protected bool _isOnStage = false;
 	
@@ -37,7 +40,6 @@ public class FNode
 	protected FStage _stage = null; //assigned in HandleAddedToStage
 	
 	protected bool _isVisible = true;
-	protected float _visibleAlpha = 1f;
 	
 	public object data = null; //the user can put whatever data they want here
 	
@@ -53,7 +55,7 @@ public class FNode
 		#endif 
 	}
 	
-	protected void AddEnabler(FNodeEnabler enabler)
+	public void AddEnabler(FNodeEnabler enabler)
 	{
 		if(_enablers == null) _enablers = new List<FNodeEnabler>();
 		
@@ -65,7 +67,7 @@ public class FNode
 		}
 	}
 	
-	protected void RemoveEnabler(FNodeEnabler enabler)
+	public void RemoveEnabler(FNodeEnabler enabler)
 	{
 		if(_enablers == null) return;
 		
@@ -77,7 +79,7 @@ public class FNode
 		_enablers.Remove(enabler);
 	}
 	
-	protected void RemoveEnablerOfType(Type enablerType)
+	public void RemoveEnablerOfType(Type enablerType)
 	{
 		if(_enablers == null) return;
 		
@@ -108,13 +110,24 @@ public class FNode
 	
 	public void ListenForOrientationChange(FScreen.ScreenOrientationChangeDelegate handleOrientationChangeCallback)
 	{
-		RemoveEnablerOfType(typeof(FNodeEnablerForOrientationChange));;
+		RemoveEnablerOfType(typeof(FNodeEnablerForOrientationChange));
 		AddEnabler(new FNodeEnablerForOrientationChange(handleOrientationChangeCallback));
 	}
 	
 	public void RemoveListenForOrientationChange()
 	{	
 		RemoveEnablerOfType(typeof(FNodeEnablerForOrientationChange));
+	}
+
+	public void ListenForPreUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
+	{
+		RemoveEnablerOfType(typeof(FNodeEnablerForPreUpdate));
+		AddEnabler(new FNodeEnablerForPreUpdate(handleUpdateCallback));
+	}
+	
+	public void RemoveListenForPreUpdate()
+	{	
+		RemoveEnablerOfType(typeof(FNodeEnablerForPreUpdate));
 	}
 	
 	public void ListenForUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
@@ -126,6 +139,17 @@ public class FNode
 	public void RemoveListenForUpdate()
 	{	
 		RemoveEnablerOfType(typeof(FNodeEnablerForUpdate));
+	}
+
+	public void ListenForAfterUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
+	{
+		RemoveEnablerOfType(typeof(FNodeEnablerForAfterUpdate));
+		AddEnabler(new FNodeEnablerForAfterUpdate(handleUpdateCallback));
+	}
+	
+	public void RemoveListenForAfterUpdate()
+	{	
+		RemoveEnablerOfType(typeof(FNodeEnablerForAfterUpdate));
 	}
 	
 	public void ListenForLateUpdate(Futile.FutileUpdateDelegate handleUpdateCallback)
@@ -172,6 +196,28 @@ public class FNode
 		RemoveEnablerOfType(typeof(FNodeEnablerForMultiTouch));
 	}
 
+	public void EnableSmartTouch()
+	{
+		DisableSmartTouch(); //clear any old ones first
+		AddEnabler(new FNodeEnablerForSmartTouch(this));
+	}
+	
+	public void DisableSmartTouch()
+	{
+		RemoveEnablerOfType(typeof(FNodeEnablerForSmartTouch));
+	}
+
+	public void ListenForAddedOrRemoved(FNodeEnablerForAddedOrRemoved.Delegate handleAddedOrRemoved)
+	{
+		RemoveEnablerOfType(typeof(FNodeEnablerForAddedOrRemoved));
+		AddEnabler(new FNodeEnablerForAddedOrRemoved(handleAddedOrRemoved));
+	}
+
+	public void RemoveListenForAddedOrRemoved()
+	{
+		RemoveEnablerOfType(typeof(FNodeEnablerForAddedOrRemoved));
+	}
+
 	
 	virtual public void HandleAddedToStage()
 	{
@@ -203,6 +249,8 @@ public class FNode
 	
 	public Vector2 LocalToScreen(Vector2 localVector) //for sending local points back to screen coords
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		
 		//the offsets account for the camera's 0,0 point (eg, center, bottom left, etc.)
@@ -220,6 +268,8 @@ public class FNode
 	
 	public Vector2 ScreenToLocal(Vector2 screenVector) //for transforming mouse or touch points to local coords
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		
 		//the offsets account for the camera's 0,0 point (eg, center, bottom left, etc.)
@@ -237,12 +287,16 @@ public class FNode
 	
 	public Vector2 LocalToStage(Vector2 localVector)
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		return _concatenatedMatrix.GetNewTransformedVector(localVector);
 	}
 	
 	public Vector2 StageToLocal(Vector2 globalVector) 
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		//using "this" so the getter is called (because it checks if the matrix exists and lazy inits it if it doesn't)
 		return this.inverseConcatenatedMatrix.GetNewTransformedVector(globalVector);
@@ -250,6 +304,8 @@ public class FNode
 	
 	public Vector2 LocalToGlobal(Vector2 localVector)
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		//using "this" so the getter is called (because it checks if the matrix exists and lazy inits it if it doesn't)
 		return this.screenConcatenatedMatrix.GetNewTransformedVector(localVector);
@@ -257,6 +313,8 @@ public class FNode
 	
 	public Vector2 GlobalToLocal(Vector2 globalVector)
 	{
+		if(_container != null) _container.UpdateMatrix();
+		_isMatrixDirty = true;
 		UpdateMatrix();
 		//using "this" so the getter is called (because it checks if the matrix exists and lazy inits it if it doesn't)
 		return this.screenInverseConcatenatedMatrix.GetNewTransformedVector(globalVector);
@@ -287,8 +345,8 @@ public class FNode
 		if(!_isMatrixDirty) return;
 		
 		//do NOT set _isMatrixDirty to false here because it is used in the redraw loop and will be set false then
-		
-		_matrix.SetScaleThenRotate(_x,_y,_scaleX,_scaleY,_rotation * -0.01745329f); //0.01745329 is RXMath.DTOR
+
+		_matrix.SetScaleThenRotate(_x,_y,_scaleX*_visibleScale,_scaleY*_visibleScale,_rotation * -0.01745329f); //0.01745329 is RXMath.DTOR
 			
 		if(_container != null)
 		{
@@ -301,19 +359,18 @@ public class FNode
 		
 		if(_needsSpecialMatrices)
 		{
+			_inverseConcatenatedMatrix.InvertAndCopyValues(_concatenatedMatrix);
 
-				_inverseConcatenatedMatrix.InvertAndCopyValues(_concatenatedMatrix);
+			if(_isOnStage)
+			{
+				_screenConcatenatedMatrix.ConcatAndCopyValues(_concatenatedMatrix,_stage.screenConcatenatedMatrix);
+			}
+			else
+			{
+				_screenConcatenatedMatrix.CopyValues(_concatenatedMatrix); //if it's not on the stage, just use its normal matrix
+			}
 
-				if(_isOnStage)
-				{
-					_screenConcatenatedMatrix.ConcatAndCopyValues(_concatenatedMatrix,_stage.screenConcatenatedMatrix);
-				}
-				else
-				{
-					_screenConcatenatedMatrix.CopyValues(_concatenatedMatrix); //if it's not on the stage, just use its normal matrix
-				}
-
-				_screenInverseConcatenatedMatrix.InvertAndCopyValues(_screenConcatenatedMatrix);
+			_screenInverseConcatenatedMatrix.InvertAndCopyValues(_screenConcatenatedMatrix);
 		}
 	}
 	
@@ -328,7 +385,7 @@ public class FNode
 		{
 			_isMatrixDirty = false;
 			
-			_matrix.SetScaleThenRotate(_x,_y,_scaleX,_scaleY,_rotation * -0.01745329f); //0.01745329 is RXMath.DTOR
+			_matrix.SetScaleThenRotate(_x,_y,_scaleX*_visibleScale,_scaleY*_visibleScale,_rotation * -0.01745329f); //0.01745329 is RXMath.DTOR
 			
 			if(_container != null)
 			{
@@ -353,11 +410,11 @@ public class FNode
 			
 			if(_container != null)
 			{
-				_concatenatedAlpha = _container.concatenatedAlpha*_alpha*_visibleAlpha;
+				_concatenatedAlpha = _container.concatenatedAlpha*_alpha;
 			}
 			else 
 			{
-				_concatenatedAlpha = _alpha*_visibleAlpha;
+				_concatenatedAlpha = _alpha;
 			}
 		}	
 	}
@@ -394,10 +451,24 @@ public class FNode
 	{
 		if(_container != null) _container.AddChild(this);
 	}
-	
+
 	public void MoveToBack()
 	{
 		if(_container != null) _container.AddChildAtIndex(this,0);	
+	}
+
+	public void MoveInFrontOfOtherNode(FNode otherNode)
+	{
+		if(_container == null) return; //we have no container
+		if(otherNode.container != _container) return; //we don't share a container
+		_container.AddChildAtIndex(this,_container.GetChildIndex(otherNode)+1);
+	}
+
+	public void MoveBehindOtherNode(FNode otherNode)
+	{
+		if(_container == null) return; //we have no container
+		if(otherNode.container != _container) return; //we don't share a container
+		_container.AddChildAtIndex(this,_container.GetChildIndex(otherNode));
 	}
 
 	public bool isVisible
@@ -408,8 +479,8 @@ public class FNode
 			if(_isVisible != value)
 			{
 				_isVisible = value;
-				_visibleAlpha = _isVisible ? 1.0f : 0.0f;
-				_isAlphaDirty = true;
+				_visibleScale = _isVisible ? 1f : 0f;
+				_isMatrixDirty = true;
 			}
 		}
 	}
@@ -434,16 +505,22 @@ public class FNode
         }
     }
 	
-	public virtual float x
+	public float x
 	{
 		get { return _x;}
-	    set { _x = value; _isMatrixDirty = true;}
+		set { _x = value; _isMatrixDirty = true;}
 	}
 	
-	public virtual float y
+	public float y
 	{
 		get { return _y;}
 		set { _y = value; _isMatrixDirty = true;}
+	}
+
+	public float meshZ
+	{
+		get { return _meshZ;}
+		set { _meshZ = value; _isMatrixDirty = true;}
 	}
 	
 	virtual public float sortZ
@@ -580,7 +657,26 @@ public class FNode
 		get {return _stage;}
 		set {_stage = value;}
 	}
-	
+
+	public Vector2 GetPositionRelativeToAncestor(FContainer ancestor)
+	{
+		FNode target = this;
+
+		Vector2 position = new Vector2(0,0);
+		
+		FContainer container;
+		
+		while(true)
+		{
+			position += target.GetPosition();
+			container = target.container;
+			if(container == null) break;
+			if(container == ancestor) break;
+			target = container;
+		}
+		
+		return position;
+	}
 	
 	//use node.LocalToLocal to use a point from a different coordinate space
 	public void RotateAroundPointRelative(Vector2 localPoint, float relativeDegrees)
@@ -649,5 +745,10 @@ public class FNode
 	public Vector2 GetPosition()
 	{
 		return new Vector2(_x,_y);	
+	}
+
+	public bool isOnStage
+	{
+		get {return _isOnStage;}
 	}
 }

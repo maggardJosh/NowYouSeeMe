@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class FPPolygonalData
 {
-	public bool shouldDecomposeIntoConvexPolygons;
+	public bool hasBeenDecomposedIntoConvexPolygons = false;
 	
 	public bool shouldUseSmoothSphereCollisions = false; //set to true manually if needed
 	
@@ -15,13 +15,13 @@ public class FPPolygonalData
 	
 	public Mesh[] meshes; //meshes made from the polygons, for doing collisions
 	
-	public FPPolygonalData (Vector2[] vertices, bool shouldDecomposeIntoConvexPolygons)
+	public FPPolygonalData (Vector2[] vertices, bool shouldDecomposeIntoConvexPolygons) //turn a single polygon into multiple
 	{
 		this.sourceVertices = vertices;
-		this.shouldDecomposeIntoConvexPolygons = shouldDecomposeIntoConvexPolygons;
 		
 		if(shouldDecomposeIntoConvexPolygons)
 		{
+			this.hasBeenDecomposedIntoConvexPolygons = true;
 			List<Vector2> sourceVerticesList = new List<Vector2>(sourceVertices);
 			
 			sourceVerticesList.Reverse(); //the algorithm needs them in reverse order
@@ -42,6 +42,8 @@ public class FPPolygonalData
 		}
 		else 
 		{
+			this.hasBeenDecomposedIntoConvexPolygons = false;
+
 			meshes = new Mesh[1];
 			
 			vertexPolygons = new List<Vector2[]>(1);
@@ -113,16 +115,38 @@ public class FPPolygonalData
 		return mesh;
 	}
 	
-	public FPPolygonalData (List<Vector2[]> vertexPolygons, List<int[]> trianglePolygons) //provide your own vertices and triangles
+	public FPPolygonalData (List<Vector2[]> vertexPolygons, List<int[]> trianglePolygons) //provide polygons and triangles
 	{
+		this.hasBeenDecomposedIntoConvexPolygons = true;
+
+		int polygonCount = vertexPolygons.Count;
+
 		this.vertexPolygons = vertexPolygons;
 		this.trianglePolygons = trianglePolygons;
+
+		meshes = new Mesh[polygonCount];
 		
+		
+		for(int p = 0; p<polygonCount; p++)
+		{
+			meshes[p] = CreateMeshFromPolygon(p);
+		}
+	}
+
+	public FPPolygonalData (List<Vector2[]> vertexPolygons) //provide untriangulated polygons
+	{
+		this.hasBeenDecomposedIntoConvexPolygons = true;
+
 		int polygonCount = vertexPolygons.Count;
+
+		this.vertexPolygons = vertexPolygons;
+		this.trianglePolygons = new List<int[]>(polygonCount);
+
 		meshes = new Mesh[polygonCount];
 		
 		for(int p = 0; p<polygonCount; p++)
 		{
+			trianglePolygons.Add(FPUtils.Triangulate(vertexPolygons[p])); //triangulate the polygon
 			meshes[p] = CreateMeshFromPolygon(p);
 		}
 	}

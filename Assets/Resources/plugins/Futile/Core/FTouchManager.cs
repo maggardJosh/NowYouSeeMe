@@ -2,8 +2,14 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
-public struct FTouch //had to make a copy of Unity's Touch so I could make properties writeable for mouse touches
+//DEFINITIONS:
+//FTouch: a single temporary instance of a touch event, that exists for 1 frame
+//FTouchSlot: a permanent reference to whatever is happening with the finger in that "slot"
+//Touchable Interfaces: interfaces that define how a class/object should respond to touch events
+
+public class FTouch //had to make a copy of Unity's Touch so I could make properties writeable for mouse touches
 {
 	public int fingerId;
 	public Vector2 position;
@@ -11,9 +17,70 @@ public struct FTouch //had to make a copy of Unity's Touch so I could make prope
 	public float deltaTime;
 	public int tapCount;
 	public TouchPhase phase;
+	public FTouchSlot slot;
 }
 
-public interface FSingleTouchableInterface
+public class FTouchSlot
+{
+	public int index;
+	public FTouch touch;
+	public bool doesHaveTouch = false;
+	public FCapturedTouchableInterface touchable = null;
+
+	public bool isUsedBySingleTouchable = true;
+
+	public bool didJustBegin = false;
+	public bool didJustMove = false;
+	public bool didJustEnd = false;
+	public bool didJustCancel = false;
+
+	public bool wasArtificiallyCanceled = false;
+
+	public FTouchSlot(int index)
+	{
+		this.index = index;
+	}
+
+	public void Cancel()
+	{
+		if(touchable != null)
+		{
+			if(isUsedBySingleTouchable)
+			{
+				(touchable as FSingleTouchableInterface).HandleSingleTouchCanceled(touch);
+			}
+			else 
+			{
+				(touchable as FSmartTouchableInterface).HandleSmartTouchCanceled(index, touch);
+			}
+
+			wasArtificiallyCanceled = true;
+		}
+	}
+
+	public void Clear()
+	{
+		touchable = null;
+		doesHaveTouch = false;
+		
+		didJustBegin = false;
+		didJustEnd = false;
+		didJustMove = false;
+		didJustCancel = false;
+
+		wasArtificiallyCanceled = false;
+	}
+}
+
+public interface FCapturedTouchableInterface
+{
+	int touchPriority //FNodes have this defined by default
+	{
+		get;	
+	}
+}
+
+public interface FSingleTouchableInterface : FCapturedTouchableInterface
 {
 	bool HandleSingleTouchBegan(FTouch touch);
 	
@@ -22,38 +89,39 @@ public interface FSingleTouchableInterface
 	void HandleSingleTouchEnded(FTouch touch);
 
 	void HandleSingleTouchCanceled(FTouch touch);
-	
-	int touchPriority //FNodes have this defined by default
-	{
-		get;	
-	}
 }
 
 public interface FMultiTouchableInterface
 {
 	void HandleMultiTouch(FTouch[] touches);
 }
+
+public interface FSmartTouchableInterface : FCapturedTouchableInterface
+{
+	bool HandleSmartTouchBegan(int touchIndex, FTouch touch);
 	
+	void HandleSmartTouchMoved(int touchIndex, FTouch touch);
+	
+	void HandleSmartTouchEnded(int touchIndex, FTouch touch);
+	
+	void HandleSmartTouchCanceled(int touchIndex, FTouch touch);
+}
+
 public class FTouchManager
 {
+	public const int SLOT_COUNT = 12;
+
 	public static bool shouldMouseEmulateTouch = true;
 	public static bool isEnabled = true;
-	
-	private List<FSingleTouchableInterface> _singleTouchables = new List<FSingleTouchableInterface>();
+
 	private List<FMultiTouchableInterface> _multiTouchables = new List<FMultiTouchableInterface>();
-	
-	private List<FSingleTouchableInterface> _singleTouchablesToAdd = new List<FSingleTouchableInterface>();
-	private List<FSingleTouchableInterface> _singleTouchablesToRemove = new List<FSingleTouchableInterface>();
-	private List<FMultiTouchableInterface> _multiTouchablesToAdd = new List<FMultiTouchableInterface>();
-	private List<FMultiTouchableInterface> _multiTouchablesToRemove = new List<FMultiTouchableInterface>();
-	
-	private FSingleTouchableInterface _theSingleTouchable = null;
-	
-	private bool _isUpdating = false;
-	
+	private List<FCapturedTouchableInterface> _capturedTouchables = new List<FCapturedTouchableInterface>();
+
 	private bool _needsPrioritySort = false;
 	
 	private Vector2 _previousMousePosition = new Vector2(0,0);
+
+	private FTouchSlot[] _touchSlots;
 
 	public FTouchManager ()
 	{
@@ -73,25 +141,34 @@ public class FTouchManager
 		#if UNITY_EDITOR
 			shouldMouseEmulateTouch = true;
 		#endif
-		
+
+		_touchSlots = new FTouchSlot[SLOT_COUNT];
+
+		for(int t = 0; t<SLOT_COUNT; t++)
+		{
+			_touchSlots[t] = new FTouchSlot(t);
+		}
 	}
 	
 	public bool DoesTheSingleTouchableExist()
 	{
-		return (_theSingleTouchable != null);	
+		return _touchSlots[0].doesHaveTouch;	
 	}
 	
 	public void Update()
 	{
 		if (!isEnabled) return;
-		
-		_isUpdating = true;
-		
+
 		if(_needsPrioritySort)
 		{
 			UpdatePrioritySorting();	
 		}
-		
+
+		//create non-changeable temporary copies of the lists
+		//this is so that there won't be problems if touchables are removed/added while being iterated through
+		FMultiTouchableInterface[] tempMultiTouchables = _multiTouchables.ToArray();
+		FCapturedTouchableInterface[] tempCapturedTouchables = _capturedTouchables.ToArray();
+
 		float touchScale = 1.0f/Futile.displayScale;
 		
 		//the offsets account for the camera's 0,0 point (eg, center, bottom left, etc.)
@@ -164,193 +241,317 @@ public class FTouchManager
 			touches[i+offset] = resultTouch;
 		}
 		
-		int singleTouchableCount = _singleTouchables.Count;
-		
-		int lowestFingerId = int.MaxValue;
-			
+		int capturedTouchableCount = tempCapturedTouchables.Length;
+
+		//reset the touch slotIndexes so that each slot can pick the touch it needs
 		for(int t = 0; t<touchCount; t++)
 		{
 			FTouch touch = touches[t];
-			if(touch.fingerId < lowestFingerId)
+			touch.slot = null; 
+		}
+
+		//match up slots that are currently active with the touches
+		for(int s = 0; s<SLOT_COUNT; s++)
+		{
+			FTouchSlot slot = _touchSlots[s];
+
+			if(slot.doesHaveTouch)
 			{
-				lowestFingerId = touch.fingerId;	
+				bool didFindMatchingTouch = false;
+
+				for(int t = 0; t<touchCount; t++)
+				{
+					FTouch touch = touches[t];
+					if(slot.touch.fingerId == touch.fingerId)
+					{
+						didFindMatchingTouch = true;
+						slot.touch = touch;
+						touch.slot = slot;
+						break;
+					}
+				}
+
+				if(!didFindMatchingTouch)
+				{
+					slot.doesHaveTouch = false;
+					slot.touchable = null;
+				}
 			}
 		}
-		
-		for(int t = 0; t<touchCount; t++)
+
+		//fill any blank slots with the unclaimed touches
+		for(int s = 0; s<SLOT_COUNT; s++)
 		{
-			FTouch touch = touches[t];
+			FTouchSlot slot = _touchSlots[s];
 			
-			if(touch.fingerId == lowestFingerId) // we only care about the first touch for the singleTouchables
+			if(!slot.doesHaveTouch)
 			{
-				if(touch.phase == TouchPhase.Began)
+				for(int t = 0; t<touchCount; t++)
 				{
-					for(int s = 0; s<singleTouchableCount; s++)
+					FTouch touch = touches[t];
+					if(touch.slot == null)
 					{
-						FSingleTouchableInterface singleTouchable = _singleTouchables[s];
-						if(singleTouchable.HandleSingleTouchBegan(touch)) //the first touchable to return true becomes theSingleTouchable
+						slot.touch = touch;
+						slot.doesHaveTouch = true;
+						touch.slot = slot;
+						break;
+					}
+				}
+			}
+
+			if(slot.doesHaveTouch) //send the touch out to the slots that need it
+			{
+				if(slot.touch.phase == TouchPhase.Began)
+				{
+					slot.didJustBegin = true;
+					slot.wasArtificiallyCanceled = false;
+
+					for(int c = 0; c<capturedTouchableCount; c++)
+					{
+						FCapturedTouchableInterface capturedTouchable = tempCapturedTouchables[c];
+
+						FSingleTouchableInterface singleTouchable = capturedTouchable as FSingleTouchableInterface;
+
+						//the first touchable to return true becomes the active one
+						if(slot.index == 0 && singleTouchable != null && singleTouchable.HandleSingleTouchBegan(slot.touch))
 						{
-							_theSingleTouchable = singleTouchable;
+							slot.isUsedBySingleTouchable = true;
+							slot.touchable = capturedTouchable;
 							break;
+						}
+						else 
+						{
+							FSmartTouchableInterface smartTouchable = capturedTouchable as FSmartTouchableInterface;
+							if(smartTouchable != null && smartTouchable.HandleSmartTouchBegan(slot.index, slot.touch))
+							{
+								slot.isUsedBySingleTouchable = false;
+								slot.touchable = capturedTouchable;
+								break;
+							}
 						}
 					}
 				}
-				else if(touch.phase == TouchPhase.Ended)
+				else if(slot.touch.phase == TouchPhase.Canceled)
 				{
-					if(_theSingleTouchable != null)
+					slot.didJustCancel = true;
+
+					if(!slot.wasArtificiallyCanceled)
 					{
-						_theSingleTouchable.HandleSingleTouchEnded(touch);	
+						if(slot.touchable != null)
+						{
+							if(slot.isUsedBySingleTouchable)
+							{
+								(slot.touchable as FSingleTouchableInterface).HandleSingleTouchCanceled(slot.touch);
+							}
+							else 
+							{
+								(slot.touchable as FSmartTouchableInterface).HandleSmartTouchCanceled(slot.index, slot.touch);
+							}
+						}
 					}
-					_theSingleTouchable = null;
+
+					//cleaned up in CleanUpEndedAndCanceledTouches() instead
+					//slot.touchable = null;
+					//slot.doesHaveTouch = false;
 				}
-				else if(touch.phase == TouchPhase.Canceled)
+				else if(slot.touch.phase == TouchPhase.Ended)
 				{
-					if(_theSingleTouchable != null)
+					slot.didJustEnd = true;
+
+					if(!slot.wasArtificiallyCanceled)
 					{
-						_theSingleTouchable.HandleSingleTouchCanceled(touch);	
+						if(slot.touchable != null)
+						{
+							if(slot.isUsedBySingleTouchable)
+							{
+								(slot.touchable as FSingleTouchableInterface).HandleSingleTouchEnded(slot.touch);
+							}
+							else 
+							{
+								(slot.touchable as FSmartTouchableInterface).HandleSmartTouchEnded(slot.index, slot.touch);
+							}
+						}
 					}
-					_theSingleTouchable = null;
+
+					//cleaned up in CleanUpEndedAndCanceledTouches() instead
+					//slot.touchable = null;
+					//slot.doesHaveTouch = false;
 				}
-				else //moved or stationary
+				else if(slot.touch.phase == TouchPhase.Moved)
 				{
-					if(_theSingleTouchable != null)
+					slot.didJustMove = true;
+
+					if(!slot.wasArtificiallyCanceled)
 					{
-						_theSingleTouchable.HandleSingleTouchMoved(touch);	
+						if(slot.touchable != null)
+						{
+							if(slot.isUsedBySingleTouchable)
+							{
+								(slot.touchable as FSingleTouchableInterface).HandleSingleTouchMoved(slot.touch);
+							}
+							else 
+							{
+								(slot.touchable as FSmartTouchableInterface).HandleSmartTouchMoved(slot.index, slot.touch);
+							}
+						}
 					}
 				}
-				
-				break; //break out from the foreach, once we've found the first touch we don't care about the others
+			}
+			else //clear the slot here
+			{
+				slot.Clear();
 			}
 		}
 		
 		if(touchCount > 0)
 		{
-			int multiTouchableCount = _multiTouchables.Count;
+			int multiTouchableCount = tempMultiTouchables.Length;
 			for(int m = 0; m<multiTouchableCount; m++)
 			{
-				_multiTouchables[m].HandleMultiTouch(touches);
+				tempMultiTouchables[m].HandleMultiTouch(touches);
 			}	
 		}
-		
-		//now add or remove anything that was changed while we were looping through
-		
-		for(int s = 0; s<_singleTouchablesToRemove.Count; s++)
+	}
+
+	public void CleanUpEndedAndCanceledTouches()//called by Futile in LateUpdate
+	{
+		//clean up the touches that have been canceled or ended
+		for(int t = 0; t<SLOT_COUNT; t++)
 		{
-			_singleTouchables.Remove(_singleTouchablesToRemove[s]);	
+			FTouchSlot slot = _touchSlots[t];
+			if(slot.doesHaveTouch)
+			{
+				if(slot.wasArtificiallyCanceled && slot.touchable != null)
+				{
+					slot.touchable = null;
+				}
+
+				if(slot.touch.phase == TouchPhase.Moved)
+				{
+					slot.didJustMove = false;
+				}
+				else if(slot.touch.phase == TouchPhase.Began)
+				{
+					slot.didJustBegin = false;
+				}
+				else if(slot.touch.phase == TouchPhase.Ended)
+				{
+					slot.doesHaveTouch = false;
+					slot.touchable = null;
+					slot.didJustEnd = false;
+				}
+				else if(slot.touch.phase == TouchPhase.Canceled)
+				{
+					slot.doesHaveTouch = false;
+					slot.touchable = null;
+					slot.didJustCancel = false;
+				}
+			}
 		}
-		
-		for(int s = 0; s<_singleTouchablesToAdd.Count; s++)
-		{
-			_singleTouchables.Add(_singleTouchablesToAdd[s]);	
-		}
-		
-		for(int m = 0; m<_multiTouchablesToRemove.Count; m++)
-		{
-			_multiTouchables.Remove(_multiTouchablesToRemove[m]);	
-		}
-		
-		for(int m = 0; m<_multiTouchablesToAdd.Count; m++)
-		{
-			_multiTouchables.Add(_multiTouchablesToAdd[m]);	
-		}
-		
-		_singleTouchablesToRemove.Clear();
-		_singleTouchablesToAdd.Clear();
-		_multiTouchablesToRemove.Clear();
-		_multiTouchablesToAdd.Clear();
-		
-		_isUpdating = false;
 	}
 
 	public void HandleDepthChange ()
 	{
 		_needsPrioritySort = true;
 	}
-	
-	private static int PriorityComparison(FSingleTouchableInterface a, FSingleTouchableInterface b) 
+
+	private static int CapturablePriorityComparison(FCapturedTouchableInterface a, FCapturedTouchableInterface b) 
 	{
-		return b.touchPriority - a.touchPriority;
+		return b.touchPriority - a.touchPriority; //highest to lowest
 	}
+
+//	private static int TouchComparison(FTouch a, FTouch b) 
+//	{
+//		return a.fingerId - b.fingerId; //lowest to highest
+//	}
 
 	private void UpdatePrioritySorting()
 	{
 		_needsPrioritySort = false;
-		_singleTouchables.Sort(PriorityComparison);
+		_capturedTouchables.Sort(CapturablePriorityComparison);
 	}
-	
+
 	public void AddSingleTouchTarget(FSingleTouchableInterface touchable)
 	{
-		if(_isUpdating)
+		if(!_capturedTouchables.Contains(touchable))
 		{
-			if(!_singleTouchablesToAdd.Contains(touchable))
-			{
-				int index = _singleTouchablesToRemove.IndexOf(touchable);
-				if(index != -1) _singleTouchablesToRemove.RemoveAt(index);
-				_singleTouchablesToAdd.Add(touchable);
-			}
-		}
-		else
-		{
-			if(!_singleTouchables.Contains(touchable))
-			{
-				_singleTouchables.Add(touchable);
-			}
-		}
-		_needsPrioritySort = true;
-	}
-	
-	public void AddMultiTouchTarget(FMultiTouchableInterface touchable)
-	{
-		if(_isUpdating)
-		{
-			if(!_multiTouchablesToAdd.Contains(touchable))
-			{
-				int index = _multiTouchablesToRemove.IndexOf(touchable);
-				if(index != -1) _multiTouchablesToRemove.RemoveAt(index);
-				_multiTouchablesToAdd.Add(touchable);
-			}
-		}
-		else
-		{
-			if(!_multiTouchables.Contains(touchable))
-			{
-				_multiTouchables.Add(touchable);
-			}
+			_capturedTouchables.Add(touchable);
+			_needsPrioritySort = true;
 		}
 	}
 	
 	public void RemoveSingleTouchTarget(FSingleTouchableInterface touchable)
 	{
-		if(_isUpdating)
+		_capturedTouchables.Remove(touchable);
+	}
+
+	public void AddMultiTouchTarget(FMultiTouchableInterface touchable)
+	{
+		if(!_multiTouchables.Contains(touchable))
 		{
-			if(!_singleTouchablesToRemove.Contains(touchable))
-			{
-				int index = _singleTouchablesToAdd.IndexOf(touchable);
-				if(index != -1) _singleTouchablesToAdd.RemoveAt(index);
-				_singleTouchablesToRemove.Add(touchable);
-			}
-		}
-		else
-		{
-			_singleTouchables.Remove(touchable);
+			_multiTouchables.Add(touchable);
 		}
 	}
 	
 	public void RemoveMultiTouchTarget(FMultiTouchableInterface touchable)
 	{
-		if(_isUpdating)
+		_multiTouchables.Remove(touchable);
+	}
+
+	public void AddSmartTouchTarget(FSmartTouchableInterface touchable)
+	{
+		if(!_capturedTouchables.Contains(touchable))
 		{
-			if(!_multiTouchablesToRemove.Contains(touchable))
-			{
-				int index = _multiTouchablesToAdd.IndexOf(touchable);
-				if(index != -1) _multiTouchablesToAdd.RemoveAt(index);
-				_multiTouchablesToRemove.Add(touchable);
-			}
-		}
-		else
-		{
-			_multiTouchables.Remove(touchable);
+			_capturedTouchables.Add(touchable);
+			_needsPrioritySort = true;
 		}
 	}
 	
+	public void RemoveSmartTouchTarget(FSmartTouchableInterface touchable)
+	{
+		_capturedTouchables.Remove(touchable);
+	}
+	
+
+
+	public void LogAllListeners()
+	{
+		StringBuilder stringBuilder = new StringBuilder("MultiTouchables("+_multiTouchables.Count+"): ");
+
+		for(int m = 0;m<_multiTouchables.Count;m++)
+		{
+			stringBuilder.Append(_multiTouchables[m]);
+			if(m < _multiTouchables.Count - 1)
+			{
+				stringBuilder.Append(", ");
+			}
+		}
+
+		Debug.Log(stringBuilder.ToString());
+
+		stringBuilder = new StringBuilder("CapturedTouchables("+_capturedTouchables.Count+"): ");
+		
+		for(int s = 0;s<_capturedTouchables.Count;s++)
+		{
+			stringBuilder.Append(_capturedTouchables[s]);
+			if(s < _capturedTouchables.Count - 1)
+			{
+				stringBuilder.Append(", ");
+			}
+		}
+		
+		Debug.Log(stringBuilder.ToString());
+	}
+
+	public FTouchSlot GetTouchSlot(int index)
+	{
+		if(index < 0 || index >= _touchSlots.Length) return null;
+		return _touchSlots[index];
+	}
+
+
 }
+
+
+
+
