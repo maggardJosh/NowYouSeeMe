@@ -20,16 +20,38 @@ public class GameScript : MonoBehaviour
         Futile.instance.Init(futileParams);
 
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
-
-        FSprite bg = new FSprite("testBG");
-        Futile.stage.AddChild(bg);
+        FTmxMap map = new FTmxMap();
+        FCamObject camera = C.getCameraInstance();
+        map.clipNode = camera;
+        map.LoadTMX("Maps/testMap");
+        Futile.stage.AddChild(map);
 
         playerAnim = new FAnimatedSprite("player");
-        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0, 1 }, 2000, true));
+        playerAnim.addAnimation(new FAnimation("idle", new int[] { 0 }, 2000, true));
         playerAnim.play("idle");
         Futile.stage.AddChild(playerAnim);
         startLoop();
         playerAnim.y = .5f;
+
+
+        camera.setWorldBounds(new Rect(0, -map.height, map.width, map.height));
+        camera.follow(playerAnim);
+        camera.MoveToFront();
+        
+        foreach (XMLNode node in map.objects)
+        {
+            if (node.attributes.ContainsKey("name"))
+            {
+                switch(node.attributes["name"].ToLower())
+                {
+                    case "spawn":
+                        playerAnim.x = float.Parse(node.attributes["x"]) + float.Parse(node.attributes["width"]) / 2;
+                        playerAnim.y = -(float.Parse(node.attributes["y"]) + float.Parse(node.attributes["height"])) / 2;
+                        break;
+                }
+            }
+        }
+
     }
 
     private void startLoop()
@@ -48,7 +70,7 @@ public class GameScript : MonoBehaviour
         }));
     }
 
-    float speed = 10;
+    float speed = 50;
     // Update is called once per frame
     void Update()
     {

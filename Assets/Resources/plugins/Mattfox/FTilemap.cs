@@ -127,7 +127,7 @@ public class FTilemap : FContainer
 					int frame = tileX + tileY * _tilesWide;
 					if (frame >= 0 && frame < _tileArray.GetLength (0)) {
 						int frameNum = _tileArray [frame];
-						tile.element = Futile.atlasManager.GetElementWithName (_baseName + "_" + frameNum);
+						tile.element = Futile.atlasManager.GetElementWithName (_baseName + "_" + String.Format("{0:00}", frameNum));
 						tile.isVisible = true;
 					} else {
 						tile.isVisible = false;
@@ -189,7 +189,7 @@ public class FTilemap : FContainer
             return;
 		
 		// get tile width/height
-		FAtlasElement element = Futile.atlasManager.GetElementWithName (_baseName + "_1");
+		FAtlasElement element = Futile.atlasManager.GetElementWithName (_baseName + "_01");
 		_tileWidth = element.sourceSize.x;
 		_tileHeight = element.sourceSize.y;
 		
@@ -243,7 +243,7 @@ public class FTilemap : FContainer
 			// make sure we have the right amount of tiles for the current clip size
 			if (_tiles.Count <= 0) {
 				for (int i = 0; i < totalNeeded; i++) {
-					FSprite sprite = new FSprite (_baseName + "_1"); // set to 1
+					FSprite sprite = new FSprite (_baseName + "_01"); // set to 1
 					sprite.shader = _shader;
 					
 					// add to this collection
@@ -253,7 +253,7 @@ public class FTilemap : FContainer
 			} else if (_tiles.Count < totalNeeded) {
 				int start = _tiles.Count;
 				for (int i = start; i < totalNeeded; i++) {
-					FSprite sprite = new FSprite (_baseName + "_1");
+					FSprite sprite = new FSprite (_baseName + "_01");
 					sprite.shader = _shader;
 						
 					// add to this collection
@@ -286,12 +286,12 @@ public class FTilemap : FContainer
 				if (!_skipZero || frame > 0) {
 					FSprite sprite;
 					if (_skipZero) {
-						sprite = new FSprite (_baseName + "_" + frame);
+						sprite = new FSprite (_baseName + "_" + String.Format("{0:00}",frame));
 						sprite.shader = _shader;
 						AddChild (sprite);
 					} else {
 						sprite = _tiles [i + (j * clipTilesWide)];
-						sprite.element = Futile.atlasManager.GetElementWithName (_baseName + "_" + frame);
+                        sprite.element = Futile.atlasManager.GetElementWithName(_baseName + "_" + String.Format("{0:00}", frame));
 					}
 					
 					// offset sprite coordinates

@@ -25,7 +25,7 @@ public class FCamObject : FContainer {
 		this.ListenForUpdate(Update);
 		this.ListenForResize(HandleResize);
 		
-		_bounds = new Rect(-5,-5,10,10);
+		_bounds = new Rect(-40,-40,80,80);
 		
 		_worldBounds = new Rect(0,0,0,0);
 		
@@ -64,9 +64,15 @@ public class FCamObject : FContainer {
 			if (_bounds.width > 0) {
 				if (_followObject.x > x + _bounds.xMax) {
 					x = _followObject.x - _bounds.width / 2;
-				} else if (_followObject.x < x + _bounds.xMin) {
-					x = _followObject.x + _bounds.width / 2;
-				}
+                }
+                else if (_followObject.x < x + _bounds.xMin)
+                {
+                    x = _followObject.x + _bounds.width / 2;
+                }
+                else
+                {
+                    x = Mathf.Lerp(x, _followObject.x, .1f);// x * .8f + (_followObject.x) * .2f;
+                }
 			} else {
 				// follow directly
 				x = _followObject.x;
@@ -75,17 +81,22 @@ public class FCamObject : FContainer {
 				if (_followObject.y > y + _bounds.yMax) {
 					//Debug.Log(_followObject.y + " > " + (y + _bounds.yMax));
 					y = _followObject.y - _bounds.height / 2;
-				} else if (_followObject.y < y + _bounds.yMin) {
-					//Debug.Log(_followObject.y + " < " + (y + _bounds.yMin));
-					y = _followObject.y + _bounds.height / 2;
-				}
+                }
+                else if (_followObject.y < y + _bounds.yMin)
+                {
+                    //Debug.Log(_followObject.y + " < " + (y + _bounds.yMin));
+                    y = _followObject.y + _bounds.height / 2;
+                }
+                else
+                {
+                    y = Mathf.Lerp(y, _followObject.y, .1f);// y * .8f + _followObject.y * .2f;
+                }
 			} else {
 				// follow directly
 				y = _followObject.y;
 			}
 		}
-		
-		
+
 		// keep within world bounds
 		if (_worldBounds.width > 0) {
 			if (Futile.screen.width > _worldBounds.width) {

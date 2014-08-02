@@ -24,7 +24,7 @@ public class FAnimatedSprite : FSprite {
 		_baseName = elementBase;
 		
 		// default to first frame, no animation
-		Init(FFacetType.Quad, Futile.atlasManager.GetElementWithName(_baseName+"_0"),1); // expects individual frames, in convention of NAME_#.EXT
+		Init(FFacetType.Quad, Futile.atlasManager.GetElementWithName(_baseName+"_00"),1); // expects individual frames, in convention of NAME_#.EXT
 		_isAlphaDirty = true;
 		UpdateLocalVertices();
 		
@@ -38,7 +38,7 @@ public class FAnimatedSprite : FSprite {
 		_baseName = elementBase;
 		
 		// default to first frame, no animation
-		Init(FFacetType.Quad, Futile.atlasManager.GetElementWithName(_baseName+"_0"),1); // expects individual frames, in convention of NAME_#.EXT
+		Init(FFacetType.Quad, Futile.atlasManager.GetElementWithName(_baseName+"_00"),1); // expects individual frames, in convention of NAME_#.EXT
 		_isAlphaDirty = true;
 		UpdateLocalVertices();
 		
@@ -66,7 +66,7 @@ public class FAnimatedSprite : FSprite {
 					//_currentAnim.checkFinished();
 				}
 				
-				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+_currentAnim.frames[_currentFrame]);
+				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+String.Format("{0:00}", _currentAnim.frames[_currentFrame]));
 				
 				_time -= (float)_currentAnim.delay / 1000.0f;
 			}
@@ -93,7 +93,7 @@ public class FAnimatedSprite : FSprite {
 				_currentFrame = 0;
 				_time = 0;
 				// redraw
-				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+_currentAnim.frames[0]);
+				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+String.Format("{0:00}",_currentAnim.frames[0]));
 			}
 			
 			return;
@@ -107,7 +107,7 @@ public class FAnimatedSprite : FSprite {
 				_time = 0;
 				
 				// force redraw to first frame
-				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+anim.frames[0]);
+				element = Futile.atlasManager.GetElementWithName(_baseName+"_"+String.Format("{0:00}",anim.frames[0]));
 				
 				break;
 			}

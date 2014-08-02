@@ -179,6 +179,7 @@
         <array>
             <filename>Player</filename>
             <filename>testBG.png</filename>
+            <filename>tilemap</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
