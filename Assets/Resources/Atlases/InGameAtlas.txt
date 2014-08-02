@@ -1,5 +1,13 @@
 {"frames": {
 
+"collision_01":
+{
+	"frame": {"x":191,"y":19,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
+},
 "player_00":
 {
 	"frame": {"x":167,"y":3,"w":20,"h":30},
@@ -55,6 +63,6 @@
 	"format": "RGBA8888",
 	"size": {"w":256,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:cac90ae43da16ec3d3bc262b675b0623:ffbb0766174a7ffc69a4066073521744:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:921d1c1773d6a0e26b7426c3ad142e33:858df8f7ccf60864328656256e1b00b5:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

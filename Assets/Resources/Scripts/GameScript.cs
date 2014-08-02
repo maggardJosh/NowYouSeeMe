@@ -6,7 +6,6 @@ using System.IO;
 
 public class GameScript : MonoBehaviour
 {
-    Player player;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -20,35 +19,11 @@ public class GameScript : MonoBehaviour
         Futile.instance.Init(futileParams);
 
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
-        FTmxMap map = new FTmxMap();
+
+        World world = new World();
+        world.LoadMap("testMap");
+        Futile.stage.AddChild(world);
         
-        map.clipNode = C.getCameraInstance();
-        map.LoadTMX("Maps/testMap");
-        Futile.stage.AddChild(map);
-
-        FCamObject camera = C.getCameraInstance();
-        player = new Player();
-
-        camera.setWorldBounds(new Rect(0, -map.height, map.width, map.height));
-        camera.follow(player);
-        camera.MoveToFront();
-
-        Futile.stage.AddChild(player);
-        
-        foreach (XMLNode node in map.objects)
-        {
-            if (node.attributes.ContainsKey("name"))
-            {
-                switch(node.attributes["name"].ToLower())
-                {
-                    case "spawn":
-                        player.x = float.Parse(node.attributes["x"]) + float.Parse(node.attributes["width"]) / 2;
-                        player.y = -(float.Parse(node.attributes["y"]) + float.Parse(node.attributes["height"])) / 2;
-                        break;
-                }
-            }
-        }
-
         startLoop();
     }
 

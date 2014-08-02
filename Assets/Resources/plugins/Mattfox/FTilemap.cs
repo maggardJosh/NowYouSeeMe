@@ -185,13 +185,13 @@ public class FTilemap : FContainer
 			}
 		}
 
-        if (!draw)
-            return;
-		
 		// get tile width/height
 		FAtlasElement element = Futile.atlasManager.GetElementWithName (_baseName + "_01");
 		_tileWidth = element.sourceSize.x;
 		_tileHeight = element.sourceSize.y;
+
+        if (!draw)
+            return;
 		
 		// warning if skipZero would give better results
 		if (_clipWidth > 0 && _clipHeight > 0 && _clipNode != null) {
@@ -335,8 +335,17 @@ public class FTilemap : FContainer
 	
 	public int getFrameNum (int givenX, int givenY)
 	{
-		return _tileArray [(givenX % _tilesWide) + (givenY * _tilesWide)];
+        if (givenX >= 0 && givenX < widthInTiles &&
+            givenY >= 0 && givenY < heightInTiles)
+            return _tileArray[(givenX % _tilesWide) + (givenY * _tilesWide)];
+        else
+            return -1;
 	}
+
+    public int getFrameNumAt (float xPos, float yPos)
+    {
+        return getFrameNum(Mathf.FloorToInt(xPos / tileWidth), Mathf.FloorToInt(-yPos / tileHeight));
+    }
 	
 	// returns FSprite at 
 	public FSprite getTile (int givenX, int givenY)
