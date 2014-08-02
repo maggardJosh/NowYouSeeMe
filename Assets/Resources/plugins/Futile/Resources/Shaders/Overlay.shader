@@ -12,7 +12,9 @@ Shader "Custom/OverlayBlend"
         Lighting Off
         Blend SrcAlpha OneMinusSrcAlpha
         ZWrite Off
+		ZTest Always
         Fog { Mode Off }
+		Cull Off //we can turn backface culling off because we know nothing will be facing backwards
        
         Pass {  
             CGPROGRAM
@@ -45,6 +47,28 @@ Shader "Custom/OverlayBlend"
                 o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
                 o.color = v.color;
                 o.texcoord = TRANSFORM_TEX(v.texcoord,_MainTex);
+				
+				// --------------- Snapping start ---------------
+				float hpcX = _ScreenParams.x * 0.5;
+				float hpcY = _ScreenParams.y * 0.5;
+				
+				#ifdef UNITY_HALF_TEXEL_OFFSET
+					float hpcOX = -0.5;
+					float hpcOY = 0.5;
+				#else
+					float hpcOX = 0;
+					float hpcOY = 0;
+				#endif	
+				
+				//Screen size is multiplied by 3 that is why we divide, floor, and then multiply back
+				// Snap
+				float pos = floor(((o.vertex.x / o.vertex.w) * hpcX + 0.5f)/3)*3 + hpcOX;
+				o.vertex.x = pos / hpcX * o.vertex.w;
+
+				pos = floor(((o.vertex.y / o.vertex.w) * hpcY + 0.5f)/3)*3 + hpcOY;
+				o.vertex.y = pos / hpcY * o.vertex.w;
+				o.color = v.color;
+				// ---------------- Snapping end ------------------------
                 return o;
             }
  
