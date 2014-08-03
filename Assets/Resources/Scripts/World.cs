@@ -9,7 +9,6 @@ public class World : FContainer
     FTmxMap map;
     Player player;
 
-    public const float Gravity = -.3f;
     public FTilemap collision;
 
     public World()

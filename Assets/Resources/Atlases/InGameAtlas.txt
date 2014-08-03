@@ -2,7 +2,7 @@
 
 "collision_01":
 {
-	"frame": {"x":167,"y":37,"w":12,"h":12},
+	"frame": {"x":3,"y":97,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -10,15 +10,15 @@
 },
 "hat_00":
 {
-	"frame": {"x":183,"y":37,"w":10,"h":20},
+	"frame": {"x":51,"y":3,"w":10,"h":20},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":10,"h":20},
-	"sourceSize": {"w":12,"h":22}
+	"sourceSize": {"w":30,"h":22}
 },
 "player_00":
 {
-	"frame": {"x":191,"y":3,"w":20,"h":30},
+	"frame": {"x":27,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -26,7 +26,7 @@
 },
 "player_01":
 {
-	"frame": {"x":167,"y":3,"w":20,"h":30},
+	"frame": {"x":3,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -34,7 +34,7 @@
 },
 "player_02":
 {
-	"frame": {"x":215,"y":31,"w":20,"h":24},
+	"frame": {"x":27,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
@@ -42,23 +42,15 @@
 },
 "player_03":
 {
-	"frame": {"x":215,"y":3,"w":20,"h":24},
+	"frame": {"x":3,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
 	"sourceSize": {"w":24,"h":30}
 },
-"testBG":
-{
-	"frame": {"x":3,"y":3,"w":160,"h":144},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":160,"h":144},
-	"sourceSize": {"w":160,"h":144}
-},
 "tilemap_01":
 {
-	"frame": {"x":239,"y":51,"w":12,"h":12},
+	"frame": {"x":3,"y":81,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -66,7 +58,7 @@
 },
 "tilemap_02":
 {
-	"frame": {"x":239,"y":35,"w":12,"h":12},
+	"frame": {"x":35,"y":65,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -74,7 +66,7 @@
 },
 "tilemap_03":
 {
-	"frame": {"x":239,"y":19,"w":12,"h":12},
+	"frame": {"x":19,"y":65,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -82,7 +74,7 @@
 },
 "tilemap_04":
 {
-	"frame": {"x":239,"y":3,"w":12,"h":12},
+	"frame": {"x":3,"y":65,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -93,8 +85,8 @@
 	"version": "1.0",
 	"image": "InGameAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":256,"h":256},
+	"size": {"w":64,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:a2fc8407d3db2b9dfb6a33778425370f:50b0cbea1d0e776d86218f60f2cd0fc1:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:afbcba87b697c9ca88f16095943059ed:32b171429a8f311cd78a9b0042871c99:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

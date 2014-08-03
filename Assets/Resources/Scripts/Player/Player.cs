@@ -44,7 +44,7 @@ public class Player : FContainer
     public float getVelocityAngle()
     {
         if (xMove == 0 && yMove == 0)
-            return -90;
+            return -90;     //If we aren't moving just point the hat up
         else
             return Mathf.Atan2(-yMove, xMove) * 180.0f / Mathf.PI;
     }
@@ -103,56 +103,69 @@ public class Player : FContainer
         }
         stateCount += Time.deltaTime;
     }
-    float speed = 1f;
-    float airSpeed = .2f;
-    float friction = .5f;
+    float speed = .1f;
+    float airSpeed = .1f;
+    float friction = .7f;
     float airFriction = .99f;
     float jumpStrength = 10;
     const float MAX_Y_VEL = 6f;
-    const float MAX_X_VEL = 6f;
+    const float MAX_X_VEL = 5f;
     bool isGrounded = true;
     bool isMoving = false;
     const float MIN_MOVEMENT_X = .1f;
+    public const float Gravity = -.3f;
     private void Update()
     {
+        float xAcc = 0;
+        float yAcc = 0;
         if (currentState == State.VANISHING)
             return;
         if (Input.GetKey(C.LEFT_KEY))
         {
-            xMove -= isGrounded ? speed : airSpeed;
+            xAcc = isGrounded ? -speed : -airSpeed;
+            if (xMove > 0)
+                xAcc *= 4;
             isFacingLeft = true;
         }
         if (Input.GetKey(C.RIGHT_KEY))
         {
-            xMove += isGrounded ? speed : airSpeed;
+            xAcc = isGrounded ? speed : airSpeed;
+            if (xMove < 0)
+                xAcc *= 4;
             isFacingLeft = false;
         }
+
+        
+        xMove += xAcc;
+
+        xMove = Mathf.Clamp(xMove, -MAX_X_VEL, MAX_X_VEL);
 
         if (xMove > 0)
             tryMoveRight(xMove);
         else if (xMove < 0)
             tryMoveLeft(xMove);
 
-        yMove += World.Gravity;
+        yMove += Gravity;
 
+        yMove = Mathf.Clamp(yMove, -MAX_Y_VEL, MAX_Y_VEL);
 
         if (yMove > 0)
             tryMoveUp(yMove);
         else if (yMove < 0)
             tryMoveDown(yMove);
-        yMove = Mathf.Clamp(yMove, -MAX_Y_VEL, MAX_Y_VEL);
 
         if (yMove > 0)
             isGrounded = false;
 
-        if (isGrounded)
-            xMove *= friction;
-        else
-            xMove *= airFriction;
+        if (xAcc == 0)
+            if (isGrounded)
+                xMove *= friction;
+            else
+                xMove *= airFriction;
 
         if (Math.Abs(xMove) < MIN_MOVEMENT_X)
             xMove = 0;
-        isMoving = xMove != 0;
+        isMoving = xAcc != 0;
         string animToPlay = "";
 
         switch (currentState)
@@ -173,10 +186,7 @@ public class Player : FContainer
                 animToPlay += "idle";
         }
         else
-        {
             animToPlay += "idle";
-        }
-        RXDebug.Log(animToPlay);
         playerSprite.play(animToPlay, false);
         //Flip if facing left
         playerSprite.scaleX = isFacingLeft ? -1 : 1;
