@@ -23,8 +23,7 @@ public class GameScript : MonoBehaviour
         World world = new World();
         world.LoadMap("testMap");
         Futile.stage.AddChild(world);
-        
-        startLoop();
+        FShader.OverlayBlend.overlayColor = new Color(.4f, .8f, .2f);
     }
 
     private void startLoop()

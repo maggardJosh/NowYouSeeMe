@@ -6,19 +6,47 @@ using UnityEngine;
 
 public class Player : FContainer
 {
+    //State for player
+    // Marking is when the hat is placed on the map
+    // Vanishing is when the player is vanishing back to the hat
+    private enum State
+    {
+        IDLE,
+        MARKING,
+        VANISHING,
+        HAT_RETURNING
+    }
     FAnimatedSprite playerSprite;
+    private State currentState = State.IDLE;
+    private State lastState = State.IDLE;
+    Hat hat;
     World world;
     int jumpsLeft = 0;
     float xMove = 0;
     float yMove = 0;
+    float stateCount = 0;
+    bool isFacingLeft = false;
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
-        playerSprite.addAnimation(new FAnimation("idle", new int[] { 0 }, 2000, true));
-        playerSprite.play("idle");
+        playerSprite.addAnimation(new FAnimation("idle_idle", new int[] { 0 }, 400, true));
+        playerSprite.addAnimation(new FAnimation("idle_walk", new int[] { 0, 1 }, 400, true));
+        playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 2 }, 400, true));
+        playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 2, 3 }, 400, true));
+
+        playerSprite.play("idle_idle");
         this.AddChild(playerSprite);
         this.world = world;
         C.getCameraInstance().follow(this);
+        hat = new Hat(this);
+    }
+
+    public float getVelocityAngle()
+    {
+        if (xMove == 0 && yMove == 0)
+            return -90;
+        else
+            return Mathf.Atan2(-yMove, xMove) * 180.0f / Mathf.PI;
     }
 
     public override void HandleAddedToStage()
@@ -27,14 +55,53 @@ public class Player : FContainer
         Futile.instance.SignalUpdate += ControlUpdate;
         base.HandleAddedToStage();
     }
+    private void Mark()
+    {
+        this.container.AddChild(hat);
+        hat.appear();
+        hat.SetPosition(this.GetPosition());
 
+    }
+    const float VANISH_DURATION = .3f;
+    const float HAT_RETURN_COUNT = 1.0f;
+    private void Vanish()
+    {
+        playerSprite.isVisible = false;
+        currentState = State.VANISHING;
+        Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.HAT_RETURNING; hat.disappear(HAT_RETURN_COUNT); playerSprite.isVisible = true; }));
+    }
     private void ControlUpdate()
     {
+        if (currentState != lastState)
+            stateCount = 0;
+
+        lastState = currentState;
+        switch (currentState)
+        {
+            case State.IDLE:
+                if (Input.GetKeyDown(C.ACTION_KEY))
+                {
+                    currentState = State.MARKING;
+                    Mark();
+                }
+                break;
+            case State.MARKING:
+                if (!Input.GetKey(C.ACTION_KEY))
+                    Vanish();
+                break;
+            case State.VANISHING:
+                return;     //Don't allow controls past this
+            case State.HAT_RETURNING:
+                if (stateCount > HAT_RETURN_COUNT)
+                    currentState = State.IDLE;
+                break;
+        }
         if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
         {
             yMove = jumpStrength;
             jumpsLeft--;
         }
+        stateCount += Time.deltaTime;
     }
     float speed = 1f;
     float airSpeed = .2f;
@@ -44,12 +111,22 @@ public class Player : FContainer
     const float MAX_Y_VEL = 6f;
     const float MAX_X_VEL = 6f;
     bool isGrounded = true;
+    bool isMoving = false;
+    const float MIN_MOVEMENT_X = .1f;
     private void Update()
     {
+        if (currentState == State.VANISHING)
+            return;
         if (Input.GetKey(C.LEFT_KEY))
+        {
             xMove -= isGrounded ? speed : airSpeed;
+            isFacingLeft = true;
+        }
         if (Input.GetKey(C.RIGHT_KEY))
+        {
             xMove += isGrounded ? speed : airSpeed;
+            isFacingLeft = false;
+        }
 
         if (xMove > 0)
             tryMoveRight(xMove);
@@ -72,6 +149,37 @@ public class Player : FContainer
             xMove *= friction;
         else
             xMove *= airFriction;
+
+        if (Math.Abs(xMove) < MIN_MOVEMENT_X)
+            xMove = 0;
+        isMoving = xMove != 0;
+        string animToPlay = "";
+
+        switch (currentState)
+        {
+            case State.HAT_RETURNING:
+            case State.MARKING:
+                animToPlay += "hatless_";
+                break;
+            default:
+                animToPlay += "idle_";
+                break;
+        }
+        if (isGrounded)
+        {
+            if (isMoving)
+                animToPlay += "walk";
+            else
+                animToPlay += "idle";
+        }
+        else
+        {
+            animToPlay += "idle";
+        }
+        RXDebug.Log(animToPlay);
+        playerSprite.play(animToPlay, false);
+        //Flip if facing left
+        playerSprite.scaleX = isFacingLeft ? -1 : 1;
 
     }
     float collisionWidth = 12;
@@ -133,7 +241,7 @@ public class Player : FContainer
         else
         {
             this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
-           // this.y = Mathf.CeilToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight - (world.collision.tileHeight - collisionHeight / 2);
+            // this.y = Mathf.CeilToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight - (world.collision.tileHeight - collisionHeight / 2);
             this.yMove = 0;
             this.jumpsLeft = 1;
             isGrounded = true;
