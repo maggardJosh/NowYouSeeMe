@@ -26,22 +26,6 @@ public class GameScript : MonoBehaviour
         FShader.OverlayBlend.overlayColor = new Color(.4f, .8f, .2f);
     }
 
-    private void startLoop()
-    {
-        Go.killAllTweensWithTarget(FShader.OverlayBlend);
-        FShader.OverlayBlend.overlayColor = new Color(.2f, .7f, .4f);
-        Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.2f, .4f, .7f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween a) =>
-        {
-            Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.7f, .4f, .2f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween b) =>
-            {
-                Go.to(FShader.OverlayBlend, 2.0f, new TweenConfig().colorProp("overlayColor", new Color(.2f, .7f, .4f)).setEaseType(EaseType.QuadIn).onComplete((AbstractTween c) =>
-                {
-                    startLoop();
-                }));
-            }));
-        }));
-    }
-
     // Update is called once per frame
     void Update()
     {
