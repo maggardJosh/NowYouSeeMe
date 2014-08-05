@@ -46,7 +46,7 @@ public class Player : FContainer
         cashCounter = new GUICounter();
 
         panacheCounter = new GUICounter();
-        
+
     }
 
     public float getVelocityAngle()
@@ -72,6 +72,8 @@ public class Player : FContainer
     }
     const float VANISH_DURATION = .3f;
     const float HAT_RETURN_COUNT = 1.0f;
+    private const float MARK_MAX_COUNT = 2.0f;
+
     private void Vanish()
     {
         VanishCloud cloud = new VanishCloud();
@@ -81,9 +83,25 @@ public class Player : FContainer
         VanishCloud newPosCloud = new VanishCloud();
         newPosCloud.SetPosition(hat.GetPosition());
         playerSprite.isVisible = false;
+
         currentState = State.VANISHING;
         Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
     }
+
+    private void MarkTimeOut()
+    {
+        VanishCloud cloud = new VanishCloud();
+        cloud.SetPosition(this.GetPosition());
+        this.container.AddChild(cloud);
+
+        VanishCloud newPosCloud = new VanishCloud();
+        newPosCloud.SetPosition(hat.GetPosition());
+        this.container.AddChild(newPosCloud);
+
+        hat.disappear();
+        currentState = State.COOLDOWN;
+    }
+
     private void ControlUpdate()
     {
         if (currentState != lastState)
@@ -105,8 +123,11 @@ public class Player : FContainer
                 }
                 break;
             case State.MARKING:
-                if (!Input.GetKey(C.ACTION_KEY))
-                    Vanish();
+                if (stateCount >= MARK_MAX_COUNT)
+                    MarkTimeOut();
+                else
+                    if (!Input.GetKey(C.ACTION_KEY))
+                        Vanish();
                 break;
             case State.VANISHING:
                 return;     //Don't allow controls past this
@@ -122,6 +143,18 @@ public class Player : FContainer
         }
         stateCount += Time.deltaTime;
     }
+
+    public float GetVanishPercent()
+    {
+        switch (currentState)
+        {
+            case State.MARKING: return 1 - stateCount / MARK_MAX_COUNT;
+            case State.VANISHING: return 0;
+            case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
+            default: return 1.0f;
+        }
+    }
+
     float speed = .1f;
     float airSpeed = .1f;
     float friction = .7f;
@@ -133,10 +166,10 @@ public class Player : FContainer
     bool isMoving = false;
     const float MIN_MOVEMENT_X = .1f;
     public const float Gravity = -.3f;
+
     private void Update()
     {
         float xAcc = 0;
-        float yAcc = 0;
         if (currentState == State.VANISHING)
             return;
         if (Input.GetKey(C.LEFT_KEY))
@@ -154,7 +187,7 @@ public class Player : FContainer
             isFacingLeft = false;
         }
 
-        
+
         xMove += xAcc;
 
         xMove = Mathf.Clamp(xMove, -MAX_X_VEL, MAX_X_VEL);

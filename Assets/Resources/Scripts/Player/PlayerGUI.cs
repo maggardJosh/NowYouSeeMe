@@ -40,6 +40,11 @@ public class PlayerGUI : FCamObject
         this.AddChild(panacheLeftToAddCounter);
         panacheLeftToAddCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
         panacheLeftToAddCounter.isVisible = false;
+
+        markCounter = new FRadialWipeSprite("collision_01", false, 0, 1.0f);
+        markCounter.SetPosition(new Vector2(0, Futile.screen.halfHeight - markCounter.height / 2 - guiSideMargin));
+        this.AddChild(markCounter);
+
     }
 
     public void setPlayer(Player p)
@@ -59,6 +64,8 @@ public class PlayerGUI : FCamObject
         panacheCounter .text = p.panacheCounter.value.ToString();
         panacheLeftToAddCounter.text = (p.panacheCounter.valueLeftToAdd >= 0 ? "+" : "-") + p.panacheCounter.valueLeftToAdd;
         panacheLeftToAddCounter.isVisible = p.panacheCounter.valueLeftToAdd != 0;
+
+        markCounter.percentage = p.GetVanishPercent();
     }
 }
 
