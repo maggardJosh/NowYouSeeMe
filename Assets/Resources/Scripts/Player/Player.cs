@@ -30,15 +30,20 @@ public class Player : FContainer
     public GUICounter cashCounter;
     public GUICounter panacheCounter;
 
+    int animSpeed = 200;
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
-        playerSprite.addAnimation(new FAnimation("idle_idle", new int[] { 0 }, 400, true));
-        playerSprite.addAnimation(new FAnimation("idle_walk", new int[] { 0, 1 }, 400, true));
-        playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 2 }, 400, true));
-        playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 2, 3 }, 400, true));
+        playerSprite.addAnimation(new FAnimation("hat_idle", new int[] { 13 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hat_walk", new int[] { 1, 2, 3, 4 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_air_up", new int[] { 11 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
 
-        playerSprite.play("idle_idle");
+        playerSprite.play("hat_idle");
         this.AddChild(playerSprite);
         this.world = world;
         C.getCameraInstance().follow(this);
@@ -226,7 +231,7 @@ public class Player : FContainer
                 animToPlay += "hatless_";
                 break;
             default:
-                animToPlay += "idle_";
+                animToPlay += "hat_";
                 break;
         }
         if (isGrounded)
@@ -237,7 +242,13 @@ public class Player : FContainer
                 animToPlay += "idle";
         }
         else
-            animToPlay += "idle";
+        {
+            if (yMove > 0)
+                animToPlay += "air_up";
+            else
+                animToPlay += "air_down";
+
+        }
         playerSprite.play(animToPlay, false);
         //Flip if facing left
         playerSprite.scaleX = isFacingLeft ? -1 : 1;

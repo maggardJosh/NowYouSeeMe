@@ -11,7 +11,7 @@ public class Hat : FContainer
     public Hat(Player p)
     {
         hatSprite = new FAnimatedSprite("hat");
-        hatSprite.addAnimation(new FAnimation("mark", new int[] { 0 }, 300, true));
+        hatSprite.addAnimation(new FAnimation("mark", new int[] { 1 }, 300, true));
         hatSprite.play("mark");
         this.AddChild(hatSprite);
         this.owner = p;
