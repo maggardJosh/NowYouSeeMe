@@ -33,6 +33,10 @@ public class GameScript : MonoBehaviour
         pressEnter.y = -Futile.screen.halfHeight + 25;
         pressEnter.isVisible = false;
         Futile.stage.AddChild(pressEnter);
+
+        ShadowLabel versionNumber = new ShadowLabel(C.versionNumber);
+        versionNumber.y = -Futile.screen.halfHeight + versionNumber.textRect.height/2 + 2;
+        Futile.stage.AddChild(versionNumber);
     }
 
     float count = 0;

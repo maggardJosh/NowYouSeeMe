@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class C
 {
+    public const string versionNumber = "v0.1";
+
     private static PlayerGUI cameraInstance;
     public static PlayerGUI getCameraInstance()
     {
