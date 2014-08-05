@@ -75,7 +75,7 @@ public class Player : FContainer
         hat.SetPosition(this.GetPosition());
 
     }
-    const float VANISH_DURATION = .3f;
+    const float VANISH_DURATION = .5f;
     const float HAT_RETURN_COUNT = 1.0f;
     private const float MARK_MAX_COUNT = 2.0f;
 
@@ -107,6 +107,22 @@ public class Player : FContainer
         currentState = State.COOLDOWN;
     }
 
+    public void addCash(int amount)
+    {
+        cashCounter.addAmount(amount);
+        LabelIndicator cashInd = new LabelIndicator("+$" + amount);
+        cashInd.SetPosition(this.GetPosition() + Vector2.up * 10);
+        this.container.AddChild(cashInd);
+    }
+
+    public void addPanache(int amount)
+    {
+        panacheCounter.addAmount(amount);
+        LabelIndicator panacheInd = new LabelIndicator("+" + amount);
+        panacheInd.SetPosition(this.GetPosition() + Vector2.up * 10);
+        this.container.AddChild(panacheInd);
+
+    }
     private void ControlUpdate()
     {
         if (currentState != lastState)
@@ -115,9 +131,9 @@ public class Player : FContainer
         lastState = currentState;
 
         if (Input.GetKeyDown(KeyCode.C))
-            cashCounter.addAmount(100);
+            addCash(100);
         if (Input.GetKeyDown(KeyCode.P))
-            panacheCounter.addAmount(100);
+            addPanache(100);
         switch (currentState)
         {
             case State.IDLE:
