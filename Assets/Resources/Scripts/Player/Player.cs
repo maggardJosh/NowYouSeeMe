@@ -73,6 +73,7 @@ public class Player : FContainer
         this.container.AddChild(hat);
         hat.appear();
         hat.SetPosition(this.GetPosition());
+        hasLeftMarkPos = false;
 
     }
     const float VANISH_DURATION = .5f;
@@ -144,6 +145,8 @@ public class Player : FContainer
                 }
                 break;
             case State.MARKING:
+                if (!hasLeftMarkPos)
+                    stateCount = 0;
                 if (stateCount >= MARK_MAX_COUNT)
                     MarkTimeOut();
                 else
@@ -151,7 +154,7 @@ public class Player : FContainer
                         Vanish();
                 break;
             case State.VANISHING:
-                return;     //Don't allow controls past this
+                return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)
                     currentState = State.IDLE;
@@ -169,7 +172,7 @@ public class Player : FContainer
     {
         switch (currentState)
         {
-            case State.MARKING: return 1 - stateCount / MARK_MAX_COUNT;
+            case State.MARKING: return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
             case State.VANISHING: return 0;
             case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
             default: return 1.0f;
@@ -185,6 +188,8 @@ public class Player : FContainer
     const float MAX_X_VEL = 5f;
     bool isGrounded = true;
     bool isMoving = false;
+    bool hasLeftMarkPos = false;
+    const float MARK_MIN_DIST = 20;     //Distance from mark that causes the timer to start
     const float MIN_MOVEMENT_X = .1f;
     public const float Gravity = -.3f;
 
@@ -270,6 +275,9 @@ public class Player : FContainer
         //Flip if facing left
         playerSprite.scaleX = isFacingLeft ? -1 : 1;
 
+        if (currentState == State.MARKING && !hasLeftMarkPos)
+            if ((hat.GetPosition() - this.GetPosition()).sqrMagnitude > MARK_MIN_DIST * MARK_MIN_DIST)
+                hasLeftMarkPos = true;
     }
     float collisionWidth = 12;
     float collisionHeight = 24;
