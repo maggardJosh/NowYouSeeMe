@@ -7,6 +7,7 @@ using System.IO;
 public class GameScript : MonoBehaviour
 {
     bool isStarted = false;
+    ShadowLabel pressEnter;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -27,20 +28,31 @@ public class GameScript : MonoBehaviour
 
         FSprite splashScreen = new FSprite("splashScreen");
         Futile.stage.AddChild(splashScreen);
-        
+
+        pressEnter = new ShadowLabel("PRESS ENTER");
+        pressEnter.y = -Futile.screen.halfHeight + 25;
+        pressEnter.isVisible = false;
+        Futile.stage.AddChild(pressEnter);
     }
 
+    float count = 0;
     // Update is called once per frame
     void Update()
     {
-        if (!isStarted && Input.GetKeyUp(C.ACTION_KEY))
+        if (!isStarted)
         {
-            isStarted = true;
-            World world = new World();
-            world.LoadMap("testMap");
-            Futile.stage.AddChild(world);
-            
-            C.getCameraInstance().MoveToFront();
+            count += Time.deltaTime;
+            pressEnter.isVisible = count > 1.0f && ((int)count) % 3 != 0;
+            if (Input.GetKeyUp(C.ACTION_KEY))
+            {
+                Futile.stage.RemoveAllChildren();
+                isStarted = true;
+                World world = new World();
+                world.LoadMap("testMap");
+                Futile.stage.AddChild(world);
+
+                C.getCameraInstance().MoveToFront();
+            }
         }
     }
 
