@@ -2,7 +2,7 @@
 
 "collision_01":
 {
-	"frame": {"x":3,"y":97,"w":12,"h":12},
+	"frame": {"x":39,"y":101,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -10,7 +10,7 @@
 },
 "hat_00":
 {
-	"frame": {"x":51,"y":3,"w":10,"h":20},
+	"frame": {"x":39,"y":77,"w":10,"h":20},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":10,"h":20},
@@ -18,7 +18,7 @@
 },
 "player_00":
 {
-	"frame": {"x":27,"y":3,"w":20,"h":30},
+	"frame": {"x":99,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -26,7 +26,7 @@
 },
 "player_01":
 {
-	"frame": {"x":3,"y":3,"w":20,"h":30},
+	"frame": {"x":75,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -34,7 +34,7 @@
 },
 "player_02":
 {
-	"frame": {"x":27,"y":37,"w":20,"h":24},
+	"frame": {"x":99,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
@@ -42,7 +42,7 @@
 },
 "player_03":
 {
-	"frame": {"x":3,"y":37,"w":20,"h":24},
+	"frame": {"x":75,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
@@ -50,7 +50,7 @@
 },
 "tilemap_01":
 {
-	"frame": {"x":3,"y":81,"w":12,"h":12},
+	"frame": {"x":55,"y":61,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -58,7 +58,7 @@
 },
 "tilemap_02":
 {
-	"frame": {"x":35,"y":65,"w":12,"h":12},
+	"frame": {"x":39,"y":61,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -66,7 +66,7 @@
 },
 "tilemap_03":
 {
-	"frame": {"x":19,"y":65,"w":12,"h":12},
+	"frame": {"x":55,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -74,19 +74,51 @@
 },
 "tilemap_04":
 {
-	"frame": {"x":3,"y":65,"w":12,"h":12},
+	"frame": {"x":39,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
 	"sourceSize": {"w":12,"h":12}
+},
+"vanishCloud_00":
+{
+	"frame": {"x":39,"y":3,"w":32,"h":38},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
+	"sourceSize": {"w":32,"h":38}
+},
+"vanishCloud_01":
+{
+	"frame": {"x":3,"y":87,"w":32,"h":38},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
+	"sourceSize": {"w":32,"h":38}
+},
+"vanishCloud_02":
+{
+	"frame": {"x":3,"y":45,"w":32,"h":38},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
+	"sourceSize": {"w":32,"h":38}
+},
+"vanishCloud_03":
+{
+	"frame": {"x":3,"y":3,"w":32,"h":38},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
+	"sourceSize": {"w":32,"h":38}
 }},
 "meta": {
 	"app": "http://www.codeandweb.com/texturepacker ",
 	"version": "1.0",
 	"image": "InGameAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":64,"h":128},
+	"size": {"w":128,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:afbcba87b697c9ca88f16095943059ed:32b171429a8f311cd78a9b0042871c99:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:36e481a4159c8a533403107c4b7a5431:2566880fa39fb713886229e2d68b58f2:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

@@ -14,7 +14,7 @@ public class Player : FContainer
         IDLE,
         MARKING,
         VANISHING,
-        HAT_RETURNING
+        COOLDOWN
     }
     FAnimatedSprite playerSprite;
     private State currentState = State.IDLE;
@@ -66,9 +66,15 @@ public class Player : FContainer
     const float HAT_RETURN_COUNT = 1.0f;
     private void Vanish()
     {
+        VanishCloud cloud = new VanishCloud();
+        cloud.SetPosition(this.GetPosition());
+        this.container.AddChild(cloud);
+
+        VanishCloud newPosCloud = new VanishCloud();
+        newPosCloud.SetPosition(hat.GetPosition());
         playerSprite.isVisible = false;
         currentState = State.VANISHING;
-        Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.HAT_RETURNING; hat.disappear(HAT_RETURN_COUNT); playerSprite.isVisible = true; }));
+        Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
     }
     private void ControlUpdate()
     {
@@ -91,7 +97,7 @@ public class Player : FContainer
                 break;
             case State.VANISHING:
                 return;     //Don't allow controls past this
-            case State.HAT_RETURNING:
+            case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)
                     currentState = State.IDLE;
                 break;
@@ -170,7 +176,6 @@ public class Player : FContainer
 
         switch (currentState)
         {
-            case State.HAT_RETURNING:
             case State.MARKING:
                 animToPlay += "hatless_";
                 break;
