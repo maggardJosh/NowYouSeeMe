@@ -24,7 +24,7 @@ public class World : FContainer
         map.LoadTMX("Maps/" + mapName);
         this.AddChild(map);
         C.getCameraInstance().setWorldBounds(new Rect(0, -map.height, map.width, map.height));
-
+        C.getCameraInstance().setPlayer(player);
         foreach (XMLNode node in map.objects)
         {
             if (node.attributes.ContainsKey("name"))

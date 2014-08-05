@@ -25,8 +25,7 @@ public class GameScript : MonoBehaviour
         world.LoadMap("testMap");
         Futile.stage.AddChild(world);
         FShader.OverlayBlend.overlayColor = new Color(.4f, .8f, .2f);
-
-        
+        C.getCameraInstance().MoveToFront();
     }
 
     // Update is called once per frame

@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class C
 {
-    private static FCamObject cameraInstance;
-    public static FCamObject getCameraInstance()
+    private static PlayerGUI cameraInstance;
+    public static PlayerGUI getCameraInstance()
     {
         if (cameraInstance == null)
         {
-            cameraInstance = new FCamObject();
+            cameraInstance = new PlayerGUI();
             Futile.stage.AddChild(cameraInstance);
         }
         return cameraInstance;

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Player : FContainer
 {
-    //State for player
+    // State for player
     // Marking is when the hat is placed on the map
     // Vanishing is when the player is vanishing back to the hat
     private enum State
@@ -26,6 +26,10 @@ public class Player : FContainer
     float yMove = 0;
     float stateCount = 0;
     bool isFacingLeft = false;
+
+    public GUICounter cashCounter;
+    public GUICounter panacheCounter;
+
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
@@ -39,6 +43,10 @@ public class Player : FContainer
         this.world = world;
         C.getCameraInstance().follow(this);
         hat = new Hat(this);
+        cashCounter = new GUICounter();
+
+        panacheCounter = new GUICounter();
+        
     }
 
     public float getVelocityAngle()
@@ -82,6 +90,11 @@ public class Player : FContainer
             stateCount = 0;
 
         lastState = currentState;
+
+        if (Input.GetKeyDown(KeyCode.C))
+            cashCounter.addAmount(100);
+        if (Input.GetKeyDown(KeyCode.P))
+            panacheCounter.addAmount(100);
         switch (currentState)
         {
             case State.IDLE:
