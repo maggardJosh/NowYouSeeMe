@@ -202,6 +202,7 @@ public class Player : FContainer
         else if (xMove < 0)
             tryMoveLeft(xMove);
 
+        isGrounded = false;
         yMove += Gravity;
 
         yMove = Mathf.Clamp(yMove, -MAX_Y_VEL, MAX_Y_VEL);

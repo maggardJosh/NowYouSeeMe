@@ -6,6 +6,7 @@ using System.IO;
 
 public class GameScript : MonoBehaviour
 {
+    bool isStarted = false;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -21,17 +22,26 @@ public class GameScript : MonoBehaviour
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
 
         Futile.atlasManager.LoadFont(C.smallFontName, "smallFont_0", "Atlases/smallFont", 0, 0);
-        World world = new World();
-        world.LoadMap("testMap");
-        Futile.stage.AddChild(world);
-        FShader.OverlayBlend.overlayColor = new Color(.4f, .8f, .2f);
-        C.getCameraInstance().MoveToFront();
+        Futile.atlasManager.LoadFont(C.smallDarkFontName, "smallFont_1", "Atlases/smallFontDark", 0, 0);
+        FShader.OverlayBlend.overlayColor = new Color(.3f, .6f, .1f);
+
+        FSprite splashScreen = new FSprite("splashScreen");
+        Futile.stage.AddChild(splashScreen);
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-      
+        if (!isStarted && Input.GetKeyUp(C.ACTION_KEY))
+        {
+            isStarted = true;
+            World world = new World();
+            world.LoadMap("testMap");
+            Futile.stage.AddChild(world);
+            
+            C.getCameraInstance().MoveToFront();
+        }
     }
 
 }

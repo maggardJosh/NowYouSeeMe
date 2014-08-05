@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class PlayerGUI : FCamObject
 {
-    FLabel cashCounter;
-    FLabel cashLeftToAddCounter;
-    FLabel panacheCounter;
-    FLabel panacheLeftToAddCounter;
+    FSprite cashBG;
+    ShadowLabel cashCounter;
+    ShadowLabel cashLeftToAddCounter;
+    ShadowLabel panacheCounter;
+    ShadowLabel panacheLeftToAddCounter;
     FRadialWipeSprite markCounter;
     FSprite markMedallion;
     Player p;
@@ -19,23 +20,31 @@ public class PlayerGUI : FCamObject
 
     public PlayerGUI()
     {
-        cashCounter = new FLabel(C.smallFontName, "$0");
+        cashBG = new FSprite("tilemap_02");
+        cashBG.width = Futile.screen.width;
+        cashBG.height = cashBG.height * 2;
+        
+        this.AddChild(cashBG);
+
+
+        cashCounter = new ShadowLabel("$0");
         cashCounter.anchorX = 1;
         this.AddChild(cashCounter);
         cashCounter.SetPosition(new Vector2(-Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height/2 - guiSideMargin));
-        
-        cashLeftToAddCounter = new FLabel(C.smallFontName, "+0");
+
+        cashLeftToAddCounter = new ShadowLabel("+0");
         cashLeftToAddCounter.anchorX = 1;
         this.AddChild(cashLeftToAddCounter);
         cashLeftToAddCounter.SetPosition(new Vector2(-Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
         cashLeftToAddCounter.isVisible = false;
+        cashBG.y = (cashCounter.y + cashLeftToAddCounter.y)/2;
 
-        panacheCounter = new FLabel(C.smallFontName, "0");
+        panacheCounter = new ShadowLabel("0");
         panacheCounter.anchorX = 0;
         this.AddChild(panacheCounter);
         panacheCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin));
 
-        panacheLeftToAddCounter = new FLabel(C.smallFontName, "+0");
+        panacheLeftToAddCounter = new ShadowLabel("+0");
         panacheLeftToAddCounter.anchorX = 0;
         this.AddChild(panacheLeftToAddCounter);
         panacheLeftToAddCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));

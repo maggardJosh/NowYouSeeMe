@@ -18,6 +18,7 @@ public class C
     }
 
     public const string smallFontName = "smallFont";
+    public const string smallDarkFontName = "smallFontDark";
 
     public const KeyCode LEFT_KEY = KeyCode.A;
     public const KeyCode RIGHT_KEY = KeyCode.D;
