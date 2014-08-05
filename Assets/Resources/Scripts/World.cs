@@ -42,6 +42,7 @@ public class World : FContainer
         collision = (FTilemap)map.getLayerNamed("Collision");
         
         this.AddChild(player);
+        
     }
 
     public bool getMoveable(float xPos, float yPos)

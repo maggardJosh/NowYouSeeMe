@@ -20,10 +20,13 @@ public class GameScript : MonoBehaviour
 
         Futile.atlasManager.LoadAtlas("Atlases/InGameAtlas");
 
+        Futile.atlasManager.LoadFont(C.smallFontName, "smallFont_0", "Atlases/smallFont", 0, 0);
         World world = new World();
         world.LoadMap("testMap");
         Futile.stage.AddChild(world);
         FShader.OverlayBlend.overlayColor = new Color(.4f, .8f, .2f);
+
+        
     }
 
     // Update is called once per frame

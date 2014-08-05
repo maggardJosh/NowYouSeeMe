@@ -180,6 +180,7 @@
             <filename>Player</filename>
             <filename>tilemap</filename>
             <filename>VanishCloud</filename>
+            <filename>smallFont_0.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

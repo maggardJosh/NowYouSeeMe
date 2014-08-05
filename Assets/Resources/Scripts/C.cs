@@ -17,6 +17,8 @@ public class C
         return cameraInstance;
     }
 
+    public const string smallFontName = "smallFont";
+
     public const KeyCode LEFT_KEY = KeyCode.A;
     public const KeyCode RIGHT_KEY = KeyCode.D;
     public const KeyCode UP_KEY = KeyCode.W;

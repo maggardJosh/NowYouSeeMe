@@ -2,7 +2,7 @@
 
 "collision_01":
 {
-	"frame": {"x":39,"y":101,"w":12,"h":12},
+	"frame": {"x":67,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -10,7 +10,7 @@
 },
 "hat_00":
 {
-	"frame": {"x":39,"y":77,"w":10,"h":20},
+	"frame": {"x":195,"y":33,"w":10,"h":20},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":10,"h":20},
@@ -18,7 +18,7 @@
 },
 "player_00":
 {
-	"frame": {"x":99,"y":3,"w":20,"h":30},
+	"frame": {"x":171,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -26,7 +26,7 @@
 },
 "player_01":
 {
-	"frame": {"x":75,"y":3,"w":20,"h":30},
+	"frame": {"x":147,"y":3,"w":20,"h":30},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":0,"w":20,"h":30},
@@ -34,7 +34,7 @@
 },
 "player_02":
 {
-	"frame": {"x":99,"y":37,"w":20,"h":24},
+	"frame": {"x":171,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
@@ -42,15 +42,23 @@
 },
 "player_03":
 {
-	"frame": {"x":75,"y":37,"w":20,"h":24},
+	"frame": {"x":147,"y":37,"w":20,"h":24},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":0,"y":6,"w":20,"h":24},
 	"sourceSize": {"w":24,"h":30}
 },
+"smallFont_0":
+{
+	"frame": {"x":195,"y":3,"w":256,"h":26},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":26},
+	"sourceSize": {"w":256,"h":256}
+},
 "tilemap_01":
 {
-	"frame": {"x":55,"y":61,"w":12,"h":12},
+	"frame": {"x":51,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -58,7 +66,7 @@
 },
 "tilemap_02":
 {
-	"frame": {"x":39,"y":61,"w":12,"h":12},
+	"frame": {"x":35,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -66,7 +74,7 @@
 },
 "tilemap_03":
 {
-	"frame": {"x":55,"y":45,"w":12,"h":12},
+	"frame": {"x":19,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -74,7 +82,7 @@
 },
 "tilemap_04":
 {
-	"frame": {"x":39,"y":45,"w":12,"h":12},
+	"frame": {"x":3,"y":45,"w":12,"h":12},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
@@ -82,7 +90,7 @@
 },
 "vanishCloud_00":
 {
-	"frame": {"x":39,"y":3,"w":32,"h":38},
+	"frame": {"x":111,"y":3,"w":32,"h":38},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
@@ -90,7 +98,7 @@
 },
 "vanishCloud_01":
 {
-	"frame": {"x":3,"y":87,"w":32,"h":38},
+	"frame": {"x":75,"y":3,"w":32,"h":38},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
@@ -98,7 +106,7 @@
 },
 "vanishCloud_02":
 {
-	"frame": {"x":3,"y":45,"w":32,"h":38},
+	"frame": {"x":39,"y":3,"w":32,"h":38},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":38},
@@ -117,8 +125,8 @@
 	"version": "1.0",
 	"image": "InGameAtlas.png",
 	"format": "RGBA8888",
-	"size": {"w":128,"h":128},
+	"size": {"w":512,"h":64},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:56566b2fa9ee181c650ffa2ea6d110b8:b603a81f6d8e863ed9022e5e6b39f26c:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:94fb5bfbfccc86251c64e7eaf66405da:e9d87615897d0ffd7a89cb02c8c70517:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }
