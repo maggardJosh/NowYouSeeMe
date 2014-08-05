@@ -234,7 +234,7 @@ public class Player : FContainer
                 animToPlay += "hat_";
                 break;
         }
-        if (isGrounded)
+        if (yMove==0)
         {
             if (isMoving)
                 animToPlay += "walk";
