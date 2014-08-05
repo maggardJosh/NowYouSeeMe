@@ -327,7 +327,10 @@ public class Player : FContainer
             world.getMoveable(x + collisionWidth * .9f / 2, y + collisionHeight / 2 + yMove))
             this.y += yMove;
         else
+        {
             this.y = Mathf.FloorToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight + (world.collision.tileHeight - collisionHeight / 2);
+            this.yMove *= .5f ;
+        }
     }
 
     private void tryMoveDown(float yMove)
