@@ -108,6 +108,20 @@ public class Player : FContainer
         currentState = State.COOLDOWN;
     }
 
+    private void CancelVanish()
+    {
+        VanishCloud cloud = new VanishCloud();
+        cloud.SetPosition(this.GetPosition());
+        this.container.AddChild(cloud);
+
+        VanishCloud newPosCloud = new VanishCloud();
+        newPosCloud.SetPosition(hat.GetPosition());
+        this.container.AddChild(newPosCloud);
+
+        hat.disappear();
+        currentState = State.IDLE;
+    }
+
     public void addCash(int amount)
     {
         cashCounter.addAmount(amount);
@@ -151,7 +165,12 @@ public class Player : FContainer
                     MarkTimeOut();
                 else
                     if (!Input.GetKey(C.ACTION_KEY))
-                        Vanish();
+                    {
+                        if (hasLeftMarkPos)
+                            Vanish();
+                        else
+                            CancelVanish();
+                    }
                 break;
             case State.VANISHING:
                 return;     //Don't allow controls past this if vanishing
@@ -329,7 +348,7 @@ public class Player : FContainer
         else
         {
             this.y = Mathf.FloorToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight + (world.collision.tileHeight - collisionHeight / 2);
-            this.yMove *= .5f ;
+            this.yMove *= .5f;
         }
     }
 
