@@ -6,31 +6,11 @@ using UnityEngine;
 
 public class LabelIndicator : ShadowLabel
 {
-    float count = 0;
-    const float IND_TIME = 2.0f;
-    const float IND_UP_SPEED = 10.0f;
+    const float IND_TIME = 1.5f;
+    const float IND_UP_DIST = 30.0f;
     public LabelIndicator(string text) : base(text)
     {
-
-    }
-    public override void HandleAddedToStage()
-    {
-        Futile.instance.SignalUpdate += Update;
-        base.HandleAddedToStage();
-    }
-
-    private void Update()
-    {
-        if (count < IND_TIME)
-        {
-            count += Time.deltaTime;
-            y += IND_UP_SPEED * Time.deltaTime;
-        }
-        else
-        {
-            this.RemoveFromContainer();
-            Futile.instance.SignalUpdate -= Update;
-        }
+        Go.to(this, IND_TIME, new TweenConfig().floatProp("y", IND_UP_DIST, true).setEaseType(EaseType.QuadOut).onComplete((a) => { this.RemoveFromContainer(); }));
     }
 }
 
