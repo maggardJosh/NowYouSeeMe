@@ -44,7 +44,7 @@ public class Player : FContainer
     public float getVelocityAngle()
     {
         if (xMove == 0 && yMove == 0)
-            return -90;     //If we aren't moving just point the hat up
+            return 90;     //If we aren't moving just point the hat up
         else
             return Mathf.Atan2(-yMove, xMove) * 180.0f / Mathf.PI;
     }
