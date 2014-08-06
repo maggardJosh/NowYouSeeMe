@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class C
 {
-    public const string versionNumber = "v0.1.1";
+    public const string versionNumber = "v0.1.21";
 
     private static PlayerGUI cameraInstance;
     public static PlayerGUI getCameraInstance()
@@ -22,10 +22,10 @@ public class C
     public const string smallFontName = "smallFont";
     public const string smallDarkFontName = "smallFontDark";
 
-    public const KeyCode LEFT_KEY = KeyCode.A;
-    public const KeyCode RIGHT_KEY = KeyCode.D;
-    public const KeyCode UP_KEY = KeyCode.W;
-    public const KeyCode DOWN_KEY = KeyCode.S;
-    public const KeyCode JUMP_KEY = KeyCode.Space;
-    public const KeyCode ACTION_KEY = KeyCode.Return;
+    public const KeyCode LEFT_KEY = KeyCode.LeftArrow;
+    public const KeyCode RIGHT_KEY = KeyCode.RightArrow;
+    public const KeyCode UP_KEY = KeyCode.UpArrow;
+    public const KeyCode DOWN_KEY = KeyCode.DownArrow;
+    public const KeyCode JUMP_KEY = KeyCode.A;
+    public const KeyCode ACTION_KEY = KeyCode.S;
 }
