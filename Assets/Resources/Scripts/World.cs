@@ -40,14 +40,20 @@ public class World : FContainer
         }
 
         collision = (FTilemap)map.getLayerNamed("Collision");
-        
+
         this.AddChild(player);
-        
+
     }
 
     public bool getMoveable(float xPos, float yPos)
     {
-        return collision.getFrameNumAt(xPos, yPos) != 1 &&
-            collision.getFrameNumAt(xPos, yPos) != -1; 
+        int frameNum = collision.getFrameNumAt(xPos, yPos);
+        return frameNum != 1 &&
+               frameNum != -1;
+    }
+    public bool getOneWay(float xPos, float yPos)
+    {
+        int frameNum = collision.getFrameNumAt(xPos, yPos);
+        return frameNum == 2;
     }
 }

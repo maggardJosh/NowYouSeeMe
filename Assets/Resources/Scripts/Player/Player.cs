@@ -179,13 +179,20 @@ public class Player : FContainer
                     currentState = State.IDLE;
                 break;
         }
+        if (downJumpCount > 0)
+            downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
         if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
         {
-            yMove = jumpStrength;
+            if (Input.GetKey(C.DOWN_KEY))
+                downJumpCount = DOWN_JUMP_TIME;
+            yMove = jumpStrength * (Input.GetKey(C.DOWN_KEY) ? .4f : 1);
             jumpsLeft--;
         }
         stateCount += Time.deltaTime;
     }
+
+    float downJumpCount = 0;
+    const float DOWN_JUMP_TIME = .4f;       //Time to allow a down jump
 
     public float GetVanishPercent()
     {
@@ -275,7 +282,7 @@ public class Player : FContainer
                 animToPlay += "hat_";
                 break;
         }
-        if (yMove==0)
+        if (yMove == 0)
         {
             if (isMoving)
                 animToPlay += "walk";
@@ -354,15 +361,23 @@ public class Player : FContainer
 
     private void tryMoveDown(float yMove)
     {
+        bool onOneWay = world.getOneWay(x, y - playerSprite.height / 2 + yMove);
         if (world.getMoveable(x - collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) &&
-            world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove))
+            world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) && !onOneWay)
+        {
             this.y += yMove;
+        }
         else
         {
-            this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
-            this.yMove = 0;
-            this.jumpsLeft = 1;
-            isGrounded = true;
+            if (onOneWay && downJumpCount > 0)
+                this.y += yMove;
+            else
+            {
+                this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
+                this.yMove = 0;
+                this.jumpsLeft = 1;
+                isGrounded = true;
+            }
         }
     }
 }

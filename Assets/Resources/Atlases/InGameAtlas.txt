@@ -184,6 +184,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
 	"sourceSize": {"w":12,"h":12}
 },
+"tilemap_05":
+{
+	"frame": {"x":135,"y":245,"w":12,"h":4},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":4},
+	"sourceSize": {"w":12,"h":12}
+},
 "vanishCloud_00":
 {
 	"frame": {"x":39,"y":193,"w":32,"h":38},
@@ -223,6 +231,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:39c6ca91c251bd477411c00af6abb16c:c5cc78968164c425171949463e4c1769:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:0b953bbf8de1a512df42d61b16b329b7:a52641458c3e87a1f74916a3f09f3816:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

@@ -6,7 +6,7 @@
         <key>texturePackerVersion</key>
         <string>3.3.3</string>
         <key>fileName</key>
-        <string>C:/Users/Jif/git/NowYouSeeMe/TexturePackerFiles/InGameAtlas.tps</string>
+        <string>C:/Users/Josh/Documents/git/NowYouSeeMe/TexturePackerFiles/InGameAtlas.tps</string>
         <key>autoSDSettings</key>
         <array>
             <struct type="AutoSDSettings">
@@ -136,7 +136,7 @@
             <key>java</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>Program Files/CodeAndWeb/Assets/Resources/Atlases/atlasOne.java</filename>
+                <filename>../../../../../../Program Files/CodeAndWeb/Assets/Resources/Atlases/atlasOne.java</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -179,8 +179,10 @@
         <array>
             <filename>Player</filename>
             <filename>tilemap</filename>
-            <filename>VanishCloud</filename>
             <filename>smallFont_0.png</filename>
+            <filename>smallFont_1.png</filename>
+            <filename>splashScreen.png</filename>
+            <filename>VanishCloud</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
