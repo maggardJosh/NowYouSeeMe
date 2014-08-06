@@ -125,7 +125,7 @@ public class FTilemap : FContainer
 					}
 					
 					int frame = tileX + tileY * _tilesWide;
-					if (frame >= 0 && frame < _tileArray.GetLength (0)) {
+					if (frame >= 0 && frame < _tileArray.GetLength (0) && _tileArray [frame] != 0) {
 						int frameNum = _tileArray [frame];
 						tile.element = Futile.atlasManager.GetElementWithName (_baseName + "_" + String.Format("{0:00}", frameNum));
 						tile.isVisible = true;
