@@ -1,5 +1,21 @@
 {"frames": {
 
+"Trampoline/trampoline_01":
+{
+	"frame": {"x":413,"y":31,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
+},
+"Trampoline/trampoline_02":
+{
+	"frame": {"x":497,"y":19,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
+},
 "collision_01":
 {
 	"frame": {"x":497,"y":3,"w":12,"h":12},
@@ -10,7 +26,7 @@
 },
 "hat_01":
 {
-	"frame": {"x":497,"y":19,"w":10,"h":20},
+	"frame": {"x":389,"y":35,"w":10,"h":20},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":10,"h":20},
@@ -239,6 +255,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:39358920eae0647031e69510fe1b3e30:783b2bfc4af64fd15730747ae5d37b4e:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:1dd2ef7d2654437e4c8c61076315d17b:6a9052306dfee136d2442ba34e838943:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

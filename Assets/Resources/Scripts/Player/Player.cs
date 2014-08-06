@@ -304,7 +304,30 @@ public class Player : FContainer
         if (currentState == State.MARKING && !hasLeftMarkPos)
             if ((hat.GetPosition() - this.GetPosition()).sqrMagnitude > MARK_MIN_DIST * MARK_MIN_DIST)
                 hasLeftMarkPos = true;
+
+        updateWorld();
     }
+
+    private void updateWorld()
+    {
+        if (yMove < 0)
+            foreach (Trampoline t in world.trampolineList)
+                checkTrampoline(t);
+    }
+
+    private void checkTrampoline(Trampoline t)
+    {
+        Vector2 checkPoint = new Vector2(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove);
+        if (t.contains(checkPoint))
+            TrampolineBounce(t);
+    }
+
+    private void TrampolineBounce(Trampoline t)
+    {
+        t.bounce();
+        this.yMove = Mathf.Clamp(Math.Abs(yMove) * 2, 2, 10);
+    }
+
     float collisionWidth = 12;
     float collisionHeight = 20;
     private void tryMoveRight(float xMove)

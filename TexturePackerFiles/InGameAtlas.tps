@@ -184,6 +184,7 @@
             <filename>splashScreen.png</filename>
             <filename>VanishCloud</filename>
             <filename>textBG.png</filename>
+            <filename>Objects</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
