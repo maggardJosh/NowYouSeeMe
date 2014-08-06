@@ -152,7 +152,7 @@ public class Player : FContainer
         switch (currentState)
         {
             case State.IDLE:
-                if (Input.GetKeyDown(C.ACTION_KEY))
+                if (Input.GetKey(C.ACTION_KEY))
                 {
                     currentState = State.MARKING;
                     Mark();
@@ -202,8 +202,9 @@ public class Player : FContainer
     float airSpeed = .1f;
     float friction = .7f;
     float airFriction = .99f;
-    float jumpStrength = 10;
-    const float MAX_Y_VEL = 6f;
+    float jumpStrength = 6;
+    const float MAX_Y_VEL = 10f;
+    const float MIN_Y_VEL = -6f;
     const float MAX_X_VEL = 5f;
     bool isGrounded = true;
     bool isMoving = false;
@@ -232,7 +233,6 @@ public class Player : FContainer
             isFacingLeft = false;
         }
 
-
         xMove += xAcc;
 
         xMove = Mathf.Clamp(xMove, -MAX_X_VEL, MAX_X_VEL);
@@ -245,7 +245,7 @@ public class Player : FContainer
         isGrounded = false;
         yMove += Gravity;
 
-        yMove = Mathf.Clamp(yMove, -MAX_Y_VEL, MAX_Y_VEL);
+        yMove = Mathf.Clamp(yMove, MIN_Y_VEL, MAX_Y_VEL);
 
         if (yMove > 0)
             tryMoveUp(yMove);
@@ -360,7 +360,6 @@ public class Player : FContainer
         else
         {
             this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
-            // this.y = Mathf.CeilToInt((this.y + yMove) / world.collision.tileHeight) * world.collision.tileHeight - (world.collision.tileHeight - collisionHeight / 2);
             this.yMove = 0;
             this.jumpsLeft = 1;
             isGrounded = true;
