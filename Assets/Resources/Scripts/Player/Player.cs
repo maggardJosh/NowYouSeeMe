@@ -306,7 +306,7 @@ public class Player : FContainer
                 hasLeftMarkPos = true;
     }
     float collisionWidth = 12;
-    float collisionHeight = 24;
+    float collisionHeight = 20;
     private void tryMoveRight(float xMove)
     {
         while (xMove > 0)
