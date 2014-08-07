@@ -175,6 +175,7 @@ public class World : FContainer
     {
         string doorName = "";
         string actionType = "";
+        float timerValue = -1;
         if (node.children.Count > 0)
             foreach (XMLNode property in ((XMLNode)node.children[0]).children)
             {
@@ -187,9 +188,13 @@ public class World : FContainer
                         case "action":
                             actionType = property.attributes["value"];
                             break;
+                        case "time":
+                            if (!float.TryParse(property.attributes["value"], out timerValue))
+                                RXDebug.Log("invalid timer value");
+                            break;
                     }
             }
-        Switch s = new Switch(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, actionType);
+        Switch s = new Switch(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, actionType, timerValue);
         interactObjectList.Add(s);
         objectLayer.AddChild(s);
     }

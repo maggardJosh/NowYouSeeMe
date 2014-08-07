@@ -212,6 +212,7 @@
    <properties>
     <property name="action" value="toggle"/>
     <property name="door" value="doorOne"/>
+    <property name="time" value="1.0"/>
    </properties>
   </object>
  </objectgroup>

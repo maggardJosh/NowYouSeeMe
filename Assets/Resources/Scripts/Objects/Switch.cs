@@ -9,12 +9,15 @@ public class Switch : InteractableObject
     private string doorName;
     private Door door;
     private string actionType;
-    public Switch(Vector2 pos, string doorName, string actionType)
+    private float time;
+    private float timeCount = 0;
+    public Switch(Vector2 pos, string doorName, string actionType, float time)
     {
         this.X_INTERACT_DIST = 24;
         this.SetPosition(pos);
         this.doorName = doorName;
         this.actionType = actionType.ToLower();
+        this.time = time;
         interactSprite = new FAnimatedSprite("Switch/switch");
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, true));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
@@ -28,7 +31,7 @@ public class Switch : InteractableObject
 
     public void findDoor(List<Door> doorList)
     {
-        foreach(Door d in doorList)
+        foreach (Door d in doorList)
             if (d.name.CompareTo(doorName) == 0)
             {
                 this.door = d;
@@ -39,22 +42,35 @@ public class Switch : InteractableObject
     }
 
     float particleDist = 2;
+    bool triggered = false;
     public override void interact(Player p)
     {
-        switch(actionType)
+        switch (actionType)
         {
             case "toggle":
                 if (this.door != null)
                     door.interact(p);
                 break;
             case "open":
-
+                if (this.door != null)
+                    door.setState(true, p);
                 break;
             case "close":
-
+                if (this.door != null)
+                    door.setState(false, p);
                 break;
         }
-        
+
+        timeCount = 0;
+        if (time > 0)
+        {
+            if (!triggered)
+            {
+                Futile.instance.SignalUpdate += UpdateTimer;
+                this.p = p;
+            }
+            triggered = true;
+        }
         for (int x = 0; x < numParticles; x++)
         {
             VanishParticle particle = VanishParticle.getParticle();
@@ -66,5 +82,34 @@ public class Switch : InteractableObject
         interactSprite.play("interactable");
 
     }
+
+    Player p;
+    private void UpdateTimer()
+    {
+        timeCount += Time.deltaTime;
+        if (timeCount > time)
+        {
+            Futile.instance.SignalUpdate -= UpdateTimer;
+            triggered = false;
+
+            switch (actionType)
+            {
+                case "toggle":
+                    if (this.door != null)
+                        door.interact(p);
+                    break;
+                case "open":
+                    if (this.door != null)
+                        door.setState(false, p);
+                    break;
+                case "close":
+                    if (this.door != null)
+                        door.setState(true, p);
+                    break;
+            }
+        }
+    }
+
+
 }
 

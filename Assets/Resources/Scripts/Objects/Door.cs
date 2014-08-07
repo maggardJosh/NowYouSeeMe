@@ -31,6 +31,11 @@ public class Door : InteractableObject
     int numParticles = 10;
     public const float DOOR_COLLISION_WIDTH = 10;
 
+    public void setState(bool open, Player p)
+    {
+        on = !open;
+        interact(p);
+    }
     public override void interact(Player p)
     {
         on = !on;
