@@ -41,12 +41,12 @@ public class Player : FContainer
         playerSprite = new FAnimatedSprite("player");
         playerSprite.addAnimation(new FAnimation("hat_idle", new int[] { 13 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_walk", new int[] { 1, 2, 3, 4 }, animSpeed, true));
-        playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed/2, true));
+        playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
-        playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed/2, true));
+        playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_up", new int[] { 11 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
 
@@ -107,7 +107,7 @@ public class Player : FContainer
         hasLeftMarkPos = false;
 
     }
-    const float VANISH_DURATION = .5f;
+    const float VANISH_DURATION = 1.0f;
     const float HAT_RETURN_COUNT = 1.0f;
     private const float MARK_MAX_COUNT = 2.0f;
 
@@ -283,7 +283,7 @@ public class Player : FContainer
 
     float speed = .1f;
     float airSpeed = .1f;
-    float friction = .7f;
+    float friction = .8f;
     float airFriction = .99f;
     float jumpStrength = 6;
     const float MAX_Y_VEL = 10f;
@@ -298,6 +298,7 @@ public class Player : FContainer
     bool hitMaxXVel = false;
     float maxVelTime = 0;
     bool isSprinting = false;
+    bool wasSprinting = false;
     private void Update()
     {
         float xAcc = 0;
@@ -320,9 +321,11 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove > MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnFootParticles(1);
+                    spawnFootParticles(1, Vector2.right * 10);
                 }
             }
+            if (xMove > -MAX_X_VEL / 2)
+                wasSprinting = false;
             isFacingLeft = true;
         }
         if (Input.GetKey(C.RIGHT_KEY))
@@ -333,8 +336,10 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove < -MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnFootParticles(1);
+                    spawnFootParticles(1, Vector2.right * -10);
                 }
+                if (xMove < MAX_X_VEL / 2)
+                    wasSprinting = false;
             }
             isFacingLeft = false;
         }
@@ -361,6 +366,7 @@ public class Player : FContainer
                         spawnFootParticles(1);
                     xMove *= 1.2f;
                     isSprinting = true;
+                    wasSprinting = true;
                 }
                 else
                 {
@@ -396,10 +402,20 @@ public class Player : FContainer
             isGrounded = false;
 
         if (xAcc == 0)
+        {
             if (isGrounded)
+            {
                 xMove *= friction;
+                if (wasSprinting)
+                    if (xMove > 0)
+                        spawnFootParticles(1, Vector2.right * 10);
+                    else if (xMove < 0)
+                        spawnFootParticles(1, Vector2.right * -10);
+
+            }
             else
                 xMove *= airFriction;
+        }
 
         if (Math.Abs(xMove) < MIN_MOVEMENT_X)
             xMove = 0;
@@ -520,7 +536,7 @@ public class Player : FContainer
         }
     }
 
-    private void spawnFootParticles(int numParticles)
+    private void spawnFootParticles(int numParticles, Vector2 disp)
     {
         if (!isGrounded)
             return;
@@ -532,10 +548,14 @@ public class Player : FContainer
         {
             VanishParticle particle = VanishParticle.getParticle();
             float angle = (RXRandom.Float() * Mathf.PI * 2);
-            Vector2 pos = this.GetPosition() - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+            Vector2 pos = this.GetPosition() + disp - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
             this.container.AddChild(particle);
         }
+    }
+    private void spawnFootParticles(int numParticles)
+    {
+        spawnFootParticles(numParticles, Vector2.zero);
     }
 
     private void tryMoveDown(float yMove)
