@@ -15,7 +15,8 @@ public class Player : FContainer
         MARKING,
         VANISHING,
         COOLDOWN,
-        SPAWNING
+        SPAWNING,
+        LOOTING
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -44,6 +45,7 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("loot", new int[] { 5, 6, 5, 6, 5, 6 }, animSpeed, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
@@ -230,8 +232,6 @@ public class Player : FContainer
 
         lastState = currentState;
 
-        if (Input.GetKeyDown(KeyCode.T))
-            respawn();
         switch (currentState)
         {
             case State.IDLE:
@@ -257,7 +257,7 @@ public class Player : FContainer
                 break;
             case State.VANISHING:
             case State.SPAWNING:
-                currentInteractable = null;
+            case State.LOOTING:
                 interactInd.isVisible = false;
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
@@ -265,10 +265,16 @@ public class Player : FContainer
                     currentState = State.IDLE;
                 break;
         }
+        if (Input.GetKeyDown(KeyCode.T))
+            respawn();
         if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
         {
-            currentInteractable.interact(this);
-            currentInteractable = null;
+            this.x = currentInteractable.x;
+            this.playerSprite.play("loot", true);
+            currentState = State.LOOTING;
+            xMove = 0;
+            yMove = 0;
+            return;
         }
         if (downJumpCount > 0)
             downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
@@ -309,16 +315,26 @@ public class Player : FContainer
     private void Update()
     {
         float xAcc = 0;
-        if (currentState == State.VANISHING)
-            return;
-        if (currentState == State.SPAWNING)
+        switch (currentState)
         {
-            if (!C.isSpawning)
-            {
-                currentState = State.IDLE;
-                this.isVisible = true;
-            }
-            return;
+            case State.VANISHING:
+                return;
+            case State.SPAWNING:
+                if (!C.isSpawning)
+                {
+                    currentState = State.IDLE;
+                    this.isVisible = true;
+                }
+                return;
+
+            case State.LOOTING:
+                if (playerSprite.IsStopped)
+                {
+                    currentState = State.IDLE;
+                    currentInteractable.interact(this);
+                    currentInteractable = null;
+                }
+                return;
         }
         if (Input.GetKey(C.LEFT_KEY))
         {
