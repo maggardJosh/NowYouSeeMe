@@ -45,6 +45,9 @@ public class World : FContainer
                     case "chest":
                         parseChest(node);
                         break;
+                    case "container":
+                        parseContainer(node);
+                        break;
                 }
             }
         }
@@ -52,7 +55,7 @@ public class World : FContainer
         collision = (FTilemap)map.getLayerNamed("Collision");
 
         bgLayer.AddChild(map.getLayerNamed("Background"));
-        fgLayer.AddChild(map.tilemaps[1]);//fgLayer.AddChild(map.getLayerNamed("Foreground"));
+        fgLayer.AddChild(map.tilemaps[1]);
 
         playerLayer.AddChild(player);
 
@@ -94,6 +97,32 @@ public class World : FContainer
             }
         interactObjectList.Add(chest);
         objectLayer.AddChild(chest);
+    }
+
+    private void parseContainer(XMLNode node)
+    {
+        int type = 1;
+        int money = 0;
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "type":
+                            if (!int.TryParse(property.attributes["value"], out type))
+                                RXDebug.Log("Unknown Container Type: " + property.attributes["value"]);
+                            break;
+                        case "money":
+                            if (!int.TryParse(property.attributes["value"], out money))
+                                RXDebug.Log("Unknown Money Amount: " + property.attributes["value"]);
+                            break;
+                    }
+            }
+
+        Container container = new Container(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), type, money);
+        interactObjectList.Add(container);
+        objectLayer.AddChild(container);
     }
 
     public bool getMoveable(float xPos, float yPos)
