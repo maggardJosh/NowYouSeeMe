@@ -7,16 +7,18 @@ using UnityEngine;
 public class Container : InteractableObject
 {
     private int money;
-    private FAnimatedSprite containerSprite;
+
     public Container(Vector2 pos, int type, int money)
     {
         this.X_INTERACT_DIST = 24;
         this.SetPosition(pos);
         this.money = money;
-        containerSprite = new FAnimatedSprite("Containers/container" + type);
-        containerSprite.addAnimation(new FAnimation("unopened", new int[] { 1 }, 100, true));
-        containerSprite.addAnimation(new FAnimation("opened", new int[] { 2 }, 100, true));
-        this.AddChild(containerSprite);
+        interactSprite = new FAnimatedSprite("Containers/container" + type);
+        interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { 3 }, 100, true));
+
+        this.AddChild(interactSprite);
     }
     float particleXSpeed = 30;
     float particleYSpeed = 30;
@@ -35,6 +37,7 @@ public class Container : InteractableObject
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
             this.container.AddChild(particle);
         }
+        interactSprite.play("uninteractable");
 
     }
 }

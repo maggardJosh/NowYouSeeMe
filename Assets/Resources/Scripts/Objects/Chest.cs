@@ -6,43 +6,42 @@ using UnityEngine;
 
 public class Chest : InteractableObject
 {
-    FAnimatedSprite chestSprite;
 
     public Chest(Vector2 pos) : base()
     {
+        X_INTERACT_DIST = 24;
         this.SetPosition(pos);
-        chestSprite = new FAnimatedSprite("MagicChest/magicChest");
-        chestSprite.addAnimation(new FAnimation("inactive", new int[] { 1 }, 100, false));
-        chestSprite.addAnimation(new FAnimation("active", new int[] { 2 }, 100, false));
-        chestSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 1,2,1,2,1,2,1 }, 100, false));
-        this.AddChild(chestSprite);
+        interactSprite = new FAnimatedSprite("MagicChest/magicChest");
+        interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { 2 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 1, 2, 1, 2, 1, 2, 1 }, 100, false));
+        this.AddChild(interactSprite);
     }
 
     public void deactivate()
     {
         interactable = true;
-        chestSprite.play("inactive", true);
     }
 
     public void activate()
     {
         interactable = false;
-        chestSprite.play("active", true);
     }
 
     public void spawnPlayer()
     {
         C.isSpawning = true;
         Futile.instance.SignalUpdate += Update;
-        chestSprite.play("spawnPlayer", true);
+        interactSprite.play("spawnPlayer", true);
     }
 
     private void Update()
     {
-        if (chestSprite.IsStopped)
+        if (interactSprite.IsStopped)
         {
             C.isSpawning = false;
-            chestSprite.play("active", true);
+            interactSprite.play("uninteractable", true);
             Futile.instance.SignalUpdate -= Update;
         }
     }

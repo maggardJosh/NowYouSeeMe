@@ -145,7 +145,7 @@ public class World : FContainer
     {
         bool foundObject = false;
         for (int x = 0; x < interactObjectList.Count; x++)
-            foundObject = foundObject || interactObjectList[x].checkInteractDist(player);
+            foundObject = interactObjectList[x].checkInteractDist(player) || foundObject;
         //If we made it this far then 
         if(!foundObject)
             player.clearInteractable();

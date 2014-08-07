@@ -165,6 +165,9 @@ public class Player : FContainer
 
     public void respawn()
     {
+        yMove = 0;
+        xMove = 0;
+        isGrounded = true;
         VanishCloud cloud = new VanishCloud();
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);

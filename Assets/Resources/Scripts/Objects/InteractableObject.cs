@@ -5,7 +5,8 @@ using System.Text;
 
 public abstract class InteractableObject : FContainer
 {
-    
+
+    protected FAnimatedSprite interactSprite;
     protected float X_INTERACT_DIST = 50;
     protected float Y_INTERACT_DIST = 10;
     const float MIN_INTERACT_DIST = 20;
@@ -26,14 +27,19 @@ public abstract class InteractableObject : FContainer
             y - Y_INTERACT_DIST < p.y &&
             y + Y_INTERACT_DIST > p.y)
         {
+            interactSprite.play("hover");
             p.setInteractObject(this);
             return true;
         }
-        else  
+        else
+        {
+            interactSprite.play("interactable");
             return false;
+        }
         
     }
 
     public abstract void interact(Player p);
+
 }
 
