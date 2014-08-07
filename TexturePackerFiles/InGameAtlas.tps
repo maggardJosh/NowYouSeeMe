@@ -185,6 +185,7 @@
             <filename>VanishCloud</filename>
             <filename>textBG.png</filename>
             <filename>Objects</filename>
+            <filename>VanishParticles</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
