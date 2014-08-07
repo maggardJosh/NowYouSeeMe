@@ -9,7 +9,7 @@ public class Player : FContainer
     // State for player
     // Marking is when the hat is placed on the map
     // Vanishing is when the player is vanishing back to the hat
-    private enum State
+    public enum State
     {
         IDLE,
         MARKING,
@@ -19,7 +19,7 @@ public class Player : FContainer
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
-    private State currentState = State.IDLE;
+    public State currentState = State.IDLE;
     private State lastState = State.IDLE;
     Hat hat;
     World world;
@@ -257,6 +257,8 @@ public class Player : FContainer
                 break;
             case State.VANISHING:
             case State.SPAWNING:
+                currentInteractable = null;
+                interactInd.isVisible = false;
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)

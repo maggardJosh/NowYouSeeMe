@@ -16,7 +16,7 @@ public class Container : InteractableObject
         interactSprite = new FAnimatedSprite("Containers/container" + type);
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, true));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("hover", new int[] { 3 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { 3, 1 }, 100, true));
 
         this.AddChild(interactSprite);
     }

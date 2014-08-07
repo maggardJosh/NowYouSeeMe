@@ -22,6 +22,11 @@ public abstract class InteractableObject : FContainer
     {
         if (!interactable)
             return false;
+        if (p.currentState == Player.State.VANISHING)
+        {
+            interactSprite.play("interactable");
+            return false;
+        }
         if (x - X_INTERACT_DIST < p.x &&
             x + X_INTERACT_DIST > p.x &&
             y - Y_INTERACT_DIST < p.y &&

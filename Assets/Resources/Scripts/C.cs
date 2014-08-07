@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class C
 {
-    public const string versionNumber = "v0.1.21";
+    public const string versionNumber = "v0.1.22";
 
     public static bool isSpawning = false;
 
@@ -28,6 +28,6 @@ public class C
     public const KeyCode RIGHT_KEY = KeyCode.RightArrow;
     public const KeyCode UP_KEY = KeyCode.UpArrow;
     public const KeyCode DOWN_KEY = KeyCode.DownArrow;
-    public const KeyCode JUMP_KEY = KeyCode.A;
-    public const KeyCode ACTION_KEY = KeyCode.S;
+    public const KeyCode JUMP_KEY = KeyCode.S;
+    public const KeyCode ACTION_KEY = KeyCode.A;
 }
