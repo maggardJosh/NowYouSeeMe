@@ -7,7 +7,7 @@
   <image source="TiledGraphics/collision.png" width="24" height="12"/>
  </tileset>
  <tileset firstgid="21" name="objects" tilewidth="12" tileheight="12">
-  <image source="TiledGraphics/objects.png" width="36" height="12"/>
+  <image source="TiledGraphics/objects.png" width="48" height="12"/>
  </tileset>
  <layer name="Background" width="60" height="40">
   <data encoding="csv">
@@ -200,5 +200,7 @@
   <object name="Trampoline" gid="21" x="672" y="360"/>
   <object name="Trampoline" gid="21" x="660" y="360"/>
   <object name="Trampoline" gid="21" x="648" y="360"/>
+  <object name="Door" gid="24" x="504" y="420"/>
+  <object name="Door" gid="24" x="240" y="144"/>
  </objectgroup>
 </map>

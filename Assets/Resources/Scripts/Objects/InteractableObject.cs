@@ -6,6 +6,8 @@ using System.Text;
 public abstract class InteractableObject : FContainer
 {
 
+    protected bool toggleable = false;
+    protected bool on = true;
     protected FAnimatedSprite interactSprite;
     protected float X_INTERACT_DIST = 50;
     protected float Y_INTERACT_DIST = 10;
@@ -15,7 +17,7 @@ public abstract class InteractableObject : FContainer
     protected bool interactable = true;
     public InteractableObject()
     {
-     
+
     }
 
     public bool checkInteractDist(Player p)
@@ -24,7 +26,10 @@ public abstract class InteractableObject : FContainer
             return false;
         if (p.currentState == Player.State.VANISHING)
         {
-            interactSprite.play("interactable");
+            if (!toggleable)
+                interactSprite.play("interactable");
+            else
+                interactSprite.play(on ? "on" : "off");
             return false;
         }
         if (x - X_INTERACT_DIST < p.x &&
@@ -32,16 +37,22 @@ public abstract class InteractableObject : FContainer
             y - Y_INTERACT_DIST < p.y &&
             y + Y_INTERACT_DIST > p.y)
         {
-            interactSprite.play("hover");
+            if (!toggleable)
+                interactSprite.play("hover");
+            else
+                interactSprite.play((on ? "on" : "off") + "Hover");
             p.setInteractObject(this);
             return true;
         }
         else
         {
-            interactSprite.play("interactable");
+            if (!toggleable)
+                interactSprite.play("interactable");
+            else
+                interactSprite.play(on ? "on" : "off");
             return false;
         }
-        
+
     }
 
     public abstract void interact(Player p);

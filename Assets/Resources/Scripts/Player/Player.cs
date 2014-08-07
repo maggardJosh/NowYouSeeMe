@@ -15,8 +15,7 @@ public class Player : FContainer
         MARKING,
         VANISHING,
         COOLDOWN,
-        SPAWNING,
-        LOOTING
+        SPAWNING
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -29,6 +28,8 @@ public class Player : FContainer
     float yMove = 0;
     float stateCount = 0;
     bool isFacingLeft = false;
+    bool isLooting = false;
+    bool isInteracting = false;
 
     public GUICounter cashCounter;
     public GUICounter panacheCounter;
@@ -45,12 +46,16 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
-        playerSprite.addAnimation(new FAnimation("loot", new int[] { 5, 6, 5, 6, 5, 6 }, animSpeed, false));
+        playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 5, 6 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_interact", new int[] { 2 }, 250, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_up", new int[] { 11 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 11, 12 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
+
 
         playerSprite.play("hat_idle");
         this.AddChild(playerSprite);
@@ -115,6 +120,8 @@ public class Player : FContainer
 
     private void Vanish()
     {
+        if (isLooting)
+            isLooting = false;
         VanishCloud cloud = new VanishCloud();
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
@@ -225,6 +232,7 @@ public class Player : FContainer
         this.container.AddChild(panacheInd);
 
     }
+    float interactCount = 0;
     private void ControlUpdate()
     {
         if (currentState != lastState)
@@ -257,7 +265,6 @@ public class Player : FContainer
                 break;
             case State.VANISHING:
             case State.SPAWNING:
-            case State.LOOTING:
                 interactInd.isVisible = false;
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
@@ -265,15 +272,46 @@ public class Player : FContainer
                     currentState = State.IDLE;
                 break;
         }
+        if (isInteracting)
+        {
+            currentInteractable = null;
+            if (interactCount > .3f)
+            {
+                interactCount = 0;
+                isInteracting = false;
+            }
+            else
+            {
+                interactCount += Time.deltaTime;
+            }
+        }
+        if (isInteracting || isLooting)
+        {
+            interactInd.isVisible = false;
+
+        }
+        if (isLooting)
+            return;
         if (Input.GetKeyDown(KeyCode.T))
             respawn();
         if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
         {
-            this.x = currentInteractable.x;
-            this.playerSprite.play("loot", true);
-            currentState = State.LOOTING;
-            xMove = 0;
-            yMove = 0;
+            if (currentInteractable is Container)
+            {
+
+                this.x = currentInteractable.x;
+                isLooting = true;
+                this.playerSprite.play(( currentState == State.IDLE ? "hat" : "hatless") +"_loot", true);
+                xMove = 0;
+                yMove = 0;
+            }
+            else
+            {
+                this.playerSprite.play("interact", true);
+                isInteracting = true;
+                currentInteractable.interact(this);
+                spawnFootParticles(2, new Vector2(isFacingLeft ? -15 : 15, 5));
+            }
             return;
         }
         if (downJumpCount > 0)
@@ -326,16 +364,18 @@ public class Player : FContainer
                     this.isVisible = true;
                 }
                 return;
-
-            case State.LOOTING:
-                if (playerSprite.IsStopped)
-                {
-                    currentState = State.IDLE;
-                    currentInteractable.interact(this);
-                    currentInteractable = null;
-                }
-                return;
         }
+        if (isLooting)
+        {
+            if (playerSprite.IsStopped)
+            {
+                currentInteractable.interact(this);
+                currentInteractable = null;
+                isLooting = false;
+            }
+            return;
+        }
+
         if (Input.GetKey(C.LEFT_KEY))
         {
             xAcc = isGrounded ? -speed : -airSpeed;
@@ -474,7 +514,7 @@ public class Player : FContainer
                     animToPlay += "walk";
             }
             else
-                animToPlay += "idle";
+                animToPlay += isInteracting ? "interact" : "idle";
         }
         else
         {

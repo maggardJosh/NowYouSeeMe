@@ -48,6 +48,9 @@ public class World : FContainer
                     case "container":
                         parseContainer(node);
                         break;
+                    case "door":
+                        parseDoor(node);
+                        break;
                 }
             }
         }
@@ -125,6 +128,13 @@ public class World : FContainer
         objectLayer.AddChild(container);
     }
 
+    private void parseDoor(XMLNode node)
+    {
+        Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2));
+        interactObjectList.Add(door);
+        objectLayer.AddChild(door);
+    }
+
     public bool getMoveable(float xPos, float yPos)
     {
         int frameNum = collision.getFrameNumAt(xPos, yPos);
@@ -141,6 +151,7 @@ public class World : FContainer
     {
         checkInteractObjects();
     }
+
     private void checkInteractObjects()
     {
         bool foundObject = false;
