@@ -10,6 +10,7 @@ public class Container : InteractableObject
     private FAnimatedSprite containerSprite;
     public Container(Vector2 pos, int type, int money)
     {
+        this.X_INTERACT_DIST = 24;
         this.SetPosition(pos);
         this.money = money;
         containerSprite = new FAnimatedSprite("Containers/container" + type);
@@ -35,7 +36,6 @@ public class Container : InteractableObject
             this.container.AddChild(particle);
         }
 
-        base.interact(p);
     }
 }
 

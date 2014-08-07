@@ -17,6 +17,7 @@ public class Player : FContainer
         COOLDOWN,
         SPAWNING
     }
+    FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
     private State currentState = State.IDLE;
     private State lastState = State.IDLE;
@@ -31,16 +32,21 @@ public class Player : FContainer
     public GUICounter cashCounter;
     public GUICounter panacheCounter;
 
+    const float INDICATOR_Y = 20;
+    const float INDICATOR_BOUNCE = 5;
+
     int animSpeed = 200;
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
         playerSprite.addAnimation(new FAnimation("hat_idle", new int[] { 13 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_walk", new int[] { 1, 2, 3, 4 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed/2, true));
         playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
+        playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed/2, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_up", new int[] { 11 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
 
@@ -52,6 +58,15 @@ public class Player : FContainer
         cashCounter = new GUICounter();
 
         panacheCounter = new GUICounter();
+
+        interactInd = new FAnimatedSprite("InteractIndicator/interactIndicator");
+        interactInd.addAnimation(new FAnimation("active", new int[] { 1, 2 }, 400, true));
+        interactInd.play("active");
+        this.AddChild(interactInd);
+        interactInd.isVisible = false;
+        interactInd.y = INDICATOR_Y;
+        Go.to(interactInd, 1.0f, new TweenConfig().floatProp("y", INDICATOR_BOUNCE, true).setIterations(-1, LoopType.PingPong).setEaseType(EaseType.QuadOut));
+        interactInd.isVisible = false;
 
     }
     #region GUI Stuff
@@ -156,7 +171,7 @@ public class Player : FContainer
         this.isVisible = false;
 
         currentState = State.VANISHING;
-        Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight/3).setEaseType(EaseType.CircInOut).onComplete((a) =>
+        Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight / 3).setEaseType(EaseType.CircInOut).onComplete((a) =>
         {
             tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer();
         }));
@@ -181,10 +196,12 @@ public class Player : FContainer
     public void setInteractObject(InteractableObject o)
     {
         currentInteractable = o;
+        interactInd.isVisible = true;
     }
     public void clearInteractable()
     {
         currentInteractable = null;
+        interactInd.isVisible = false;
     }
 
     public void addCash(int amount)
@@ -212,10 +229,6 @@ public class Player : FContainer
 
         if (Input.GetKeyDown(KeyCode.T))
             respawn();
-        if (Input.GetKeyDown(KeyCode.C))
-            addCash(100);
-        if (Input.GetKeyDown(KeyCode.P))
-            addPanache(100);
         switch (currentState)
         {
             case State.IDLE:
@@ -275,14 +288,16 @@ public class Player : FContainer
     float jumpStrength = 6;
     const float MAX_Y_VEL = 10f;
     const float MIN_Y_VEL = -6f;
-    const float MAX_X_VEL = 5f;
+    const float MAX_X_VEL = 4f;
     bool isGrounded = true;
     bool isMoving = false;
     bool hasLeftMarkPos = false;
     const float MARK_MIN_DIST = 20;     //Distance from mark that causes the timer to start
     const float MIN_MOVEMENT_X = .1f;
     public const float Gravity = -.3f;
-
+    bool hitMaxXVel = false;
+    float maxVelTime = 0;
+    bool isSprinting = false;
     private void Update()
     {
         float xAcc = 0;
@@ -301,27 +316,73 @@ public class Player : FContainer
         {
             xAcc = isGrounded ? -speed : -airSpeed;
             if (xMove > 0)
+            {
                 xAcc *= 4;
+                if (xMove > MAX_X_VEL / 2 && isGrounded)
+                {
+                    spawnFootParticles(1);
+                }
+            }
             isFacingLeft = true;
         }
         if (Input.GetKey(C.RIGHT_KEY))
         {
             xAcc = isGrounded ? speed : airSpeed;
             if (xMove < 0)
+            {
                 xAcc *= 4;
+                if (xMove < -MAX_X_VEL / 2 && isGrounded)
+                {
+                    spawnFootParticles(1);
+                }
+            }
             isFacingLeft = false;
         }
 
         xMove += xAcc;
 
         xMove = Mathf.Clamp(xMove, -MAX_X_VEL, MAX_X_VEL);
+        if (hitMaxXVel)
+        {
+            hitMaxXVel = Math.Abs(xMove) == MAX_X_VEL;
+            if (!hitMaxXVel)
+                maxVelTime = 0;
+            else
+            {
+                if (RXRandom.Float() < .3f)
+                    spawnFootParticles(1);
+            }
+            if ((xMove > 0 && Input.GetKey(C.RIGHT_KEY)) ||
+               (xMove < 0 && Input.GetKey(C.LEFT_KEY)))
+            {
+                if (maxVelTime > 1.0f)
+                {
+                    if (RXRandom.Float() < .8f)
+                        spawnFootParticles(1);
+                    xMove *= 1.2f;
+                    isSprinting = true;
+                }
+                else
+                {
+                    maxVelTime += Time.deltaTime;
+                }
+            }
+        }
+        else
+        {
+            isSprinting = false;
+            if (isGrounded && Math.Abs(xMove) == MAX_X_VEL)
+            {
+                hitMaxXVel = true;
+            }
+        }
+
 
         if (xMove > 0)
             tryMoveRight(xMove);
         else if (xMove < 0)
             tryMoveLeft(xMove);
 
-        isGrounded = false;
         yMove += Gravity;
 
         yMove = Mathf.Clamp(yMove, MIN_Y_VEL, MAX_Y_VEL);
@@ -357,7 +418,12 @@ public class Player : FContainer
         if (yMove == 0)
         {
             if (isMoving)
-                animToPlay += "walk";
+            {
+                if (isSprinting)
+                    animToPlay += "run";
+                else
+                    animToPlay += "walk";
+            }
             else
                 animToPlay += "idle";
         }
@@ -454,6 +520,24 @@ public class Player : FContainer
         }
     }
 
+    private void spawnFootParticles(int numParticles)
+    {
+        if (!isGrounded)
+            return;
+        float particleXSpeed = 20;
+        float particleYSpeed = 20;
+
+        float particleDist = 2;
+        for (int x2 = 0; x2 < numParticles; x2++)
+        {
+            VanishParticle particle = VanishParticle.getParticle();
+            float angle = (RXRandom.Float() * Mathf.PI * 2);
+            Vector2 pos = this.GetPosition() - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+            particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
+            this.container.AddChild(particle);
+        }
+    }
+
     private void tryMoveDown(float yMove)
     {
         bool onOneWay = world.getOneWay(x, y - playerSprite.height / 2 + yMove);
@@ -461,6 +545,7 @@ public class Player : FContainer
             world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) && !onOneWay)
         {
             this.y += yMove;
+            isGrounded = false;
         }
         else
         {
@@ -471,7 +556,11 @@ public class Player : FContainer
                 this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
                 this.yMove = 0;
                 this.jumpsLeft = 1;
-                isGrounded = true;
+                if (!isGrounded)
+                {
+                    isGrounded = true;
+                    spawnFootParticles(4);
+                }
             }
         }
     }

@@ -62,7 +62,6 @@ public class Chest : InteractableObject
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
             this.container.AddChild(particle);
         }
-        base.interact(p);
     }
 }
 
