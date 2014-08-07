@@ -12,6 +12,8 @@ public class Door : InteractableObject
         this.SetPosition(pos);
         toggleable = true;
         on = false;
+        this.X_INTERACT_DIST = 36;
+        this.Y_INTERACT_DIST = 20;
         interactSprite = new FAnimatedSprite("Door/door");
         interactSprite.addAnimation(new FAnimation("off", new int[] { 1 }, 100, false));
         interactSprite.addAnimation(new FAnimation("on", new int[] { 2 }, 100, false));

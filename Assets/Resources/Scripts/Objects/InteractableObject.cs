@@ -22,6 +22,14 @@ public abstract class InteractableObject : FContainer
 
     }
 
+    public void turnOffInteractInd()
+    {
+        if (!toggleable)
+            interactSprite.play("interactable");
+        else
+            interactSprite.play(on ? "on" : "off");
+    }
+
     public bool checkInteractDist(Player p)
     {
         if (!interactable)
@@ -43,7 +51,7 @@ public abstract class InteractableObject : FContainer
                 interactSprite.play("hover");
             else
                 interactSprite.play((on ? "on" : "off") + "Hover");
-            p.setInteractObject(this);
+            
             return true;
         }
         else

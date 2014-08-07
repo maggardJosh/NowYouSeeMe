@@ -140,7 +140,7 @@ public class World : FContainer
 
     public bool getMoveable(float xPos, float yPos)
     {
-        
+
         int frameNum = collision.getFrameNumAt(xPos, yPos);
         return frameNum != 1 &&
                frameNum != -1;
@@ -152,8 +152,8 @@ public class World : FContainer
         {
             if (d.Open)
                 continue;
-            if (((d.x + Door.DOOR_COLLISION_WIDTH /2 > oldXPos && d.x - Door.DOOR_COLLISION_WIDTH< xPos) ||
-                (d.x - Door.DOOR_COLLISION_WIDTH / 2 < oldXPos && d.x + Door.DOOR_COLLISION_WIDTH> xPos)) &&
+            if (((d.x + Door.DOOR_COLLISION_WIDTH / 2 > oldXPos && d.x - Door.DOOR_COLLISION_WIDTH / 2 < xPos) ||
+                (d.x - Door.DOOR_COLLISION_WIDTH / 2 < oldXPos && d.x + Door.DOOR_COLLISION_WIDTH / 2 > xPos)) &&
                 d.y - 16 <= yPos &&
                 d.y + 16 >= yPos)
                 return d;
@@ -168,16 +168,41 @@ public class World : FContainer
 
     private void Update()
     {
-        checkInteractObjects();
+        InteractableObject obj = checkInteractObjects();
+        if (obj != null)
+            player.setInteractObject(obj);
     }
 
-    private void checkInteractObjects()
+    private InteractableObject checkInteractObjects()
     {
-        bool foundObject = false;
+        InteractableObject foundObject = null;
+        float closestXDist = 0;
         for (int x = 0; x < interactObjectList.Count; x++)
-            foundObject = interactObjectList[x].checkInteractDist(player) || foundObject;
+            if (interactObjectList[x].checkInteractDist(player))
+            {
+                float xDist = Math.Abs(player.x - interactObjectList[x].x);
+                if (foundObject == null)
+                {
+                    foundObject = interactObjectList[x];
+                    closestXDist = xDist;
+                }
+                else
+                {
+                    if (xDist < closestXDist)
+                    {
+                        closestXDist = xDist;
+                        foundObject.turnOffInteractInd();
+                        foundObject = interactObjectList[x];
+                    }
+                    else
+                    {
+                        interactObjectList[x].turnOffInteractInd();
+                    }
+                }
+            }
         //If we made it this far then 
-        if(!foundObject)
+        if (foundObject == null)
             player.clearInteractable();
+        return foundObject;
     }
 }
