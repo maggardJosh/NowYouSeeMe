@@ -301,7 +301,7 @@ public class Player : FContainer
 
                 this.x = currentInteractable.x;
                 isLooting = true;
-                this.playerSprite.play(( currentState == State.IDLE ? "hat" : "hatless") +"_loot", true);
+                this.playerSprite.play((currentState == State.IDLE ? "hat" : "hatless") + "_loot", true);
                 xMove = 0;
                 yMove = 0;
             }
@@ -555,8 +555,8 @@ public class Player : FContainer
         this.yMove = Mathf.Clamp(Math.Abs(yMove) * 2, 2, 10);
     }
 
-    float collisionWidth = 12;
-    float collisionHeight = 20;
+    public const float collisionWidth = 12;
+    public const float collisionHeight = 20;
     private void tryMoveRight(float xMove)
     {
         while (xMove > 0)
@@ -565,8 +565,18 @@ public class Player : FContainer
             if (world.getMoveable(x + collisionWidth / 2 + xStep, y - collisionHeight * .9f / 2) &&
                 world.getMoveable(x + collisionWidth / 2 + xStep, y + collisionHeight * .9f / 2))
             {
-                this.x += xStep;
-                xMove -= xStep;
+                Door doorCollision = world.checkDoor(x, x + collisionWidth / 2 + xStep, y);
+                if (doorCollision != null)
+                {
+                    this.x = doorCollision.x - collisionWidth / 2 - Door.DOOR_COLLISION_WIDTH/ 2;
+                    this.xMove = 0;
+                    return;
+                }
+                else
+                {
+                    this.x += xStep;
+                    xMove -= xStep;
+                }
             }
             else
             {
@@ -585,8 +595,18 @@ public class Player : FContainer
             if (world.getMoveable(x - collisionWidth / 2 + xStep, y - collisionHeight * .9f / 2) &&
                 world.getMoveable(x - collisionWidth / 2 + xStep, y + collisionHeight * .9f / 2))
             {
-                this.x += xMove;
-                xMove -= xStep;
+                Door doorCollision = world.checkDoor(x, x - collisionWidth / 2 + xStep, y);
+                if (doorCollision != null)
+                {
+                    this.x = doorCollision.x + collisionWidth / 2 + Door.DOOR_COLLISION_WIDTH / 2;
+                    this.xMove = 0;
+                    return;
+                }
+                else
+                {
+                    this.x += xStep;
+                    xMove -= xStep;
+                }
             }
             else
             {

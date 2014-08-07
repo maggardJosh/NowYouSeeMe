@@ -11,6 +11,7 @@ public class World : FContainer
 
     public FTilemap collision;
     public List<Trampoline> trampolineList = new List<Trampoline>();
+    public List<Door> doorList = new List<Door>();
     public List<InteractableObject> interactObjectList = new List<InteractableObject>();
 
     private FContainer bgLayer = new FContainer();
@@ -27,6 +28,7 @@ public class World : FContainer
     {
         trampolineList.Clear();
         interactObjectList.Clear();
+        doorList.Clear();
         player = new Player(this);
         map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
@@ -131,15 +133,32 @@ public class World : FContainer
     private void parseDoor(XMLNode node)
     {
         Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2));
+        doorList.Add(door);
         interactObjectList.Add(door);
         objectLayer.AddChild(door);
     }
 
     public bool getMoveable(float xPos, float yPos)
     {
+        
         int frameNum = collision.getFrameNumAt(xPos, yPos);
         return frameNum != 1 &&
                frameNum != -1;
+    }
+
+    public Door checkDoor(float oldXPos, float xPos, float yPos)
+    {
+        foreach (Door d in doorList)
+        {
+            if (d.Open)
+                continue;
+            if (((d.x + Door.DOOR_COLLISION_WIDTH /2 > oldXPos && d.x - Door.DOOR_COLLISION_WIDTH< xPos) ||
+                (d.x - Door.DOOR_COLLISION_WIDTH / 2 < oldXPos && d.x + Door.DOOR_COLLISION_WIDTH> xPos)) &&
+                d.y - 16 <= yPos &&
+                d.y + 16 >= yPos)
+                return d;
+        }
+        return null;
     }
     public bool getOneWay(float xPos, float yPos)
     {

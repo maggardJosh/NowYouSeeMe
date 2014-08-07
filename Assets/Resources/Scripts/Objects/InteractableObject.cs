@@ -14,6 +14,8 @@ public abstract class InteractableObject : FContainer
     const float MIN_INTERACT_DIST = 20;
     const float MIN_INTERACT_DIST_SQR = MIN_INTERACT_DIST * MIN_INTERACT_DIST;
 
+    public bool Open { get { return on; } }
+
     protected bool interactable = true;
     public InteractableObject()
     {
