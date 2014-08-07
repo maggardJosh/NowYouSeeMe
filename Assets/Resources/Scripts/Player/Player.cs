@@ -244,7 +244,10 @@ public class Player : FContainer
                 break;
         }
         if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
+        {
             currentInteractable.interact(this);
+            currentInteractable = null;
+        }
         if (downJumpCount > 0)
             downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
         if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)

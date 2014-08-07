@@ -5,7 +5,7 @@ using System.Text;
 
 public class InteractableObject : FContainer
 {
-    FSprite interactInd;
+    FAnimatedSprite interactInd;
     protected float X_INTERACT_DIST = 50;
     protected float Y_INTERACT_DIST = 10;
     const float MIN_INTERACT_DIST = 20;
@@ -15,7 +15,9 @@ public class InteractableObject : FContainer
     protected bool interactable = true;
     public InteractableObject()
     {
-        interactInd = new FSprite("interactIndicator");
+        interactInd = new FAnimatedSprite("InteractIndicator/interactIndicator");
+        interactInd.addAnimation(new FAnimation("active", new int[] { 1, 2 }, 400, true));
+        interactInd.play("active");
         this.AddChild(interactInd);
         interactInd.isVisible = false;
     }
