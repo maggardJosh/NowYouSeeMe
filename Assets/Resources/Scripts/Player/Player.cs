@@ -14,7 +14,8 @@ public class Player : FContainer
         IDLE,
         MARKING,
         VANISHING,
-        COOLDOWN
+        COOLDOWN,
+        SPAWNING
     }
     FAnimatedSprite playerSprite;
     private State currentState = State.IDLE;
@@ -53,7 +54,7 @@ public class Player : FContainer
         panacheCounter = new GUICounter();
 
     }
-
+    #region GUI Stuff
     public float getVelocityAngle()
     {
         if (xMove == 0 && yMove == 0)
@@ -62,12 +63,27 @@ public class Player : FContainer
             return Mathf.Atan2(-yMove, xMove) * 180.0f / Mathf.PI;
     }
 
+    public float GetVanishPercent()
+    {
+        switch (currentState)
+        {
+            case State.MARKING: return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
+            case State.VANISHING: return 0;
+            case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
+            default: return 1.0f;
+        }
+    }
+    #endregion
+
     public override void HandleAddedToStage()
     {
         Futile.instance.SignalFixedUpdate += Update;
         Futile.instance.SignalUpdate += ControlUpdate;
         base.HandleAddedToStage();
     }
+
+
+    #region Mark/Vanish Stuff
     private void Mark()
     {
         this.container.AddChild(hat);
@@ -121,6 +137,51 @@ public class Player : FContainer
         hat.disappear();
         currentState = State.IDLE;
     }
+    #endregion
+
+    private Chest activatedChest;
+    public void activateChest(Chest chest)
+    {
+        if (activatedChest != null)
+            activatedChest.deactivate();
+        chest.activate();
+        activatedChest = chest;
+    }
+
+    public void respawn()
+    {
+        VanishCloud cloud = new VanishCloud();
+        cloud.SetPosition(this.GetPosition());
+        this.container.AddChild(cloud);
+        this.isVisible = false;
+
+        currentState = State.VANISHING;
+        Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.SPAWNING; activatedChest.spawnPlayer(); }));        
+    }
+
+    public void spawn()
+    {
+        currentState = State.SPAWNING;
+        if (activatedChest != null)
+        {
+            this.x = activatedChest.x;
+            this.y = activatedChest.y;
+            this.isVisible = false;
+            activatedChest.spawnPlayer();
+        }
+        else
+            throw new Exception("No Activated Chest");
+    }
+
+    private InteractableObject currentInteractable;
+    public void setInteractObject(InteractableObject o)
+    {
+        currentInteractable = o;
+    }
+    public void clearInteractable()
+    {
+        currentInteractable = null;
+    }
 
     public void addCash(int amount)
     {
@@ -145,6 +206,8 @@ public class Player : FContainer
 
         lastState = currentState;
 
+        if (Input.GetKeyDown(KeyCode.T))
+            respawn();
         if (Input.GetKeyDown(KeyCode.C))
             addCash(100);
         if (Input.GetKeyDown(KeyCode.P))
@@ -173,12 +236,15 @@ public class Player : FContainer
                     }
                 break;
             case State.VANISHING:
+            case State.SPAWNING:
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)
                     currentState = State.IDLE;
                 break;
         }
+        if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
+            currentInteractable.interact(this);
         if (downJumpCount > 0)
             downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
         if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
@@ -191,19 +257,9 @@ public class Player : FContainer
         stateCount += Time.deltaTime;
     }
 
+
     float downJumpCount = 0;
     const float DOWN_JUMP_TIME = .4f;       //Time to allow a down jump
-
-    public float GetVanishPercent()
-    {
-        switch (currentState)
-        {
-            case State.MARKING: return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
-            case State.VANISHING: return 0;
-            case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
-            default: return 1.0f;
-        }
-    }
 
     float speed = .1f;
     float airSpeed = .1f;
@@ -225,6 +281,15 @@ public class Player : FContainer
         float xAcc = 0;
         if (currentState == State.VANISHING)
             return;
+        if (currentState == State.SPAWNING)
+        {
+            if(!C.isSpawning)
+            {
+                currentState = State.IDLE;
+                this.isVisible = true;
+            }
+            return;
+        }
         if (Input.GetKey(C.LEFT_KEY))
         {
             xAcc = isGrounded ? -speed : -airSpeed;

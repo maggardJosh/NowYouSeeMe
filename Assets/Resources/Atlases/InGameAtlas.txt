@@ -1,6 +1,6 @@
 {"frames": {
 
-"MagicChest/magicChest_0":
+"MagicChest/magicChest_01":
 {
 	"frame": {"x":187,"y":211,"w":36,"h":12},
 	"rotated": false,
@@ -8,7 +8,7 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":36,"h":12},
 	"sourceSize": {"w":36,"h":12}
 },
-"MagicChest/magicChest_1":
+"MagicChest/magicChest_02":
 {
 	"frame": {"x":147,"y":211,"w":36,"h":12},
 	"rotated": false,
@@ -47,6 +47,14 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":10,"h":20},
 	"sourceSize": {"w":30,"h":22}
+},
+"interactIndicator":
+{
+	"frame": {"x":291,"y":237,"w":9,"h":8},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":9,"h":8},
+	"sourceSize": {"w":9,"h":8}
 },
 "player_01":
 {
@@ -266,7 +274,7 @@
 },
 "vanishParticle01_01":
 {
-	"frame": {"x":307,"y":221,"w":8,"h":8},
+	"frame": {"x":316,"y":233,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -274,7 +282,7 @@
 },
 "vanishParticle01_02":
 {
-	"frame": {"x":307,"y":209,"w":8,"h":8},
+	"frame": {"x":307,"y":221,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -298,7 +306,7 @@
 },
 "vanishParticle02_01":
 {
-	"frame": {"x":313,"y":181,"w":8,"h":8},
+	"frame": {"x":307,"y":209,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -306,7 +314,7 @@
 },
 "vanishParticle02_02":
 {
-	"frame": {"x":315,"y":233,"w":6,"h":8},
+	"frame": {"x":316,"y":245,"w":6,"h":8},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":0,"w":6,"h":8},
@@ -330,7 +338,7 @@
 },
 "vanishParticle03_01":
 {
-	"frame": {"x":315,"y":245,"w":6,"h":6},
+	"frame": {"x":326,"y":245,"w":6,"h":6},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":1,"w":6,"h":6},
@@ -338,7 +346,7 @@
 },
 "vanishParticle03_02":
 {
-	"frame": {"x":307,"y":197,"w":8,"h":8},
+	"frame": {"x":313,"y":181,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -346,7 +354,7 @@
 },
 "vanishParticle03_03":
 {
-	"frame": {"x":303,"y":237,"w":8,"h":8},
+	"frame": {"x":307,"y":197,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -354,7 +362,7 @@
 },
 "vanishParticle03_04":
 {
-	"frame": {"x":291,"y":237,"w":8,"h":8},
+	"frame": {"x":304,"y":237,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -367,6 +375,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:beb89a2fdaa9884fa441c3aa2d070cae:6fc9b658ebd393d710996b720815aadc:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:28c5ad0e07ada46333be80fd700e5903:38419fa5b7e901c47242f706912d457a:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

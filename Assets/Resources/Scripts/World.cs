@@ -11,6 +11,7 @@ public class World : FContainer
 
     public FTilemap collision;
     public List<Trampoline> trampolineList = new List<Trampoline>();
+    public List<InteractableObject> interactObjectList = new List<InteractableObject>();
 
     private FContainer bgLayer = new FContainer();
     private FContainer objectLayer = new FContainer();
@@ -19,12 +20,13 @@ public class World : FContainer
 
     public World()
     {
-
+        Futile.instance.SignalUpdate += Update;
     }
 
     public void LoadMap(string mapName)
     {
         trampolineList.Clear();
+        interactObjectList.Clear();
         player = new Player(this);
         map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
@@ -37,14 +39,11 @@ public class World : FContainer
             {
                 switch (node.attributes["name"].ToLower())
                 {
-                    case "spawn":
-                        player.x = float.Parse(node.attributes["x"]) + float.Parse(node.attributes["width"]) / 2;
-                        player.y = -(float.Parse(node.attributes["y"])) + float.Parse(node.attributes["height"]) / 2;
-                        break;
                     case "trampoline":
-                        Trampoline trampoline = new Trampoline(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, - float.Parse(node.attributes["y"]) + map.tileHeight / 2));
-                        trampolineList.Add(trampoline);
-                        objectLayer.AddChild(trampoline);
+                        parseTrampoline(node);
+                        break;
+                    case "chest":
+                        parseChest(node);
                         break;
                 }
             }
@@ -61,7 +60,40 @@ public class World : FContainer
         this.AddChild(objectLayer);
         this.AddChild(playerLayer);
         this.AddChild(fgLayer);
+        player.spawn();
 
+    }
+
+    private void parseTrampoline(XMLNode node)
+    {
+        Trampoline trampoline = new Trampoline(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2));
+        trampolineList.Add(trampoline);
+        objectLayer.AddChild(trampoline);
+    }
+
+    Chest spawnChest;
+    private void parseChest(XMLNode node)
+    {
+        Chest chest = new Chest(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2));
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "spawn":
+                            if (bool.Parse(property.attributes["value"]))
+                            {
+                                player.x = chest.x;
+                                player.y = chest.y;
+                                player.activateChest(chest);
+                                spawnChest = chest;
+                            }
+                            break;
+                    }
+            }
+        interactObjectList.Add(chest);
+        objectLayer.AddChild(chest);
     }
 
     public bool getMoveable(float xPos, float yPos)
@@ -74,5 +106,12 @@ public class World : FContainer
     {
         int frameNum = collision.getFrameNumAt(xPos, yPos);
         return frameNum == 2;
+    }
+
+    private void Update()
+    {
+        for (int x = 0; x < interactObjectList.Count; x++)
+            if (interactObjectList[x].checkInteractDist(player))
+                break;
     }
 }

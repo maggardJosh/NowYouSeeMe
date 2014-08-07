@@ -8,6 +8,8 @@ public class C
 {
     public const string versionNumber = "v0.1.21";
 
+    public static bool isSpawning = false;
+
     private static PlayerGUI cameraInstance;
     public static PlayerGUI getCameraInstance()
     {
