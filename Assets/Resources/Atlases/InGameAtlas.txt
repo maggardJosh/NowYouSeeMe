@@ -74,7 +74,7 @@
 },
 "InteractIndicator/interactIndicator_01":
 {
-	"frame": {"x":439,"y":82,"w":10,"h":8},
+	"frame": {"x":387,"y":99,"w":10,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":10,"h":8},
@@ -111,6 +111,30 @@
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":12,"w":28,"h":12},
 	"sourceSize": {"w":30,"h":36}
+},
+"Switch/switch_01":
+{
+	"frame": {"x":413,"y":93,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
+},
+"Switch/switch_02":
+{
+	"frame": {"x":455,"y":82,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
+},
+"Switch/switch_03":
+{
+	"frame": {"x":439,"y":82,"w":12,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
+	"sourceSize": {"w":12,"h":12}
 },
 "Trampoline/trampoline_01":
 {
@@ -426,7 +450,7 @@
 },
 "vanishParticle01_01":
 {
-	"frame": {"x":437,"y":94,"w":8,"h":8},
+	"frame": {"x":413,"y":109,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -434,7 +458,7 @@
 },
 "vanishParticle01_02":
 {
-	"frame": {"x":399,"y":99,"w":8,"h":8},
+	"frame": {"x":429,"y":98,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -458,7 +482,7 @@
 },
 "vanishParticle02_01":
 {
-	"frame": {"x":387,"y":99,"w":8,"h":8},
+	"frame": {"x":495,"y":97,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -498,7 +522,7 @@
 },
 "vanishParticle03_02":
 {
-	"frame": {"x":425,"y":93,"w":8,"h":8},
+	"frame": {"x":483,"y":97,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -506,7 +530,7 @@
 },
 "vanishParticle03_03":
 {
-	"frame": {"x":413,"y":93,"w":8,"h":8},
+	"frame": {"x":471,"y":97,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -514,7 +538,7 @@
 },
 "vanishParticle03_04":
 {
-	"frame": {"x":453,"y":82,"w":8,"h":8},
+	"frame": {"x":401,"y":99,"w":8,"h":8},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":8,"h":8},
@@ -527,6 +551,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:982e82080693a1d2593964771b68dc70:2af6ea95b50f4c6665f7bf8855b2e035:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:ca8c9a0c1419c37859d78ee5453c6db4:82c6b5689fb10bad4e29735b74458d05:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }

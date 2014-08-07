@@ -19,6 +19,12 @@ public class World : FContainer
     private FContainer playerLayer = new FContainer();
     private FContainer fgLayer = new FContainer();
 
+    private const int TRAMPOLINE_IND = 0;
+    private const int CHEST_IND = 1;
+    private const int CONTAINER_IND = 2;
+    private const int DOOR_IND = 3;
+    private const int SWITCH_IND = 4;
+
     public World()
     {
         Futile.instance.SignalUpdate += Update;
@@ -35,25 +41,37 @@ public class World : FContainer
         map.LoadTMX("Maps/" + mapName);
         C.getCameraInstance().setWorldBounds(new Rect(0, -map.height, map.width, map.height));
         C.getCameraInstance().setPlayer(player);
+
         foreach (XMLNode node in map.objects)
         {
-            if (node.attributes.ContainsKey("name"))
+            if (node.attributes.ContainsKey("gid"))
             {
-                switch (node.attributes["name"].ToLower())
+                switch (int.Parse(node.attributes["gid"]) - map.objectLayerStartGID)
                 {
-                    case "trampoline":
+                    case TRAMPOLINE_IND:
                         parseTrampoline(node);
                         break;
-                    case "chest":
+                    case CHEST_IND:
                         parseChest(node);
                         break;
-                    case "container":
+                    case CONTAINER_IND:
                         parseContainer(node);
                         break;
-                    case "door":
+                    case DOOR_IND:
                         parseDoor(node);
                         break;
+                    case SWITCH_IND:
+                        parseSwitch(node);
+                        break;
                 }
+            }
+        }
+
+        foreach (InteractableObject o in interactObjectList)
+        {
+            if (o is Switch)
+            {
+                ((Switch)o).findDoor(doorList);
             }
         }
 
@@ -132,10 +150,48 @@ public class World : FContainer
 
     private void parseDoor(XMLNode node)
     {
-        Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2));
+        string doorName = "";
+        if (node.attributes.ContainsKey("name"))
+            doorName = node.attributes["name"];
+        bool locked = false;
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "locked":
+                            locked = true;
+                            break;
+                    }
+            }
+        Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, locked);
         doorList.Add(door);
         interactObjectList.Add(door);
         objectLayer.AddChild(door);
+    }
+
+    private void parseSwitch(XMLNode node)
+    {
+        string doorName = "";
+        string actionType = "";
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "door":
+                            doorName = property.attributes["value"];
+                            break;
+                        case "action":
+                            actionType = property.attributes["value"];
+                            break;
+                    }
+            }
+        Switch s = new Switch(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, actionType);
+        interactObjectList.Add(s);
+        objectLayer.AddChild(s);
     }
 
     public bool getMoveable(float xPos, float yPos)

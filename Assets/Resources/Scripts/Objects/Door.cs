@@ -7,10 +7,15 @@ using UnityEngine;
 
 public class Door : InteractableObject
 {
-    public Door(Vector2 pos)
+    public string name { get; private set; }
+    bool locked = false;
+    public Door(Vector2 pos, string name, bool locked)
     {
+        this.name = name;
         this.SetPosition(pos);
+        this.locked = locked;
         toggleable = true;
+        interactable = !locked;
         on = false;
         this.X_INTERACT_DIST = 36;
         this.Y_INTERACT_DIST = 20;

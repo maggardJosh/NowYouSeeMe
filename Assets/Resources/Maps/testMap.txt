@@ -7,7 +7,7 @@
   <image source="TiledGraphics/collision.png" width="24" height="12"/>
  </tileset>
  <tileset firstgid="21" name="objects" tilewidth="12" tileheight="12">
-  <image source="TiledGraphics/objects.png" width="48" height="12"/>
+  <image source="TiledGraphics/objects.png" width="60" height="12"/>
  </tileset>
  <layer name="Background" width="60" height="40">
   <data encoding="csv">
@@ -155,13 +155,13 @@
    </properties>
   </object>
   <object name="Chest" gid="22" x="564" y="120"/>
-  <object name="Container" gid="23" x="240" y="312">
+  <object name="Container" gid="23" x="396" y="312">
    <properties>
     <property name="Money" value="200"/>
     <property name="Type" value="1"/>
    </properties>
   </object>
-  <object name="Container" gid="23" x="288" y="312">
+  <object name="Container" gid="23" x="360" y="312">
    <properties>
     <property name="Money" value="100"/>
     <property name="Type" value="1"/>
@@ -201,9 +201,18 @@
   <object name="Trampoline" gid="21" x="660" y="360"/>
   <object name="Trampoline" gid="21" x="648" y="360"/>
   <object name="Door" gid="24" x="504" y="420"/>
-  <object name="Door" gid="24" x="240" y="144"/>
-  <object name="Door" gid="24" x="204" y="300"/>
+  <object name="doorOne" gid="24" x="216" y="300">
+   <properties>
+    <property name="locked" value=""/>
+   </properties>
+  </object>
   <object name="Door" gid="24" x="168" y="300"/>
   <object name="Door" gid="24" x="120" y="300"/>
+  <object gid="25" x="276" y="312">
+   <properties>
+    <property name="action" value="toggle"/>
+    <property name="door" value="doorOne"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
