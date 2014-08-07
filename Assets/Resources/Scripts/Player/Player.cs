@@ -156,7 +156,10 @@ public class Player : FContainer
         this.isVisible = false;
 
         currentState = State.VANISHING;
-        Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.SPAWNING; activatedChest.spawnPlayer(); }));        
+        Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight/3).setEaseType(EaseType.CircInOut).onComplete((a) =>
+        {
+            tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer();
+        }));
     }
 
     public void spawn()
@@ -166,6 +169,7 @@ public class Player : FContainer
         {
             this.x = activatedChest.x;
             this.y = activatedChest.y;
+            tryMoveDown(-.1f);
             this.isVisible = false;
             activatedChest.spawnPlayer();
         }
@@ -286,7 +290,7 @@ public class Player : FContainer
             return;
         if (currentState == State.SPAWNING)
         {
-            if(!C.isSpawning)
+            if (!C.isSpawning)
             {
                 currentState = State.IDLE;
                 this.isVisible = true;

@@ -328,6 +328,14 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":12},
 	"sourceSize": {"w":12,"h":12}
 },
+"tilemap_13":
+{
+	"frame": {"x":93,"y":219,"w":12,"h":4},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":4},
+	"sourceSize": {"w":12,"h":12}
+},
 "vanishCloud_01":
 {
 	"frame": {"x":35,"y":151,"w":28,"h":34},
@@ -386,7 +394,7 @@
 },
 "vanishParticle01_04":
 {
-	"frame": {"x":101,"y":219,"w":4,"h":4},
+	"frame": {"x":117,"y":219,"w":4,"h":4},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":2,"w":4,"h":4},
@@ -418,7 +426,7 @@
 },
 "vanishParticle02_04":
 {
-	"frame": {"x":93,"y":219,"w":4,"h":4},
+	"frame": {"x":109,"y":219,"w":4,"h":4},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":2,"y":2,"w":4,"h":4},
@@ -463,6 +471,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:22c29aba8d11abd85c51f769e93687bc:39c5de3bea4d32dba589489c9d951814:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:f1bb4d18a3c2927f10f45447830234a5:c6365f2d5dea141c52af98eed955cabb:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }
