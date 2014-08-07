@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class C
 {
-    public const string versionNumber = "v0.1.22";
+    public const string versionNumber = "v0.1.3";
 
     public static bool isSpawning = false;
 

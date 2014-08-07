@@ -14,7 +14,7 @@ public class Chest : InteractableObject
         interactSprite = new FAnimatedSprite("MagicChest/magicChest");
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, false));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, false));
-        interactSprite.addAnimation(new FAnimation("hover", new int[] { 2 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { 1, 3 }, 100, true));
         interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 1, 2, 1, 2, 1, 2, 1 }, 100, false));
         this.AddChild(interactSprite);
     }
@@ -22,11 +22,13 @@ public class Chest : InteractableObject
     public void deactivate()
     {
         interactable = true;
+        interactSprite.play("interactable");
     }
 
     public void activate()
     {
         interactable = false;
+        interactSprite.play("uninteractable");
     }
 
     public void spawnPlayer()

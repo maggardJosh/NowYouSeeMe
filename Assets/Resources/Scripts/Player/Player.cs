@@ -288,7 +288,8 @@ public class Player : FContainer
 
     float speed = .1f;
     float airSpeed = .1f;
-    float friction = .8f;
+    float highVelFriction = .9f;
+    float normalFriction = .8f;
     float airFriction = .99f;
     float jumpStrength = 6;
     const float MAX_Y_VEL = 10f;
@@ -304,6 +305,7 @@ public class Player : FContainer
     float maxVelTime = 0;
     bool isSprinting = false;
     bool wasSprinting = false;
+    bool wasMaxSpeed = false;
     private void Update()
     {
         float xAcc = 0;
@@ -330,7 +332,10 @@ public class Player : FContainer
                 }
             }
             if (xMove > -MAX_X_VEL / 2)
+            {
                 wasSprinting = false;
+                wasMaxSpeed = false;
+            }
             isFacingLeft = true;
         }
         if (Input.GetKey(C.RIGHT_KEY))
@@ -343,8 +348,11 @@ public class Player : FContainer
                 {
                     spawnFootParticles(1, Vector2.right * -10);
                 }
-                if (xMove < MAX_X_VEL / 2)
-                    wasSprinting = false;
+            }
+            if (xMove < MAX_X_VEL / 2)
+            {
+                wasSprinting = false;
+                wasMaxSpeed = false;
             }
             isFacingLeft = false;
         }
@@ -384,6 +392,7 @@ public class Player : FContainer
             isSprinting = false;
             if (isGrounded && Math.Abs(xMove) == MAX_X_VEL)
             {
+                wasMaxSpeed = true;
                 hitMaxXVel = true;
             }
         }
@@ -410,8 +419,11 @@ public class Player : FContainer
         {
             if (isGrounded)
             {
-                xMove *= friction;
-                if (wasSprinting)
+                if (!wasMaxSpeed)
+                    xMove *= normalFriction;
+                else
+                    xMove *= highVelFriction;
+                if (wasSprinting || (wasMaxSpeed && RXRandom.Float() < .3f))
                     if (xMove > 0)
                         spawnFootParticles(1, Vector2.right * 10);
                     else if (xMove < 0)
