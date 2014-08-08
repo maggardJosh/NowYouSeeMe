@@ -188,6 +188,8 @@
             <filename>VanishParticles</filename>
             <filename>levelEnd.png</filename>
             <filename>VanishBar</filename>
+            <filename>PanacheBar</filename>
+            <filename>moneyBar_01.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

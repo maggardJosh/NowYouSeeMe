@@ -7,49 +7,29 @@ using UnityEngine;
 public class PlayerGUI : FCamObject
 {
     FSprite cashBG;
+    FSprite panacheBG;
     ShadowLabel cashCounter;
-    ShadowLabel cashLeftToAddCounter;
     ShadowLabel panacheCounter;
-    ShadowLabel panacheLeftToAddCounter;
     FSprite vanishBarBG;
     FWipeSprite markCounter;
     FSprite markMedallion;
     Player p;
 
-    float guiSideMargin = 5;
+    float guiSideMargin = 4;
     float textVertMargin = 10;
 
     public PlayerGUI()
     {
-        cashBG = new FSprite("tilemap_02");
-        cashBG.width = Futile.screen.width;
-        cashBG.height = cashBG.height * 2;
-        
+        cashBG = new FSprite("moneyBar_01");
+        cashBG.x = -Futile.screen.halfWidth + cashBG.width / 2 + guiSideMargin;
+        cashBG.y = Futile.screen.halfHeight - cashBG.height / 2 - guiSideMargin;
         this.AddChild(cashBG);
 
 
         cashCounter = new ShadowLabel("$0");
         cashCounter.anchorX = 1;
         this.AddChild(cashCounter);
-        cashCounter.SetPosition(new Vector2(-Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height/2 - guiSideMargin));
-
-        cashLeftToAddCounter = new ShadowLabel("+0");
-        cashLeftToAddCounter.anchorX = 1;
-        this.AddChild(cashLeftToAddCounter);
-        cashLeftToAddCounter.SetPosition(new Vector2(-Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
-        cashLeftToAddCounter.isVisible = false;
-        cashBG.y = (cashCounter.y + cashLeftToAddCounter.y)/2;
-
-        panacheCounter = new ShadowLabel("0");
-        panacheCounter.anchorX = 0;
-        this.AddChild(panacheCounter);
-        panacheCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin));
-
-        panacheLeftToAddCounter = new ShadowLabel("+0");
-        panacheLeftToAddCounter.anchorX = 0;
-        this.AddChild(panacheLeftToAddCounter);
-        panacheLeftToAddCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
-        panacheLeftToAddCounter.isVisible = false;
+        cashCounter.SetPosition(cashBG.GetPosition() + new Vector2(22, - 5));
 
         vanishBarBG = new FSprite("vanishBar_01");
         markCounter = new FWipeSprite("vanishBar_02");
@@ -58,12 +38,28 @@ public class PlayerGUI : FCamObject
         this.AddChild(vanishBarBG);
         this.AddChild(markCounter);
 
+        panacheBG = new FSprite("panacheBar_01");
+        panacheBG.x = Futile.screen.halfWidth - panacheBG.width / 2 - guiSideMargin;
+        panacheBG.y = Futile.screen.halfHeight - panacheBG.height / 2 - guiSideMargin;
+        this.AddChild(panacheBG);
+
+        FAnimatedSprite panacheAnim = new FAnimatedSprite("panacheBar");
+        panacheAnim.addAnimation(new FAnimation("idle", new int[] { 1, 2, 3, 4, 5, 6, 7 }, 100, true));
+        panacheAnim.play("idle");
+        panacheAnim.SetPosition(panacheBG.GetPosition());
+        this.AddChild(panacheAnim);
+
+        panacheCounter = new ShadowLabel("0");
+        panacheCounter.anchorX = 0;
+        panacheCounter.SetPosition(panacheBG.GetPosition() + new Vector2(-22, -5));
+        this.AddChild(panacheCounter);
+
     }
 
     BaseScreen currentScreen;
     public void endLevel(string nextLevel)
     {
-        currentScreen = new LevelEnd(nextLevel, p.cashCounter.value + p.cashCounter.valueLeftToAdd, p.panacheCounter.value + p.panacheCounter.valueLeftToAdd);
+        currentScreen = new LevelEnd(nextLevel, p.cashCounter.actualValue, p.panacheCounter.actualValue);
         this.AddChild(currentScreen);
         C.isTransitioning = true;
         
@@ -88,13 +84,9 @@ public class PlayerGUI : FCamObject
         }
         if (p == null)
             return;
-        cashCounter.text = "$ " + p.cashCounter.value.ToString();
-        cashLeftToAddCounter.text = (p.cashCounter.valueLeftToAdd >= 0 ? "+" : "-") + p.cashCounter.valueLeftToAdd;
-        cashLeftToAddCounter.isVisible = p.cashCounter.valueLeftToAdd != 0;
-
+        cashCounter.text = "$" + p.cashCounter.value.ToString();
         panacheCounter .text = p.panacheCounter.value.ToString();
-        panacheLeftToAddCounter.text = (p.panacheCounter.valueLeftToAdd >= 0 ? "+" : "-") + p.panacheCounter.valueLeftToAdd;
-        panacheLeftToAddCounter.isVisible = p.panacheCounter.valueLeftToAdd != 0;
+      
 
         markCounter.wipeLeftAmount = p.GetVanishPercent();
     }
