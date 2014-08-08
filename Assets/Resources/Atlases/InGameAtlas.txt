@@ -102,7 +102,7 @@
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":1,"y":14,"w":28,"h":16},
-	"sourceSize": {"w":30,"h":54}
+	"sourceSize": {"w":30,"h":48}
 },
 "MagicChest/magicChest_05":
 {
@@ -783,6 +783,6 @@
 	"format": "RGBA8888",
 	"size": {"w":512,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:678eb8f50e36b2a2366614a25221c3d9:52987028b25fd2b1e090dd5ada4fbe00:2edb1cc34a22dd9e3d08d22d20125ff4$"
+	"smartupdate": "$TexturePacker:SmartUpdate:b6657568a805c0f7730e3f53b6715d83:c60349bf848e0a10412bc1a5cc6a8a1b:2edb1cc34a22dd9e3d08d22d20125ff4$"
 }
 }
