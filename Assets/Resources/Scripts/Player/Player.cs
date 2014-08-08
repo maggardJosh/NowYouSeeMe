@@ -688,9 +688,6 @@ public class Player : FContainer
         {
             this.y += yMove;
             isGrounded = false;
-
-
-
         }
         else
         {
@@ -698,7 +695,7 @@ public class Player : FContainer
                 this.y += yMove;
             else
             {
-                this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
+                this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove - .2f) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
                 this.yMove = 0;
                 this.jumpsLeft = 1;
                 if (!isGrounded)
