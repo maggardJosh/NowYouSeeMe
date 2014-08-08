@@ -11,8 +11,11 @@ public class Hat : FContainer
     public Hat(Player p)
     {
         hatSprite = new FAnimatedSprite("hat");
-        hatSprite.addAnimation(new FAnimation("mark", new int[] { 1 }, 300, true));
-        hatSprite.play("mark");
+        hatSprite.addAnimation(new FAnimation("mark1", new int[] { 1 }, 300, true));
+        hatSprite.addAnimation(new FAnimation("mark2", new int[] { 2 }, 300, true));
+        hatSprite.addAnimation(new FAnimation("mark3", new int[] { 3 }, 300, true));
+        hatSprite.addAnimation(new FAnimation("mark4", new int[] { 4 }, 300, true));
+        hatSprite.play("mark1");
         this.AddChild(hatSprite);
         this.owner = p;
     }
@@ -25,6 +28,7 @@ public class Hat : FContainer
 
     public void appear()
     {
+        hatSprite.play("mark" + (RXRandom.Int(4) + 1));
         this.isVisible = true;
         Go.killAllTweensWithTarget(this);
         hatSprite.scale = .1f;

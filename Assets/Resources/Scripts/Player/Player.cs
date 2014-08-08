@@ -48,14 +48,14 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_run", new int[] { 1, 2, 3, 4 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hat_air_up", new int[] { 5 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
-        playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 5, 6 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 15 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hat_interact", new int[] { 2 }, 250, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_up", new int[] { 11 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
-        playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 11, 12 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 16 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
 
         playerSprite.addAnimation(new FAnimation("endLevel", new int[] { 5, 6, 5, 6 }, animSpeed, false));

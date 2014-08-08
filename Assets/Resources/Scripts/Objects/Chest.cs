@@ -17,7 +17,7 @@ public class Chest : InteractableObject
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, false));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, false));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { 1, 3 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 1, 2, 1, 2, 1, 2, 1 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 4, 5,6,7,8,9,10,11,12 }, 100, false));
         this.AddChild(interactSprite);
     }
 
