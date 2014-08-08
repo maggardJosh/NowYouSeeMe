@@ -13,7 +13,12 @@ public abstract class InteractableObject : FContainer
     protected float Y_INTERACT_DIST = 10;
     const float MIN_INTERACT_DIST = 20;
     const float MIN_INTERACT_DIST_SQR = MIN_INTERACT_DIST * MIN_INTERACT_DIST;
-
+    public enum InteractType
+    {
+        LOOT,
+        INTERACT
+    }
+    public InteractType interactType = InteractType.INTERACT;
     public bool Open { get { return on; } }
 
     protected bool interactable = true;

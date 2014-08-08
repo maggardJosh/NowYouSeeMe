@@ -302,21 +302,23 @@ public class Player : FContainer
             respawn();
         if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
         {
-            if (currentInteractable is Container)
+            switch (currentInteractable.interactType)
             {
+                case InteractableObject.InteractType.LOOT:
+                    this.x = currentInteractable.x;
+                    isLooting = true;
+                    this.playerSprite.play((currentState == State.IDLE ? "hat" : "hatless") + "_loot", true);
+                    xMove = 0;
+                    yMove = 0;
 
-                this.x = currentInteractable.x;
-                isLooting = true;
-                this.playerSprite.play((currentState == State.IDLE ? "hat" : "hatless") + "_loot", true);
-                xMove = 0;
-                yMove = 0;
-            }
-            else
-            {
-                this.playerSprite.play("interact", true);
-                isInteracting = true;
-                currentInteractable.interact(this);
-                spawnFootParticles(2, new Vector2(isFacingLeft ? -15 : 15, 5));
+                    break;
+                case InteractableObject.InteractType.INTERACT:
+
+                    this.playerSprite.play("interact", true);
+                    isInteracting = true;
+                    currentInteractable.interact(this);
+                    spawnFootParticles(2, new Vector2(isFacingLeft ? -15 : 15, 5));
+                    break;
             }
             return;
         }
@@ -374,7 +376,7 @@ public class Player : FContainer
             case State.ENDING_LEVEL:
                 if (playerSprite.IsStopped && !String.IsNullOrEmpty(nextLevel))
                 {
-                    
+
                     world.nextLevel(nextLevel);
                     nextLevel = "";
                 }
@@ -382,6 +384,8 @@ public class Player : FContainer
         }
         if (isLooting)
         {
+            if (RXRandom.Float() < .7f)
+                spawnFootParticles(1, new Vector2(0, collisionHeight / 5), 8, true);
             if (playerSprite.IsStopped)
             {
                 currentInteractable.interact(this);
@@ -644,14 +648,13 @@ public class Player : FContainer
         }
     }
 
-    private void spawnFootParticles(int numParticles, Vector2 disp)
+    private void spawnFootParticles(int numParticles, Vector2 disp, float particleDist = 2, bool spawnBehindPlayer = false)
     {
         if (!isGrounded)
             return;
         float particleXSpeed = 20;
         float particleYSpeed = 20;
 
-        float particleDist = 2;
         for (int x2 = 0; x2 < numParticles; x2++)
         {
             VanishParticle particle = VanishParticle.getParticle();
@@ -659,6 +662,8 @@ public class Player : FContainer
             Vector2 pos = this.GetPosition() + disp - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
             this.container.AddChild(particle);
+            if (spawnBehindPlayer)
+                particle.MoveToBack();
         }
     }
     private void spawnFootParticles(int numParticles)
@@ -681,10 +686,10 @@ public class Player : FContainer
         if (world.getMoveable(x - collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) &&
             world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) && !onOneWay)
         {
-                this.y += yMove;
-                isGrounded = false;
+            this.y += yMove;
+            isGrounded = false;
 
-            
+
 
         }
         else

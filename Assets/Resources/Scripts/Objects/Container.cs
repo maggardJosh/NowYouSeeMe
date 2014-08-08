@@ -17,7 +17,7 @@ public class Container : InteractableObject
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, true));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { 3, 1 }, 100, true));
-
+        this.interactType = InteractType.LOOT;
         this.AddChild(interactSprite);
     }
     float particleXSpeed = 30;
