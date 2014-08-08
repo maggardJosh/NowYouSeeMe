@@ -63,7 +63,7 @@ public class PlayerGUI : FCamObject
     BaseScreen currentScreen;
     public void endLevel(string nextLevel)
     {
-        currentScreen = new LevelEnd(nextLevel);
+        currentScreen = new LevelEnd(nextLevel, p.cashCounter.value + p.cashCounter.valueLeftToAdd, p.panacheCounter.value + p.panacheCounter.valueLeftToAdd);
         this.AddChild(currentScreen);
         C.isTransitioning = true;
         
