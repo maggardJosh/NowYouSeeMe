@@ -307,7 +307,7 @@ public class Player : FContainer
                 case InteractableObject.InteractType.LOOT:
                     this.x = currentInteractable.x;
                     isLooting = true;
-                    this.playerSprite.play((currentState == State.IDLE ? "hat" : "hatless") + "_loot", true);
+                    this.playerSprite.play((currentState == State.MARKING ? "hatless" : "hat") + "_loot", true);
                     xMove = 0;
                     yMove = 0;
 

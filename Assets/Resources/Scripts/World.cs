@@ -21,6 +21,7 @@ public class World : FContainer
     public List<Door> doorList = new List<Door>();
     public List<PressurePlate> plateList = new List<PressurePlate>();
     public List<InteractableObject> interactObjectList = new List<InteractableObject>();
+    public List<Enemy> enemyList = new List<Enemy>();
 
     private FContainer bgLayer = new FContainer();
     private FContainer objectLayer = new FContainer();
@@ -45,6 +46,7 @@ public class World : FContainer
         interactObjectList.Clear();
         doorList.Clear();
         plateList.Clear();
+        enemyList.Clear();
         bgLayer.RemoveAllChildren();
         fgLayer.RemoveAllChildren();
         objectLayer.RemoveAllChildren();
@@ -52,6 +54,7 @@ public class World : FContainer
             player = new Player(this);
         else
             player.clearVars();
+        
 
             map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
@@ -106,6 +109,13 @@ public class World : FContainer
         this.AddChild(playerLayer);
         this.AddChild(fgLayer);
         player.spawn();
+
+
+        Enemy e = new Enemy(this);
+        e.SetPosition(player.GetPosition());
+        enemyList.Add(e);
+        playerLayer.AddChild(e);
+
 
     }
 
@@ -290,6 +300,8 @@ public class World : FContainer
         InteractableObject obj = checkInteractObjects();
         if (obj != null)
             player.setInteractObject(obj);
+        foreach (Enemy e in enemyList)
+            e.Update();
     }
 
     public PressurePlate checkPlates(float xPos, float yPos)

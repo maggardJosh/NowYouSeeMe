@@ -15,7 +15,7 @@ public class PlayerGUI : FCamObject
     FSprite markMedallion;
     Player p;
 
-    float guiSideMargin = 4;
+    float guiSideMargin = 1;
     float textVertMargin = 10;
 
     public PlayerGUI()
