@@ -44,5 +44,11 @@ public class GUICounter
         else
             count = 0;
     }
+
+    internal void reset()
+    {
+        value = 0;
+        valueLeftToAdd = 0;
+    }
 }
 

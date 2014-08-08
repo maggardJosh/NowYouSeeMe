@@ -9,6 +9,13 @@ public class World : FContainer
     FTmxMap map;
     Player player;
 
+    private static World instance;
+    public static World getInstance()
+    {
+        if (instance == null)
+            instance = new World();
+        return instance;
+    }
     public FTilemap collision;
     public List<Trampoline> trampolineList = new List<Trampoline>();
     public List<Door> doorList = new List<Door>();
@@ -27,7 +34,7 @@ public class World : FContainer
     private const int SWITCH_IND = 4;
     private const int PRESSURE_PLATE_IND = 5;
 
-    public World()
+    private World()
     {
         Futile.instance.SignalUpdate += Update;
     }
@@ -38,8 +45,15 @@ public class World : FContainer
         interactObjectList.Clear();
         doorList.Clear();
         plateList.Clear();
-        player = new Player(this);
-        map = new FTmxMap();
+        bgLayer.RemoveAllChildren();
+        fgLayer.RemoveAllChildren();
+        objectLayer.RemoveAllChildren();
+        if (player == null)
+            player = new Player(this);
+        else
+            player.clearVars();
+
+            map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
         map.LoadTMX("Maps/" + mapName);
         C.getCameraInstance().setWorldBounds(new Rect(0, -map.height, map.width, map.height));
@@ -331,6 +345,6 @@ public class World : FContainer
 
     internal void nextLevel(string nextLevel)
     {
-        C.getCameraInstance().endLevel();
+        C.getCameraInstance().endLevel(nextLevel);
     }
 }

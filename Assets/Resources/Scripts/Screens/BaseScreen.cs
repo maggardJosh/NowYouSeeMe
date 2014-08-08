@@ -6,19 +6,22 @@ using System.Text;
 public class BaseScreen : FContainer
 {
     public bool isDone = false;
-    FSprite bg;
+
     public BaseScreen()
     {
-        bg = new FSprite("levelEnd");
-        this.x = bg.width;
-        Go.to(this, 2.0f, new TweenConfig().floatProp("x", 0).setEaseType(EaseType.BounceOut));
-        this.AddChild(bg);
+
     }
 
     public override void HandleAddedToStage()
     {
         Futile.instance.SignalUpdate += Update;
         base.HandleAddedToStage();
+    }
+
+    public override void HandleRemovedFromStage()
+    {
+        Futile.instance.SignalUpdate -= Update;
+        base.HandleRemovedFromStage();
     }
 
     protected virtual void Update()

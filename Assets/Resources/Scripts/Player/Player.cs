@@ -711,5 +711,11 @@ public class Player : FContainer
         this.currentState = State.ENDING_LEVEL;
         this.playerSprite.play("endLevel", true);
     }
+
+    internal void clearVars()
+    {
+        this.cashCounter.reset();
+        this.panacheCounter.reset();
+    }
 }
 

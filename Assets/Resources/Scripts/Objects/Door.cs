@@ -21,8 +21,8 @@ public class Door : InteractableObject
         this.Y_INTERACT_DIST = 20;
         interactSprite = new FAnimatedSprite("Door/door");
         interactSprite.addAnimation(new FAnimation("off", new int[] { 1 }, 100, false));
-        interactSprite.addAnimation(new FAnimation("on", new int[] { 2 }, 100, false));
-        interactSprite.addAnimation(new FAnimation("offHover", new int[] { 5, 6 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("on", new int[] { 3 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("offHover", new int[] { 1, 2 }, 100, true));
         interactSprite.addAnimation(new FAnimation("onHover", new int[] { 3, 4 }, 100, true));
         interactSprite.play(on ? "on" : "off");
         this.AddChild(interactSprite);

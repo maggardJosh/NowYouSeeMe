@@ -61,9 +61,9 @@ public class PlayerGUI : FCamObject
     }
 
     BaseScreen currentScreen;
-    public void endLevel()
+    public void endLevel(string nextLevel)
     {
-        currentScreen = new LevelEnd();
+        currentScreen = new LevelEnd(nextLevel);
         this.AddChild(currentScreen);
         C.isTransitioning = true;
         
@@ -79,8 +79,11 @@ public class PlayerGUI : FCamObject
         base.Update();
         if (C.isTransitioning)
         {
-            if (currentScreen.isDone)
+            if (currentScreen != null && currentScreen.isDone)
+            {
+                currentScreen.RemoveFromContainer();
                 C.isTransitioning = false;
+            }
             return;
         }
         if (p == null)
@@ -93,8 +96,14 @@ public class PlayerGUI : FCamObject
         panacheLeftToAddCounter.text = (p.panacheCounter.valueLeftToAdd >= 0 ? "+" : "-") + p.panacheCounter.valueLeftToAdd;
         panacheLeftToAddCounter.isVisible = p.panacheCounter.valueLeftToAdd != 0;
 
-        markCounter.SetElementByName(p.currentState == Player.State.COOLDOWN ? "vanishBar_03" : "vanishBar_02");
         markCounter.wipeLeftAmount = p.GetVanishPercent();
+    }
+
+    internal void startGame()
+    {
+        currentScreen = new StartGameScreen();
+        this.AddChild(currentScreen);
+        C.isTransitioning = true;
     }
 }
 
