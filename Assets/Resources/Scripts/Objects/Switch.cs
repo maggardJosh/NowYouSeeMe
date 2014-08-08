@@ -24,13 +24,14 @@ public class Switch : InteractableObject
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { 3 }, 100, true));
 
+        this.AddChild(interactSprite);
         if (time > 0)
         {
             timer = new FRadialWipeSprite("collision_01", true, 0, 1);
-          //  this.AddChild(timer);
+            this.AddChild(timer);
+
             timer.isVisible = false;
         }
-        this.AddChild(interactSprite);
     }
     float particleXSpeed = 3;
     float particleYSpeed = 3;

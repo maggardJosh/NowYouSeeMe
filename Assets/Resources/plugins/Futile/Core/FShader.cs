@@ -46,7 +46,7 @@ public class FShader
 		SolidColored = new FShader("SolidColored", Shader.Find("Futile/SolidColored"));	
 
 		Basic_PixelSnap = new FShader("Basic_PixelSnap", Shader.Find("Futile/Basic_PixelSnap"));
-        OverlayBlend = new FOverlayBlendShader(Color.red);
+        OverlayBlend = new FOverlayBlendShader();
 
 		defaultShader = OverlayBlend;
 	}
@@ -79,6 +79,11 @@ public class FOverlayBlendShader : FShader
 {
     private Color _overlayColor;
 
+    public FOverlayBlendShader() : base("OverlayBlendShader", Shader.Find("Custom/OverlayBlend"))
+    {
+        _overlayColor = new Color(.3f, .6f, .1f);
+        needsApply = true;
+    }
     public FOverlayBlendShader(Color overlayColor)
         : base("OverlayBlendShader", Shader.Find("Custom/OverlayBlend"))
     {
