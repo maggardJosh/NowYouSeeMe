@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class Switch : InteractableObject
 {
-    private string doorName;
-    private Door door;
+    private string[] doorNames;
+    private List<Door> doors;
     private string actionType;
     private float time;
     protected float timeCount = 0;
@@ -15,7 +15,7 @@ public class Switch : InteractableObject
     {
         this.X_INTERACT_DIST = 24;
         this.SetPosition(pos);
-        this.doorName = doorName;
+        this.doorNames = doorName.Split(',');
         this.actionType = actionType.ToLower();
         this.time = time;
         interactSprite = new FAnimatedSprite("Switch/switch");
@@ -31,14 +31,11 @@ public class Switch : InteractableObject
 
     public void findDoor(List<Door> doorList)
     {
+        doors = new List<Door>();
         foreach (Door d in doorList)
-            if (d.name.CompareTo(doorName) == 0)
-            {
-                this.door = d;
-                return;
-            }
-
-        RXDebug.Log("No door " + doorName + " found");
+            foreach (string doorName in doorNames)
+                if (d.name.CompareTo(doorName) == 0)
+                    this.doors.Add(d);
     }
 
     float particleDist = 2;
@@ -48,15 +45,15 @@ public class Switch : InteractableObject
         switch (actionType)
         {
             case "toggle":
-                if (this.door != null)
+                foreach(Door door in doors)
                     door.interact(p);
                 break;
             case "open":
-                if (this.door != null)
+                foreach (Door door in doors)
                     door.setState(true, p);
                 break;
             case "close":
-                if (this.door != null)
+                foreach (Door door in doors)
                     door.setState(false, p);
                 break;
         }
@@ -95,15 +92,15 @@ public class Switch : InteractableObject
             switch (actionType)
             {
                 case "toggle":
-                    if (this.door != null)
+                    foreach (Door door in doors)
                         door.interact(p);
                     break;
                 case "open":
-                    if (this.door != null)
+                    foreach (Door door in doors)
                         door.setState(false, p);
                     break;
                 case "close":
-                    if (this.door != null)
+                    foreach (Door door in doors)
                         door.setState(true, p);
                     break;
             }

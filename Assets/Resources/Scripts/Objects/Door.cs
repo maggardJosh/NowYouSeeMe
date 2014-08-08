@@ -9,14 +9,14 @@ public class Door : InteractableObject
 {
     public string name { get; private set; }
     bool locked = false;
-    public Door(Vector2 pos, string name, bool locked)
+    public Door(Vector2 pos, string name, bool locked, bool open)
     {
         this.name = name;
         this.SetPosition(pos);
         this.locked = locked;
         toggleable = true;
         interactable = !locked;
-        on = false;
+        on = open;
         this.X_INTERACT_DIST = 36;
         this.Y_INTERACT_DIST = 20;
         interactSprite = new FAnimatedSprite("Door/door");
@@ -24,6 +24,7 @@ public class Door : InteractableObject
         interactSprite.addAnimation(new FAnimation("on", new int[] { 2 }, 100, false));
         interactSprite.addAnimation(new FAnimation("offHover", new int[] { 5, 6 }, 100, true));
         interactSprite.addAnimation(new FAnimation("onHover", new int[] { 3, 4 }, 100, true));
+        interactSprite.play(on ? "on" : "off");
         this.AddChild(interactSprite);
     }
     float particleXSpeed = 20;

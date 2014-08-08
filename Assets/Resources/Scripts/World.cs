@@ -156,6 +156,7 @@ public class World : FContainer
         if (node.attributes.ContainsKey("name"))
             doorName = node.attributes["name"];
         bool locked = false;
+        bool open = false;
         if (node.children.Count > 0)
             foreach (XMLNode property in ((XMLNode)node.children[0]).children)
             {
@@ -165,9 +166,12 @@ public class World : FContainer
                         case "locked":
                             locked = true;
                             break;
+                        case "open":
+                            open = true;
+                            break;
                     }
             }
-        Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, locked);
+        Door door = new Door(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, locked, open);
         doorList.Add(door);
         interactObjectList.Add(door);
         objectLayer.AddChild(door);
