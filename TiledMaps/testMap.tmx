@@ -149,7 +149,7 @@
   <object name="Trampoline" gid="21" x="456" y="468"/>
   <object name="Trampoline" gid="21" x="468" y="468"/>
   <object name="Trampoline" gid="21" x="480" y="468"/>
-  <object name="Chest" gid="22" x="396" y="456">
+  <object name="Chest" gid="22" x="312" y="312">
    <properties>
     <property name="spawn" value="true"/>
    </properties>
@@ -238,6 +238,13 @@
     <property name="action" value="close"/>
     <property name="door" value="leftLoot,rightLoot"/>
     <property name="time" value="-1"/>
+   </properties>
+  </object>
+  <object gid="25" x="252" y="312">
+   <properties>
+    <property name="action" value="open"/>
+    <property name="door" value="doorOne"/>
+    <property name="time" value="2"/>
    </properties>
   </object>
  </objectgroup>

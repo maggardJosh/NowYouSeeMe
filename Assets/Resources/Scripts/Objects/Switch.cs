@@ -11,6 +11,7 @@ public class Switch : InteractableObject
     private string actionType;
     private float time;
     protected float timeCount = 0;
+    FRadialWipeSprite timer;
     public Switch(Vector2 pos, string doorName, string actionType, float time)
     {
         this.X_INTERACT_DIST = 24;
@@ -23,6 +24,12 @@ public class Switch : InteractableObject
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { 3 }, 100, true));
 
+        if (time > 0)
+        {
+            timer = new FRadialWipeSprite("collision_01", true, 0, 1);
+          //  this.AddChild(timer);
+            timer.isVisible = false;
+        }
         this.AddChild(interactSprite);
     }
     float particleXSpeed = 3;
@@ -61,6 +68,7 @@ public class Switch : InteractableObject
         timeCount = 0;
         if (time > 0)
         {
+            timer.isVisible = true;
             if (!triggered)
             {
                 Futile.instance.SignalUpdate += UpdateTimer;
@@ -83,6 +91,7 @@ public class Switch : InteractableObject
     Player p;
     private void UpdateTimer()
     {
+        timer.percentage = 1 - (timeCount / time);
         timeCount += Time.deltaTime;
         if (timeCount > time)
         {

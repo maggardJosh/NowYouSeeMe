@@ -116,7 +116,7 @@ public class Player : FContainer
     }
     const float VANISH_DURATION = 1.0f;
     const float HAT_RETURN_COUNT = 1.0f;
-    private const float MARK_MAX_COUNT = 2.0f;
+    private const float MARK_MAX_COUNT = 3.0f;
 
     private void Vanish()
     {
@@ -290,6 +290,8 @@ public class Player : FContainer
             interactInd.isVisible = false;
 
         }
+        stateCount += Time.deltaTime;
+
         if (isLooting)
             return;
         if (Input.GetKeyDown(KeyCode.T))
@@ -323,7 +325,6 @@ public class Player : FContainer
             yMove = jumpStrength * (Input.GetKey(C.DOWN_KEY) ? .4f : 1);
             jumpsLeft--;
         }
-        stateCount += Time.deltaTime;
     }
 
 

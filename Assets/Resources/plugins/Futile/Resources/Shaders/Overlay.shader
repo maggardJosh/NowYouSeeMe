@@ -2,7 +2,7 @@ Shader "Custom/OverlayBlend"
 {
     Properties {
         _MainTex ("Texture", 2D) = "" {}
-        _Color ("Blend Color", Color) = (0.2, 0.3, 1 ,1)
+        _Color ("Blend Color", Color) = (0.3, 0.6, 0.1 ,1)
     }
  
     SubShader {

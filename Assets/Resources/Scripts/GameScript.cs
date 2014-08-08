@@ -24,7 +24,6 @@ public class GameScript : MonoBehaviour
 
         Futile.atlasManager.LoadFont(C.smallFontName, "smallFont_0", "Atlases/smallFont", 0, 0);
         Futile.atlasManager.LoadFont(C.smallDarkFontName, "smallFont_1", "Atlases/smallFontDark", 0, 0);
-        FShader.OverlayBlend.overlayColor = new Color(.3f, .6f, .1f);
 
         FSprite splashScreen = new FSprite("splashScreen");
         Futile.stage.AddChild(splashScreen);

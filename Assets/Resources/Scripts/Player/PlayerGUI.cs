@@ -50,7 +50,7 @@ public class PlayerGUI : FCamObject
         panacheLeftToAddCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
         panacheLeftToAddCounter.isVisible = false;
 
-        markCounter = new FRadialWipeSprite("collision_01", false, 0, 1.0f);
+        markCounter = new FRadialWipeSprite("tilemap_02", false, 0, 1.0f);
         markCounter.SetPosition(new Vector2(0, Futile.screen.halfHeight - markCounter.height / 2 - guiSideMargin));
         this.AddChild(markCounter);
 

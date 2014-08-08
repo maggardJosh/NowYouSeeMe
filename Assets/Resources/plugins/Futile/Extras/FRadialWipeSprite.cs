@@ -25,7 +25,6 @@ public class FRadialWipeSprite : FSprite
 	private void CalculateTheRadialVertices ()
 	{
 		//TODO: A lot of these calculations could be offloaded to when the element (and maybe anchor?) changes. 
-		
 		float baseAngleToUse;
 		
 		if(_isClockwise)
