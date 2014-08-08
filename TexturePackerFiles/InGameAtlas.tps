@@ -186,6 +186,8 @@
             <filename>textBG.png</filename>
             <filename>Objects</filename>
             <filename>VanishParticles</filename>
+            <filename>levelEnd.png</filename>
+            <filename>VanishBar</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

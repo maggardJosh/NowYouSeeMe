@@ -6,8 +6,10 @@ using UnityEngine;
 
 public class Chest : InteractableObject
 {
-
-    public Chest(Vector2 pos) : base()
+    bool isEnd = false;
+    string nextMap = "";
+    public Chest(Vector2 pos)
+        : base()
     {
         X_INTERACT_DIST = 24;
         this.SetPosition(pos);
@@ -54,15 +56,28 @@ public class Chest : InteractableObject
     float particleDist = 15;
     public override void interact(Player p)
     {
-        p.activateChest(this);
-        for (int x = 0; x < numParticles; x++)
+        if (!isEnd)
         {
-            VanishParticle particle = VanishParticle.getParticle();
-            float angle = (RXRandom.Float() * Mathf.PI * 2);
-            Vector2 pos = this.GetPosition() + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
-            particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
-            this.container.AddChild(particle);
+            p.activateChest(this);
+            for (int x = 0; x < numParticles; x++)
+            {
+                VanishParticle particle = VanishParticle.getParticle();
+                float angle = (RXRandom.Float() * Mathf.PI * 2);
+                Vector2 pos = this.GetPosition() + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+                particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
+                this.container.AddChild(particle);
+            }
         }
+        else
+        {
+            p.endLevel(nextMap);
+        }
+    }
+
+    internal void setEnd(string p)
+    {
+        nextMap = p;
+        isEnd = true;
     }
 }
 

@@ -247,5 +247,10 @@
     <property name="time" value="2"/>
    </properties>
   </object>
+  <object name="Chest" gid="22" x="36" y="192">
+   <properties>
+    <property name="end" value="testMapTwo"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

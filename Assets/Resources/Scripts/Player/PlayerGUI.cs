@@ -11,7 +11,8 @@ public class PlayerGUI : FCamObject
     ShadowLabel cashLeftToAddCounter;
     ShadowLabel panacheCounter;
     ShadowLabel panacheLeftToAddCounter;
-    FRadialWipeSprite markCounter;
+    FSprite vanishBarBG;
+    FWipeSprite markCounter;
     FSprite markMedallion;
     Player p;
 
@@ -50,10 +51,22 @@ public class PlayerGUI : FCamObject
         panacheLeftToAddCounter.SetPosition(new Vector2(Futile.screen.halfWidth / 2, Futile.screen.halfHeight - cashCounter.textRect.height / 2 - guiSideMargin - textVertMargin));
         panacheLeftToAddCounter.isVisible = false;
 
-        markCounter = new FRadialWipeSprite("tilemap_02", false, 0, 1.0f);
+        vanishBarBG = new FSprite("vanishBar_01");
+        markCounter = new FWipeSprite("vanishBar_02");
         markCounter.SetPosition(new Vector2(0, Futile.screen.halfHeight - markCounter.height / 2 - guiSideMargin));
+        vanishBarBG.SetPosition(markCounter.GetPosition());
+        this.AddChild(vanishBarBG);
         this.AddChild(markCounter);
 
+    }
+
+    BaseScreen currentScreen;
+    public void endLevel()
+    {
+        currentScreen = new LevelEnd();
+        this.AddChild(currentScreen);
+        C.isTransitioning = true;
+        
     }
 
     public void setPlayer(Player p)
@@ -64,6 +77,12 @@ public class PlayerGUI : FCamObject
     public override void Update()
     {
         base.Update();
+        if (C.isTransitioning)
+        {
+            if (currentScreen.isDone)
+                C.isTransitioning = false;
+            return;
+        }
         if (p == null)
             return;
         cashCounter.text = "$ " + p.cashCounter.value.ToString();
@@ -74,7 +93,8 @@ public class PlayerGUI : FCamObject
         panacheLeftToAddCounter.text = (p.panacheCounter.valueLeftToAdd >= 0 ? "+" : "-") + p.panacheCounter.valueLeftToAdd;
         panacheLeftToAddCounter.isVisible = p.panacheCounter.valueLeftToAdd != 0;
 
-        markCounter.percentage = p.GetVanishPercent();
+        markCounter.SetElementByName(p.currentState == Player.State.COOLDOWN ? "vanishBar_03" : "vanishBar_02");
+        markCounter.wipeLeftAmount = p.GetVanishPercent();
     }
 }
 

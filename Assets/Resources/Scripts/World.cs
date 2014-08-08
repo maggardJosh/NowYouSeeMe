@@ -113,10 +113,13 @@ public class World : FContainer
                     switch (property.attributes["name"].ToLower())
                     {
                         case "spawn":
-                                player.x = chest.x;
-                                player.y = chest.y;
-                                player.activateChest(chest);
-                                spawnChest = chest;
+                            player.x = chest.x;
+                            player.y = chest.y;
+                            player.activateChest(chest);
+                            spawnChest = chest;
+                            break;
+                        case "end":
+                            chest.setEnd(property.attributes["value"]);
                             break;
                     }
             }
@@ -254,12 +257,12 @@ public class World : FContainer
         }
         return null;
     }
-    
+
     public bool checkPlate(PressurePlate p, float xPos, float yPos)
     {
-            return p.x - PressurePlate.COLLISION_WIDTH / 2 < xPos &&
-                p.x + PressurePlate.COLLISION_WIDTH / 2 > xPos &&
-                p.y - map.tileHeight / 2 + PressurePlate.COLLISION_HEIGHT > yPos;
+        return p.x - PressurePlate.COLLISION_WIDTH / 2 < xPos &&
+            p.x + PressurePlate.COLLISION_WIDTH / 2 > xPos &&
+            p.y - map.tileHeight / 2 + PressurePlate.COLLISION_HEIGHT > yPos;
     }
 
     public bool getOneWay(float xPos, float yPos)
@@ -324,5 +327,10 @@ public class World : FContainer
         if (foundObject == null)
             player.clearInteractable();
         return foundObject;
+    }
+
+    internal void nextLevel(string nextLevel)
+    {
+        C.getCameraInstance().endLevel();
     }
 }

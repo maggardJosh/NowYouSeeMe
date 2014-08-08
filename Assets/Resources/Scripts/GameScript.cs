@@ -8,6 +8,7 @@ public class GameScript : MonoBehaviour
 {
     bool isStarted = false;
     ShadowLabel pressEnter;
+    World world;
     void Start()
     {
         FutileParams futileParams = new FutileParams(true, false, false, false);
@@ -50,7 +51,7 @@ public class GameScript : MonoBehaviour
             {
                 Futile.stage.RemoveAllChildren();
                 isStarted = true;
-                World world = new World();
+                world = new World();
                 world.LoadMap("testMap");
                 Futile.stage.AddChild(world);
 

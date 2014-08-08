@@ -9,6 +9,7 @@ public class C
     public const string versionNumber = "v0.1.4";
 
     public static bool isSpawning = false;
+    public static bool isTransitioning = false;
 
     private static PlayerGUI cameraInstance;
     public static PlayerGUI getCameraInstance()

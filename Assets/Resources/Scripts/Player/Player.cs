@@ -15,7 +15,8 @@ public class Player : FContainer
         MARKING,
         VANISHING,
         COOLDOWN,
-        SPAWNING
+        SPAWNING,
+        ENDING_LEVEL
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -38,6 +39,7 @@ public class Player : FContainer
     const float INDICATOR_BOUNCE = 5;
 
     int animSpeed = 200;
+    string nextLevel = "";
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
@@ -55,6 +57,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 11, 12 }, 250, false));
         playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
+
+        playerSprite.addAnimation(new FAnimation("endLevel", new int[] { 5, 6, 5, 6 }, animSpeed, false));
 
 
         playerSprite.play("hat_idle");
@@ -353,6 +357,8 @@ public class Player : FContainer
     bool wasMaxSpeed = false;
     private void Update()
     {
+        if (C.isTransitioning)
+            return;
         float xAcc = 0;
         switch (currentState)
         {
@@ -363,6 +369,14 @@ public class Player : FContainer
                 {
                     currentState = State.IDLE;
                     this.isVisible = true;
+                }
+                return;
+            case State.ENDING_LEVEL:
+                if (playerSprite.IsStopped && !String.IsNullOrEmpty(nextLevel))
+                {
+                    
+                    world.nextLevel(nextLevel);
+                    nextLevel = "";
                 }
                 return;
         }
@@ -689,6 +703,13 @@ public class Player : FContainer
                 }
             }
         }
+    }
+
+    internal void endLevel(string nextMap)
+    {
+        this.nextLevel = nextMap;
+        this.currentState = State.ENDING_LEVEL;
+        this.playerSprite.play("endLevel", true);
     }
 }
 
