@@ -24,8 +24,8 @@ public class Player : FContainer
     Hat hat;
     World world;
     int jumpsLeft = 0;
-    float xMove = 0;
-    float yMove = 0;
+    public float xMove = 0;
+    public float yMove = 0;
     float stateCount = 0;
     bool isFacingLeft = false;
     bool isLooting = false;
@@ -568,7 +568,7 @@ public class Player : FContainer
                 Door doorCollision = world.checkDoor(x, x + collisionWidth / 2 + xStep, y);
                 if (doorCollision != null)
                 {
-                    this.x = doorCollision.x - collisionWidth / 2 - Door.DOOR_COLLISION_WIDTH/ 2;
+                    this.x = doorCollision.x - collisionWidth / 2 - Door.DOOR_COLLISION_WIDTH / 2;
                     this.xMove = 0;
                     return;
                 }
@@ -654,11 +654,23 @@ public class Player : FContainer
     private void tryMoveDown(float yMove)
     {
         bool onOneWay = world.getOneWay(x, y - playerSprite.height / 2 + yMove);
+        PressurePlate p = world.checkPlates(this.x, this.y - playerSprite.height / 2 + yMove);
+        if (p != null)
+        {
+            this.y = p.y - 6 + collisionHeight / 2 + PressurePlate.PRESSED_HEIGHT;
+            this.yMove = 0;
+            this.isGrounded = true;
+            this.jumpsLeft = 1;
+            return;
+        }
         if (world.getMoveable(x - collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) &&
             world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) && !onOneWay)
         {
-            this.y += yMove;
-            isGrounded = false;
+                this.y += yMove;
+                isGrounded = false;
+
+            
+
         }
         else
         {

@@ -12,6 +12,7 @@ public class World : FContainer
     public FTilemap collision;
     public List<Trampoline> trampolineList = new List<Trampoline>();
     public List<Door> doorList = new List<Door>();
+    public List<PressurePlate> plateList = new List<PressurePlate>();
     public List<InteractableObject> interactObjectList = new List<InteractableObject>();
 
     private FContainer bgLayer = new FContainer();
@@ -24,6 +25,7 @@ public class World : FContainer
     private const int CONTAINER_IND = 2;
     private const int DOOR_IND = 3;
     private const int SWITCH_IND = 4;
+    private const int PRESSURE_PLATE_IND = 5;
 
     public World()
     {
@@ -35,6 +37,7 @@ public class World : FContainer
         trampolineList.Clear();
         interactObjectList.Clear();
         doorList.Clear();
+        plateList.Clear();
         player = new Player(this);
         map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
@@ -63,17 +66,19 @@ public class World : FContainer
                     case SWITCH_IND:
                         parseSwitch(node);
                         break;
+                    case PRESSURE_PLATE_IND:
+                        parsePlate(node);
+                        break;
                 }
             }
         }
 
         foreach (InteractableObject o in interactObjectList)
-        {
             if (o is Switch)
-            {
                 ((Switch)o).findDoor(doorList);
-            }
-        }
+
+        foreach (PressurePlate p in plateList)
+            p.findDoor(doorList);
 
         collision = (FTilemap)map.getLayerNamed("Collision");
 
@@ -108,13 +113,10 @@ public class World : FContainer
                     switch (property.attributes["name"].ToLower())
                     {
                         case "spawn":
-                            if (bool.Parse(property.attributes["value"]))
-                            {
                                 player.x = chest.x;
                                 player.y = chest.y;
                                 player.activateChest(chest);
                                 spawnChest = chest;
-                            }
                             break;
                     }
             }
@@ -199,9 +201,36 @@ public class World : FContainer
         objectLayer.AddChild(s);
     }
 
+    private void parsePlate(XMLNode node)
+    {
+        string doorName = "";
+        string actionType = "";
+        float timerValue = -1;
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "door":
+                            doorName = property.attributes["value"];
+                            break;
+                        case "action":
+                            actionType = property.attributes["value"];
+                            break;
+                        case "time":
+                            if (!float.TryParse(property.attributes["value"], out timerValue))
+                                RXDebug.Log("invalid timer value");
+                            break;
+                    }
+            }
+        PressurePlate p = new PressurePlate(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), doorName, actionType, timerValue);
+        plateList.Add(p);
+        objectLayer.AddChild(p);
+    }
+
     public bool getMoveable(float xPos, float yPos)
     {
-
         int frameNum = collision.getFrameNumAt(xPos, yPos);
         return frameNum != 1 &&
                frameNum != -1;
@@ -221,6 +250,14 @@ public class World : FContainer
         }
         return null;
     }
+    
+    public bool checkPlate(PressurePlate p, float xPos, float yPos)
+    {
+            return p.x - PressurePlate.COLLISION_WIDTH / 2 < xPos &&
+                p.x + PressurePlate.COLLISION_WIDTH / 2 > xPos &&
+                p.y - map.tileHeight / 2 + PressurePlate.COLLISION_HEIGHT > yPos;
+    }
+
     public bool getOneWay(float xPos, float yPos)
     {
         int frameNum = collision.getFrameNumAt(xPos, yPos);
@@ -232,6 +269,24 @@ public class World : FContainer
         InteractableObject obj = checkInteractObjects();
         if (obj != null)
             player.setInteractObject(obj);
+    }
+
+    public PressurePlate checkPlates(float xPos, float yPos)
+    {
+        PressurePlate result = null;
+        for (int x = 0; x < plateList.Count; x++)
+        {
+            if (result == null && checkPlate(plateList[x], xPos, yPos))
+            {
+                plateList[x].press(player);
+                result = plateList[x];
+            }
+            else
+            {
+                plateList[x].unpress();
+            }
+        }
+        return result;
     }
 
     private InteractableObject checkInteractObjects()

@@ -10,7 +10,7 @@ public class Switch : InteractableObject
     private Door door;
     private string actionType;
     private float time;
-    private float timeCount = 0;
+    protected float timeCount = 0;
     public Switch(Vector2 pos, string doorName, string actionType, float time)
     {
         this.X_INTERACT_DIST = 24;
@@ -42,7 +42,7 @@ public class Switch : InteractableObject
     }
 
     float particleDist = 2;
-    bool triggered = false;
+    protected bool triggered = false;
     public override void interact(Player p)
     {
         switch (actionType)

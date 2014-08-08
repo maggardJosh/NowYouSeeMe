@@ -7,7 +7,7 @@
   <image source="TiledGraphics/collision.png" width="24" height="12"/>
  </tileset>
  <tileset firstgid="21" name="objects" tilewidth="12" tileheight="12">
-  <image source="TiledGraphics/objects.png" width="60" height="12"/>
+  <image source="TiledGraphics/objects.png" width="72" height="12"/>
  </tileset>
  <layer name="Background" width="60" height="40">
   <data encoding="csv">
@@ -213,6 +213,13 @@
     <property name="action" value="toggle"/>
     <property name="door" value="doorOne"/>
     <property name="time" value="1.0"/>
+   </properties>
+  </object>
+  <object gid="26" x="252" y="312">
+   <properties>
+    <property name="action" value="open"/>
+    <property name="door" value="doorOne"/>
+    <property name="time" value="2"/>
    </properties>
   </object>
  </objectgroup>
