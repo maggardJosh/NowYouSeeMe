@@ -187,6 +187,7 @@ public class Player : FContainer
     {
         if (currentState == State.MARKING)
             CancelVanish();
+
         yMove = 0;
         xMove = 0;
         isGrounded = true;
@@ -198,6 +199,7 @@ public class Player : FContainer
         currentState = State.VANISHING;
         Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight / 3).setEaseType(EaseType.CircInOut).onComplete((a) =>
         {
+            this.addCash(-cashCounter.actualValue / 2);
             tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer();
         }));
     }
@@ -234,7 +236,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         cashCounter.addAmount(amount);
-        LabelIndicator cashInd = new LabelIndicator("+$" + amount);
+        LabelIndicator cashInd = new LabelIndicator( (amount > 0 ? "+" : "-" ) + "$" + Math.Abs(amount), amount < 0);
         cashInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(cashInd);
     }
@@ -244,7 +246,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         panacheCounter.addAmount(amount);
-        LabelIndicator panacheInd = new LabelIndicator("+" + amount);
+        LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount), amount < 0);
         panacheInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(panacheInd);
 
@@ -283,6 +285,8 @@ public class Player : FContainer
             case State.VANISHING:
             case State.SPAWNING:
                 interactInd.isVisible = false;
+                isInteracting = false;
+                isLooting = false;
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)
@@ -743,6 +747,7 @@ public class Player : FContainer
         if (currentState == State.MARKING)
             CancelVanish();
         currentState = Player.State.GETTING_CAUGHT;
+        this.addPanache(-panacheCounter.actualValue);
         this.isVisible = false;
     }
 }
