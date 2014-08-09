@@ -20,7 +20,8 @@ public class Player : FContainer
         GETTING_CAUGHT,
         ENTERING_STAIRWELL,
         TRANSITION_STAIRWELL,
-        EXITING_STAIRWELL
+        EXITING_STAIRWELL,
+        SUICIDE
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -58,8 +59,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 15 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hat_interact", new int[] { 2 }, 250, false));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 17,18,19 }, 150, false));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 20,21,22 }, 150, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 17, 18, 19 }, 150, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 20, 21, 22 }, 150, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
@@ -67,10 +68,10 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 16 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
-        playerSprite.addAnimation(new FAnimation("hatless_stairwellEnter", new int[] { 23,24,25 }, 150, false));
-        playerSprite.addAnimation(new FAnimation("hatless_stairwellExit", new int[] { 26,27,28}, 150, false));
+        playerSprite.addAnimation(new FAnimation("hatless_stairwellEnter", new int[] { 23, 24, 25 }, 150, false));
+        playerSprite.addAnimation(new FAnimation("hatless_stairwellExit", new int[] { 26, 27, 28 }, 150, false));
 
-        playerSprite.addAnimation(new FAnimation("endLevel", new int[] { 5, 6, 5, 6 }, animSpeed, false));
+        playerSprite.addAnimation(new FAnimation("suicide", new int[] { 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 30,30,30, 30, 31, 32, 33, 34, 35, 36, 37, 38 }, animSpeed / 4, false));
 
 
         playerSprite.play("hat_idle");
@@ -234,7 +235,7 @@ public class Player : FContainer
     {
         if (isMarking)
             hasLeftMarkPos = true;
-        this.SetPosition(inStair.GetPosition() + Vector2.up * collisionHeight/2 );
+        this.SetPosition(inStair.GetPosition() + Vector2.up * collisionHeight / 2);
         playerSprite.scaleX = inStair.scaleX;
         this.inStairwell = inStair;
         this.outStairwell = outStair;
@@ -305,10 +306,21 @@ public class Player : FContainer
         switch (currentState)
         {
             case State.IDLE:
-                if (!isMarking && Input.GetKey(C.ACTION_KEY))
+                if (!isMarking)
                 {
-                    isMarking = true;
-                    Mark();
+                    if (Input.GetKey(C.ACTION_KEY))
+                    {
+                        if (isGrounded && Input.GetKey(C.DOWN_KEY))
+                        {
+                            currentState = State.SUICIDE;
+                            playerSprite.play("suicide", true);
+                        }
+                        else
+                        {
+                            isMarking = true;
+                            Mark();
+                        }
+                    }
                 }
                 break;
 
@@ -334,6 +346,8 @@ public class Player : FContainer
                 return;
             case State.LOOTING:
                 interactInd.isVisible = false;
+                return;
+            case State.SUICIDE:
                 return;
         }
         if (isInteracting)
@@ -412,6 +426,7 @@ public class Player : FContainer
     bool wasSprinting = false;
     bool wasMaxSpeed = false;
     const float STAIR_TRANS_TIME = 1.0f;
+    float lastXInc = 0;
     private void Update()
     {
         if (C.isTransitioning)
@@ -440,7 +455,7 @@ public class Player : FContainer
                 {
                     currentState = State.TRANSITION_STAIRWELL;
                     this.isVisible = false;
-                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y + collisionHeight/2).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "stairwellExit", true); currentState = State.EXITING_STAIRWELL; }));
+                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y + collisionHeight / 2).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "stairwellExit", true); currentState = State.EXITING_STAIRWELL; }));
                 }
                 return;
             case State.TRANSITION_STAIRWELL:
@@ -460,6 +475,30 @@ public class Player : FContainer
                     currentInteractable.interact(this);
                     currentInteractable = null;
                     currentState = State.IDLE;
+                }
+                return;
+            case State.SUICIDE:
+                this.x -= lastXInc;
+                if (!Input.GetKey(C.DOWN_KEY) || !Input.GetKey(C.ACTION_KEY))
+                {
+                    currentState = State.IDLE;
+                }
+                else
+                {
+                    if (playerSprite.currentFrame == 29)
+                    {
+                        lastXInc = RXRandom.Float() * 2 - 1;
+                        this.x += lastXInc;
+                    }
+                    else
+                    {
+                        lastXInc = 0;
+                    }
+                    if (playerSprite.IsStopped)
+                    {
+                        spawnVanishParticles(20);
+                        respawn();
+                    }
                 }
                 return;
         }

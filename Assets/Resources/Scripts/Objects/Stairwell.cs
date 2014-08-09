@@ -35,9 +35,11 @@ public class IndividualStairwell : InteractableObject
         this.X_INTERACT_DIST = 24;
         this.Y_INTERACT_DIST = 36;
         isFacingLeft = pos.x > otherPos.x;
-        scaleX = isFacingLeft ? -1 : 1;
         interactSprite = new FAnimatedSprite("StairWell/stairWell");
         int frameNum = pos.y > otherPos.y ? 2 : 1;
+        if (pos.x == otherPos.x)
+            isFacingLeft = pos.y > otherPos.y ? true : false;
+        scaleX = isFacingLeft ? -1 : 1;
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { frameNum }, 200, true));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { frameNum }, 200, true));
         interactSprite.play("interactable", true);

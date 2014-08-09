@@ -256,7 +256,7 @@
   <object gid="27" x="528" y="432"/>
   <object gid="27" x="168" y="156"/>
   <object type="Stairwell" x="406" y="443">
-   <polyline points="2,1 -10,-143"/>
+   <polyline points="2,1 14,-143"/>
   </object>
  </objectgroup>
 </map>
