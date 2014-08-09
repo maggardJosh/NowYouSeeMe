@@ -13,7 +13,8 @@ public class Enemy : FContainer
     private float xMove;
     private float yMove;
 
-    private State nextState = State.PATROL;
+    private int panacheLeft = 500;
+
     private State currentState = State.PATROL;
     private bool isFacingLeft = false;
 
@@ -21,7 +22,9 @@ public class Enemy : FContainer
     {
         PATROL,
         CHASE,
-        CONFUSED
+        SEE_PLAYER,
+        CONFUSED,
+        CATCHING
     }
 
     bool isMoving = false;
@@ -34,13 +37,16 @@ public class Enemy : FContainer
         enemySprite.addAnimation(new FAnimation("idle", new int[] { 1 }, 200, true));
         enemySprite.addAnimation(new FAnimation("walk", new int[] { 1, 2 }, 200, true));
         enemySprite.addAnimation(new FAnimation("chase", new int[] { 2, 3 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3 , 1 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("seePlayer", new int[] { 3, 2, 1, 3 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3, 1, 3, 1, 3, 1 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
         enemySprite.play("idle");
         this.AddChild(enemySprite);
     }
 
     public void Update(Player p)
     {
+        checkPlayerCaught(p);
         string animToPlay = "";
         switch (currentState)
         {
@@ -58,10 +64,24 @@ public class Enemy : FContainer
             case State.CONFUSED:
                 ConfuseLogic(p);
                 return;
+            case State.SEE_PLAYER:
+                SeePlayerLogic(p);
+                return;
+            case State.CATCHING:
+                CatchPlayerLogic(p);
+                return;
         }
 
-        if (currentState == State.CONFUSED)
-            return;
+        //Flip if facing left
+        enemySprite.scaleX = isFacingLeft ? -1 : 1;
+        //Test for new state
+        switch (currentState)
+        {
+            case State.CONFUSED:
+            case State.SEE_PLAYER:
+            case State.CATCHING:
+                return;
+        }
 
         if (xMove > 0)
             tryMoveRight(xMove * Time.deltaTime);
@@ -69,18 +89,37 @@ public class Enemy : FContainer
             tryMoveLeft(xMove * Time.deltaTime);
 
         enemySprite.play(animToPlay, false);
-        //Flip if facing left
-        enemySprite.scaleX = isFacingLeft ? -1 : 1;
 
 
     }
 
-    private void Shock(State newState)
+    private void checkPlayerCaught(Player p)
     {
-        enemySprite.pause(true);
+        if (p.currentState == Player.State.VANISHING || p.currentState == Player.State.SPAWNING || p.currentState == Player.State.GETTING_CAUGHT)
+            return;
+        if (p.x - Player.collisionWidth / 2 < this.x + collisionWidth / 2 &&
+            p.x + Player.collisionWidth / 2 > this.x - collisionWidth / 2 &&
+            p.y + Player.collisionHeight / 2 > this.y - collisionHeight / 2 &&
+            p.y - Player.collisionHeight / 2 < this.y + collisionHeight / 2)
+        {
+            p.getCaught();
+            this.x = p.x;   //Put our x to the player's
+            p.y = this.y;   //Put the player on the ground
+            this.currentState = State.CATCHING;
+            enemySprite.play("catchPlayer", true);
+        }
+    }
+
+    private void SeePlayer()
+    {
+        enemySprite.play("seePlayer", true);
+        currentState = State.SEE_PLAYER;
+    }
+
+    private void Confuse()
+    {
         enemySprite.play("confusion", true);
         currentState = State.CONFUSED;
-        this.nextState = newState;
     }
 
     private const float LOSE_SIGHT_DIST = 12 * 15;
@@ -108,27 +147,51 @@ public class Enemy : FContainer
         if (this.y - collisionHeight / 2 < p.y &&
             this.y + collisionHeight / 2 > p.y)
         {
-            bool sawPlayer = false;
-            if (isFacingLeft)
-                sawPlayer = this.x - seeDist < p.x && this.x > p.x;
-            else
-                sawPlayer = this.x + seeDist > p.x && this.x < p.x;
-            if (sawPlayer)
-                Shock(State.CHASE);
+            Door d = world.checkDoor(this.x, p.x, this.y);
+            if (d == null)
+            {
+
+                bool sawPlayer = false;
+                if (isFacingLeft)
+                    sawPlayer = this.x - seeDist < p.x && this.x > p.x;
+                else
+                    sawPlayer = this.x + seeDist > p.x && this.x < p.x;
+                if (sawPlayer)
+                    SeePlayer();
+            }
+        }
+    }
+
+    public const float PANACHE_X_DIST = 12 * 4;
+    public const float PANACHE_Y_DIST = 12 * 2;
+    private void checkVanishPanache(Player p)
+    {
+        foreach (VanishCloud v in world.panacheEnabledClouds)
+        {
+            if (Math.Abs(v.x - this.x) < PANACHE_X_DIST &&
+                Math.Abs(v.y - this.y) < PANACHE_Y_DIST)
+            {
+                p.addPanache(panacheLeft);
+                panacheLeft = 0;
+            }
         }
     }
 
     private void ChaseLogic(Player p)
     {
-        switch(p.currentState)
+        switch (p.currentState)
         {
             case Player.State.VANISHING:
-                Shock(State.PATROL);
+                Confuse();
+                checkVanishPanache(p);
+                return;
+            case Player.State.GETTING_CAUGHT:
+                currentState = State.PATROL;
                 return;
         }
         if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST)
         {
-            Shock(State.PATROL);
+            Confuse();
             return;
         }
         xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .1f);
@@ -137,8 +200,41 @@ public class Enemy : FContainer
 
     private void ConfuseLogic(Player p)
     {
+        if (p.currentState == Player.State.VANISHING || p.currentState == Player.State.GETTING_CAUGHT)
+            return;
+        if (this.y - collisionHeight / 2 < p.y &&
+            this.y + collisionHeight / 2 > p.y)
+        {
+            Door d = world.checkDoor(this.x, p.x, this.y);
+            if (d == null)
+            {
+
+                bool sawPlayer = false;
+                if (isFacingLeft)
+                    sawPlayer = this.x - seeDist < p.x && this.x > p.x;
+                else
+                    sawPlayer = this.x + seeDist > p.x && this.x < p.x;
+                if (sawPlayer)
+                    SeePlayer();
+            }
+        }
         if (enemySprite.IsStopped)
-            currentState = nextState;
+            currentState = State.PATROL;
+    }
+
+    private void SeePlayerLogic(Player p)
+    {
+        if (enemySprite.IsStopped)
+            currentState = State.CHASE;
+    }
+
+    private void CatchPlayerLogic(Player p)
+    {
+        if (enemySprite.IsStopped)
+        {
+            p.respawn();
+            Confuse();
+        }
     }
 
     private void turn()
@@ -243,4 +339,5 @@ public class Enemy : FContainer
         //  }
     }
 }
+
 

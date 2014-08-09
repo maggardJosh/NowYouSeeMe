@@ -16,7 +16,8 @@ public class Player : FContainer
         VANISHING,
         COOLDOWN,
         SPAWNING,
-        ENDING_LEVEL
+        ENDING_LEVEL,
+        GETTING_CAUGHT
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -108,6 +109,12 @@ public class Player : FContainer
         base.HandleAddedToStage();
     }
 
+    public override void HandleRemovedFromStage()
+    {
+        Futile.instance.SignalFixedUpdate -= Update;
+        Futile.instance.SignalUpdate -= ControlUpdate;
+        base.HandleRemovedFromStage();
+    }
 
     #region Mark/Vanish Stuff
     private void Mark()
@@ -130,7 +137,7 @@ public class Player : FContainer
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
 
-        VanishCloud newPosCloud = new VanishCloud();
+        VanishCloud newPosCloud = new VanishCloud(false);
         newPosCloud.SetPosition(hat.GetPosition());
         playerSprite.isVisible = false;
 
@@ -140,11 +147,11 @@ public class Player : FContainer
 
     private void MarkTimeOut()
     {
-        VanishCloud cloud = new VanishCloud();
+        VanishCloud cloud = new VanishCloud(false);
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
 
-        VanishCloud newPosCloud = new VanishCloud();
+        VanishCloud newPosCloud = new VanishCloud(false);
         newPosCloud.SetPosition(hat.GetPosition());
         this.container.AddChild(newPosCloud);
 
@@ -154,11 +161,11 @@ public class Player : FContainer
 
     private void CancelVanish()
     {
-        VanishCloud cloud = new VanishCloud();
+        VanishCloud cloud = new VanishCloud(false);
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
 
-        VanishCloud newPosCloud = new VanishCloud();
+        VanishCloud newPosCloud = new VanishCloud(false);
         newPosCloud.SetPosition(hat.GetPosition());
         this.container.AddChild(newPosCloud);
 
@@ -178,10 +185,12 @@ public class Player : FContainer
 
     public void respawn()
     {
+        if (currentState == State.MARKING)
+            CancelVanish();
         yMove = 0;
         xMove = 0;
         isGrounded = true;
-        VanishCloud cloud = new VanishCloud();
+        VanishCloud cloud = new VanishCloud(false);
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
         this.isVisible = false;
@@ -222,6 +231,8 @@ public class Player : FContainer
 
     public void addCash(int amount)
     {
+        if (amount == 0)
+            return;
         cashCounter.addAmount(amount);
         LabelIndicator cashInd = new LabelIndicator("+$" + amount);
         cashInd.SetPosition(this.GetPosition() + Vector2.up * 10);
@@ -230,6 +241,8 @@ public class Player : FContainer
 
     public void addPanache(int amount)
     {
+        if (amount == 0)
+            return;
         panacheCounter.addAmount(amount);
         LabelIndicator panacheInd = new LabelIndicator("+" + amount);
         panacheInd.SetPosition(this.GetPosition() + Vector2.up * 10);
@@ -275,6 +288,9 @@ public class Player : FContainer
                 if (stateCount > HAT_RETURN_COUNT)
                     currentState = State.IDLE;
                 break;
+            case State.GETTING_CAUGHT:
+                interactInd.isVisible = false;
+                return;
         }
         if (isInteracting)
         {
@@ -376,10 +392,12 @@ public class Player : FContainer
             case State.ENDING_LEVEL:
                 if (playerSprite.IsStopped && !String.IsNullOrEmpty(nextLevel))
                 {
-
                     world.nextLevel(nextLevel);
                     nextLevel = "";
                 }
+                return;
+            case State.GETTING_CAUGHT:
+                //After the enemy's anim gets done playing we respawn
                 return;
         }
         if (isLooting)
@@ -718,6 +736,14 @@ public class Player : FContainer
     {
         this.cashCounter.reset();
         this.panacheCounter.reset();
+    }
+
+    internal void getCaught()
+    {
+        if (currentState == State.MARKING)
+            CancelVanish();
+        currentState = Player.State.GETTING_CAUGHT;
+        this.isVisible = false;
     }
 }
 

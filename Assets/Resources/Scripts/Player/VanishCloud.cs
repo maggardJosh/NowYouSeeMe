@@ -10,9 +10,11 @@ public class VanishCloud : FContainer
     float particleXSpeed = 30;
     float particleYSpeed = 30;
     int numParticles = 20;
+    bool panache;
     bool hasAddedParticles = false;
-    public VanishCloud()
+    public VanishCloud(bool panache = true)
     {
+        this.panache = panache;
         cloudSprite = new FAnimatedSprite("vanishCloud");
         cloudSprite.addAnimation(new FAnimation("disappear", new int[] { 1, 2, 3, 4 }, 100, false));
         this.AddChild(cloudSprite);
@@ -24,6 +26,8 @@ public class VanishCloud : FContainer
     {
         Futile.instance.SignalUpdate += Update;
         base.HandleAddedToContainer(container);
+        if (panache)
+            World.getInstance().addVanishCloud(this);
         
     }
 
@@ -44,6 +48,7 @@ public class VanishCloud : FContainer
         if (cloudSprite.IsStopped)
         {
             this.RemoveFromContainer();
+            World.getInstance().removeVanishCloud(this);
             Futile.instance.SignalUpdate -= Update;
         }
     }

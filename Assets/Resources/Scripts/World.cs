@@ -22,6 +22,7 @@ public class World : FContainer
     public List<PressurePlate> plateList = new List<PressurePlate>();
     public List<InteractableObject> interactObjectList = new List<InteractableObject>();
     public List<Enemy> enemyList = new List<Enemy>();
+    public List<VanishCloud> panacheEnabledClouds = new List<VanishCloud>();
 
     private FContainer bgLayer = new FContainer();
     private FContainer objectLayer = new FContainer();
@@ -374,6 +375,17 @@ public class World : FContainer
         if (foundObject == null)
             player.clearInteractable();
         return foundObject;
+    }
+
+    public void addVanishCloud(VanishCloud v)
+    {
+        this.panacheEnabledClouds.Add(v);
+    }
+
+    public void removeVanishCloud(VanishCloud v)
+    {
+        if (this.panacheEnabledClouds.Contains(v))
+            panacheEnabledClouds.Remove(v);
     }
 
     internal void nextLevel(string nextLevel)
