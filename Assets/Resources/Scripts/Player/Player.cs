@@ -236,7 +236,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         cashCounter.addAmount(amount);
-        LabelIndicator cashInd = new LabelIndicator( (amount > 0 ? "+" : "-" ) + "$" + Math.Abs(amount), amount < 0);
+        LabelIndicator cashInd = new LabelIndicator( (amount > 0 ? "+" : "-" ) + "$" + Math.Abs(amount),"moneyInd", amount < 0);
         cashInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(cashInd);
     }
@@ -246,7 +246,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         panacheCounter.addAmount(amount);
-        LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount), amount < 0);
+        LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount),"panacheInd", amount < 0);
         panacheInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(panacheInd);
 

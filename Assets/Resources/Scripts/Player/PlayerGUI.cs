@@ -14,7 +14,7 @@ public class PlayerGUI : FCamObject
     FWipeSprite markCounter;
     FSprite markMedallion;
     Player p;
-
+    FAnimatedSprite panacheAnim;
     float guiSideMargin = 1;
     float textVertMargin = 10;
 
@@ -43,8 +43,8 @@ public class PlayerGUI : FCamObject
         panacheBG.y = Futile.screen.halfHeight - panacheBG.height / 2 - guiSideMargin;
         this.AddChild(panacheBG);
 
-        FAnimatedSprite panacheAnim = new FAnimatedSprite("panacheBar");
-        panacheAnim.addAnimation(new FAnimation("idle", new int[] { 1, 2, 3, 4, 5, 6, 7 }, 100, true));
+        panacheAnim = new FAnimatedSprite("panacheBar");
+        panacheAnim.addAnimation(new FAnimation("idle", new int[] { 1, 2, 3, 4, 5, 6, 7, 1}, 100, false));
         panacheAnim.play("idle");
         panacheAnim.SetPosition(panacheBG.GetPosition());
         this.AddChild(panacheAnim);
@@ -70,6 +70,7 @@ public class PlayerGUI : FCamObject
         this.p = p;
     }
 
+    int lastPanache = 0;
     public override void Update()
     {
         base.Update();
@@ -86,6 +87,12 @@ public class PlayerGUI : FCamObject
             return;
         cashCounter.text = "$" + p.cashCounter.value.ToString();
         panacheCounter .text = p.panacheCounter.value.ToString();
+
+        if (lastPanache < p.panacheCounter.actualValue)
+        {
+            lastPanache = p.panacheCounter.actualValue;
+            panacheAnim.play("idle", true);
+        }
       
 
         markCounter.wipeLeftAmount = p.GetVanishPercent();

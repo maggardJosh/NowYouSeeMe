@@ -123,6 +123,7 @@ public class Enemy : FContainer
     }
 
     private const float LOSE_SIGHT_DIST = 12 * 15;
+    private const float LOSE_SIGHT_Y_DIST = 12 * 5;
     private float chaseSpeed = 100;
     private float patrolSpeed = 50;
     private float turnCount = 0;
@@ -189,7 +190,8 @@ public class Enemy : FContainer
                 currentState = State.PATROL;
                 return;
         }
-        if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST)
+        if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST ||
+            Math.Abs(p.y - this.y) > LOSE_SIGHT_Y_DIST)
         {
             Confuse();
             return;

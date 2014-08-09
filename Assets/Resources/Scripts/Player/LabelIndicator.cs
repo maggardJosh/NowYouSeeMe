@@ -12,11 +12,11 @@ public class LabelIndicator : ShadowLabel
     FSprite bg;
     bool negative;
     float count = 0;
-    public LabelIndicator(string text, bool negative = false)
+    public LabelIndicator(string text, string elementName = "textBG", bool negative = false)
         : base(text)
     {
         this.negative = negative;
-        bg = new FSprite("textBG");
+        bg = new FSprite(elementName);
         Go.to(this, IND_TIME, new TweenConfig().floatProp("y", IND_UP_DIST, true).setEaseType(EaseType.QuadOut).onComplete((a) => { this.RemoveFromContainer(); bg.RemoveFromContainer(); }));
         this.AddChild(bg);
         bg.MoveToBack();
