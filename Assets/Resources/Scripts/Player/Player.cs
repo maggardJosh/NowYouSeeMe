@@ -425,7 +425,7 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove > MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * collisionHeight/2);
+                    spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * playerSprite.height/2);
                 }
             }
             if (xMove > -MAX_X_VEL / 2)
@@ -443,7 +443,7 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove < -MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * collisionHeight / 2);
+                    spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * playerSprite.height / 2);
                 }
             }
             if (xMove < MAX_X_VEL / 2)
@@ -465,7 +465,7 @@ public class Player : FContainer
             else
             {
                 if (RXRandom.Float() < .3f)
-                    spawnSparkleParticles(1, -Vector2.up * collisionHeight / 2);
+                    spawnSparkleParticles(1, -Vector2.up * playerSprite.height / 2);
             }
             if ((xMove > 0 && Input.GetKey(C.RIGHT_KEY)) ||
                (xMove < 0 && Input.GetKey(C.LEFT_KEY)))
@@ -473,7 +473,7 @@ public class Player : FContainer
                 if (maxVelTime > 1.0f)
                 {
                     if (RXRandom.Float() < .8f)
-                        spawnSparkleParticles(1, -Vector2.up * collisionHeight / 2);
+                        spawnSparkleParticles(1, -Vector2.up * playerSprite.height / 2);
                     xMove *= 1.2f;
                     isSprinting = true;
                     wasSprinting = true;
@@ -522,9 +522,9 @@ public class Player : FContainer
                     xMove *= highVelFriction;
                 if (wasSprinting || (wasMaxSpeed && RXRandom.Float() < .3f))
                     if (xMove > 0)
-                        spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * collisionHeight / 2);
+                        spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * playerSprite.height / 2);
                     else if (xMove < 0)
-                        spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * collisionHeight / 2);
+                        spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * playerSprite.height / 2);
 
             }
             else
@@ -672,6 +672,7 @@ public class Player : FContainer
 
     private void spawnSparkleParticles(int numParticles, Vector2 disp, float particleDist = 0, bool spawnBehindPlayer = false)
     {
+        
         if (!isGrounded)
             return;
         float particleXSpeed = 20;
@@ -746,7 +747,7 @@ public class Player : FContainer
                 if (!isGrounded)
                 {
                     isGrounded = true;
-                    spawnSparkleParticles(4, -Vector2.up * collisionHeight / 2);
+                    spawnSparkleParticles(4, -Vector2.up * playerSprite.height / 2);
                 }
             }
         }
