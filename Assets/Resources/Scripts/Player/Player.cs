@@ -12,12 +12,15 @@ public class Player : FContainer
     public enum State
     {
         IDLE,
-        MARKING,
+        LOOTING,
         VANISHING,
         COOLDOWN,
         SPAWNING,
         ENDING_LEVEL,
-        GETTING_CAUGHT
+        GETTING_CAUGHT,
+        ENTERING_STAIRWELL,
+        TRANSITION_STAIRWELL,
+        EXITING_STAIRWELL
     }
     FAnimatedSprite interactInd;
     FAnimatedSprite playerSprite;
@@ -30,7 +33,7 @@ public class Player : FContainer
     public float yMove = 0;
     float stateCount = 0;
     bool isFacingLeft = false;
-    bool isLooting = false;
+    bool isMarking = false;
     bool isInteracting = false;
 
     public GUICounter cashCounter;
@@ -38,6 +41,8 @@ public class Player : FContainer
 
     const float INDICATOR_Y = 20;
     const float INDICATOR_BOUNCE = 5;
+    IndividualStairwell inStairwell = null;
+    IndividualStairwell outStairwell = null;
 
     int animSpeed = 200;
     string nextLevel = "";
@@ -51,6 +56,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 15 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hat_interact", new int[] { 2 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 5, 6, 5, 6 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 5, 6, 5, 6 }, 250, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
@@ -58,6 +65,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 16 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 11, 12, 11, 12 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 11, 12, 11, 12 }, 250, false));
 
         playerSprite.addAnimation(new FAnimation("endLevel", new int[] { 5, 6, 5, 6 }, animSpeed, false));
 
@@ -92,9 +101,10 @@ public class Player : FContainer
 
     public float GetVanishPercent()
     {
+        if (isMarking)
+            return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
         switch (currentState)
         {
-            case State.MARKING: return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
             case State.VANISHING: return 0;
             case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
             default: return 1.0f;
@@ -131,8 +141,6 @@ public class Player : FContainer
 
     private void Vanish()
     {
-        if (isLooting)
-            isLooting = false;
         VanishCloud cloud = new VanishCloud();
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
@@ -142,6 +150,7 @@ public class Player : FContainer
         playerSprite.isVisible = false;
 
         currentState = State.VANISHING;
+        isMarking = false;
         Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
     }
 
@@ -170,7 +179,7 @@ public class Player : FContainer
         this.container.AddChild(newPosCloud);
 
         hat.disappear();
-        currentState = State.IDLE;
+        isMarking = false;
     }
     #endregion
 
@@ -185,7 +194,7 @@ public class Player : FContainer
 
     public void respawn()
     {
-        if (currentState == State.MARKING)
+        if (isMarking)
             CancelVanish();
 
         yMove = 0;
@@ -217,6 +226,16 @@ public class Player : FContainer
         }
         else
             throw new Exception("No Activated Chest");
+    }
+
+    public void enterStairwell(IndividualStairwell inStair, IndividualStairwell outStair)
+    {
+        this.SetPosition(inStair.GetPosition());
+        this.scaleX = inStair.scaleX;
+        this.inStairwell = inStair;
+        this.outStairwell = outStair;
+        playerSprite.play(getHatAnimPrefix() + "stairwellEnter");
+
     }
 
     private InteractableObject currentInteractable;
@@ -259,40 +278,48 @@ public class Player : FContainer
 
         lastState = currentState;
 
+        if (isMarking)
+        {
+            if (!hasLeftMarkPos)
+                stateCount = 0;
+            if (stateCount >= MARK_MAX_COUNT)
+                MarkTimeOut();
+            else
+                if (!Input.GetKey(C.ACTION_KEY))
+                {
+                    if (hasLeftMarkPos)
+                        Vanish();
+                    else
+                        CancelVanish();
+                }
+
+        }
         switch (currentState)
         {
             case State.IDLE:
-                if (Input.GetKey(C.ACTION_KEY))
+                if (!isMarking && Input.GetKey(C.ACTION_KEY))
                 {
-                    currentState = State.MARKING;
+                    isMarking = true;
                     Mark();
                 }
                 break;
-            case State.MARKING:
-                if (!hasLeftMarkPos)
-                    stateCount = 0;
-                if (stateCount >= MARK_MAX_COUNT)
-                    MarkTimeOut();
-                else
-                    if (!Input.GetKey(C.ACTION_KEY))
-                    {
-                        if (hasLeftMarkPos)
-                            Vanish();
-                        else
-                            CancelVanish();
-                    }
-                break;
+
             case State.VANISHING:
             case State.SPAWNING:
+            case State.ENTERING_STAIRWELL:
+            case State.EXITING_STAIRWELL:
+            case State.TRANSITION_STAIRWELL:
                 interactInd.isVisible = false;
                 isInteracting = false;
-                isLooting = false;
                 return;     //Don't allow controls past this if vanishing
             case State.COOLDOWN:
                 if (stateCount > HAT_RETURN_COUNT)
                     currentState = State.IDLE;
                 break;
             case State.GETTING_CAUGHT:
+                interactInd.isVisible = false;
+                return;
+            case State.LOOTING:
                 interactInd.isVisible = false;
                 return;
         }
@@ -309,15 +336,9 @@ public class Player : FContainer
                 interactCount += Time.deltaTime;
             }
         }
-        if (isInteracting || isLooting)
-        {
-            interactInd.isVisible = false;
-
-        }
         stateCount += Time.deltaTime;
 
-        if (isLooting)
-            return;
+
         if (Input.GetKeyDown(KeyCode.T))
             respawn();
         if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
@@ -326,14 +347,12 @@ public class Player : FContainer
             {
                 case InteractableObject.InteractType.LOOT:
                     this.x = currentInteractable.x;
-                    isLooting = true;
-                    this.playerSprite.play((currentState == State.MARKING ? "hatless" : "hat") + "_loot", true);
+                    currentState = State.LOOTING;
+                    this.playerSprite.play(getHatAnimPrefix() + "loot", true);
                     xMove = 0;
                     yMove = 0;
-
                     break;
                 case InteractableObject.InteractType.INTERACT:
-
                     this.playerSprite.play("interact", true);
                     isInteracting = true;
                     currentInteractable.interact(this);
@@ -377,6 +396,7 @@ public class Player : FContainer
     bool isSprinting = false;
     bool wasSprinting = false;
     bool wasMaxSpeed = false;
+    const float STAIR_TRANS_TIME = 1.0f;
     private void Update()
     {
         if (C.isTransitioning)
@@ -400,21 +420,33 @@ public class Player : FContainer
                     nextLevel = "";
                 }
                 return;
+            case State.ENTERING_STAIRWELL:
+                if (playerSprite.IsStopped)
+                {
+                    currentState = State.TRANSITION_STAIRWELL;
+                    this.isVisible = false;
+                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "exitStairwell", true); currentState = State.EXITING_STAIRWELL; }));
+                }
+                return;
+            case State.TRANSITION_STAIRWELL:
+                return;
+            case State.EXITING_STAIRWELL:
+                if (playerSprite.IsStopped)
+                    currentState = State.IDLE;
+                return;
             case State.GETTING_CAUGHT:
                 //After the enemy's anim gets done playing we respawn
                 return;
-        }
-        if (isLooting)
-        {
-            if (RXRandom.Float() < .7f)
-                spawnVanishParticles(1, Vector2.zero - Vector2.up * collisionHeight/4, 8, true);
-            if (playerSprite.IsStopped)
-            {
-                currentInteractable.interact(this);
-                currentInteractable = null;
-                isLooting = false;
-            }
-            return;
+            case State.LOOTING:
+                if (RXRandom.Float() < .7f)
+                    spawnVanishParticles(1, Vector2.zero - Vector2.up * collisionHeight / 4, 8, true);
+                if (playerSprite.IsStopped)
+                {
+                    currentInteractable.interact(this);
+                    currentInteractable = null;
+                    currentState = State.IDLE;
+                }
+                return;
         }
 
         if (Input.GetKey(C.LEFT_KEY))
@@ -425,7 +457,7 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove > MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * playerSprite.height/2);
+                    spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * playerSprite.height / 2);
                 }
             }
             if (xMove > -MAX_X_VEL / 2)
@@ -534,17 +566,7 @@ public class Player : FContainer
         if (Math.Abs(xMove) < MIN_MOVEMENT_X)
             xMove = 0;
         isMoving = xAcc != 0;
-        string animToPlay = "";
-
-        switch (currentState)
-        {
-            case State.MARKING:
-                animToPlay += "hatless_";
-                break;
-            default:
-                animToPlay += "hat_";
-                break;
-        }
+        string animToPlay = getHatAnimPrefix();
         if (yMove == 0)
         {
             if (isMoving)
@@ -569,11 +591,16 @@ public class Player : FContainer
         //Flip if facing left
         playerSprite.scaleX = isFacingLeft ? -1 : 1;
 
-        if (currentState == State.MARKING && !hasLeftMarkPos)
+        if (isMarking && !hasLeftMarkPos)
             if ((hat.GetPosition() - this.GetPosition()).sqrMagnitude > MARK_MIN_DIST * MARK_MIN_DIST)
                 hasLeftMarkPos = true;
 
         updateWorld();
+    }
+
+    private string getHatAnimPrefix()
+    {
+        return isMarking ? "hatless_" : "hat_";
     }
 
     private void updateWorld()
@@ -672,7 +699,7 @@ public class Player : FContainer
 
     private void spawnSparkleParticles(int numParticles, Vector2 disp, float particleDist = 0, bool spawnBehindPlayer = false)
     {
-        
+
         if (!isGrounded)
             return;
         float particleXSpeed = 20;
@@ -768,7 +795,7 @@ public class Player : FContainer
 
     internal void getCaught()
     {
-        if (currentState == State.MARKING)
+        if (isMarking)
             CancelVanish();
         currentState = Player.State.GETTING_CAUGHT;
         this.addPanache(-panacheCounter.actualValue);

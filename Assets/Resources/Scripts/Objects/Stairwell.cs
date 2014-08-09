@@ -10,8 +10,8 @@ public class Stairwell : FContainer
     
     public Stairwell(Vector2 v, Vector2 v2)
     {
-        individualStairwells[0] = new IndividualStairwell(v, this);
-        individualStairwells[1] = new IndividualStairwell(v2, this);
+        individualStairwells[0] = new IndividualStairwell(v, v2, this);
+        individualStairwells[1] = new IndividualStairwell(v2,v, this);
 
         for (int x = 0; x < 2; x++)
             this.AddChild(individualStairwells[x]);
@@ -19,22 +19,24 @@ public class Stairwell : FContainer
 
     public void interact(Player p, IndividualStairwell s)
     {
-
+        IndividualStairwell outStair = s == individualStairwells[0] ? individualStairwells[1] : individualStairwells[0];
+        p.enterStairwell(s, outStair);
     }
 }
 
 public class IndividualStairwell : InteractableObject
 {
     Stairwell owner;
-    public IndividualStairwell(Vector2 pos, Stairwell owner)
+    public IndividualStairwell(Vector2 pos, Vector2 otherPos, Stairwell owner)
     {
         this.owner = owner;
         this.SetPosition(pos);
         this.X_INTERACT_DIST = 24;
         this.Y_INTERACT_DIST = 36;
         interactSprite = new FAnimatedSprite("StairWell/stairWell");
-        interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 200, true));
-        interactSprite.addAnimation(new FAnimation("hover", new int[] { 1 }, 200, true));
+        int frameNum = pos.y > otherPos.y ? 1 : 2;
+        interactSprite.addAnimation(new FAnimation("interactable", new int[] { frameNum }, 200, true));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { frameNum }, 200, true));
         interactSprite.play("interactable", true);
         this.AddChild(interactSprite);
 

@@ -297,7 +297,7 @@ public class World : FContainer
             string[] points = polyLine.attributes["points"].Split(' ');
             if (points.Length != 2)
                 return;
-            Vector2 disp = new Vector2(float.Parse(node.attributes["x"]), -float.Parse(node.attributes["y"]) + map.tileHeight / 2);
+            Vector2 disp = new Vector2(float.Parse(node.attributes["x"]), -float.Parse(node.attributes["y"]) - map.tileHeight / 2);
             Vector2[] stairwellPositions = new Vector2[2];
             for (int x = 0; x < 2; x++)
             {
