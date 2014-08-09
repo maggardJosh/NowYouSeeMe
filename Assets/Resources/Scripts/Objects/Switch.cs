@@ -99,7 +99,6 @@ public class Switch : InteractableObject
             Futile.instance.SignalUpdate -= UpdateTimer;
             triggered = false;
             timer.isVisible = false;
-            timer.y += 10;
 
             switch (actionType)
             {

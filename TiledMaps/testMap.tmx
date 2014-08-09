@@ -7,7 +7,7 @@
   <image source="TiledGraphics/collision.png" width="24" height="12"/>
  </tileset>
  <tileset firstgid="21" name="objects" tilewidth="12" tileheight="12">
-  <image source="TiledGraphics/objects.png" width="72" height="12"/>
+  <image source="TiledGraphics/objects.png" width="84" height="12"/>
  </tileset>
  <layer name="Background" width="60" height="40">
   <data encoding="csv">
@@ -252,5 +252,17 @@
     <property name="end" value="testMapTwo"/>
    </properties>
   </object>
+  <object gid="27" x="420" y="312">
+   <properties>
+    <property name="right" value=""/>
+   </properties>
+  </object>
+  <object gid="27" x="504" y="312">
+   <properties>
+    <property name="left" value=""/>
+   </properties>
+  </object>
+  <object gid="27" x="528" y="432"/>
+  <object gid="27" x="168" y="156"/>
  </objectgroup>
 </map>

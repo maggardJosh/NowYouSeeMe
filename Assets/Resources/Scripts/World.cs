@@ -34,6 +34,7 @@ public class World : FContainer
     private const int DOOR_IND = 3;
     private const int SWITCH_IND = 4;
     private const int PRESSURE_PLATE_IND = 5;
+    private const int ENEMY_IND = 6;
 
     private World()
     {
@@ -86,6 +87,9 @@ public class World : FContainer
                     case PRESSURE_PLATE_IND:
                         parsePlate(node);
                         break;
+                    case ENEMY_IND:
+                        parseEnemy(node);
+                        break;
                 }
             }
         }
@@ -109,13 +113,6 @@ public class World : FContainer
         this.AddChild(playerLayer);
         this.AddChild(fgLayer);
         player.spawn();
-
-
-        Enemy e = new Enemy(this);
-        e.SetPosition(player.GetPosition());
-        enemyList.Add(e);
-        playerLayer.AddChild(e);
-
 
     }
 
@@ -260,6 +257,27 @@ public class World : FContainer
         objectLayer.AddChild(p);
     }
 
+    private void parseEnemy(XMLNode node)
+    {
+        bool faceLeft = false;
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "left":
+                            faceLeft = true;
+                            break;
+                    }
+            }
+        Enemy e = new Enemy(this, faceLeft);
+        e.SetPosition(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + Enemy.collisionHeight / 2));
+
+        enemyList.Add(e);
+        playerLayer.AddChild(e);
+    }
+
     public bool getMoveable(float xPos, float yPos)
     {
         int frameNum = collision.getFrameNumAt(xPos, yPos);
@@ -297,11 +315,13 @@ public class World : FContainer
 
     private void Update()
     {
+        if (C.isTransitioning)
+            return;
         InteractableObject obj = checkInteractObjects();
         if (obj != null)
             player.setInteractObject(obj);
         foreach (Enemy e in enemyList)
-            e.Update();
+            e.Update(player);
     }
 
     public PressurePlate checkPlates(float xPos, float yPos)
