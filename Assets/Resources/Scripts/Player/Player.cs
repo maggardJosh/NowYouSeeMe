@@ -345,7 +345,7 @@ public class Player : FContainer
     float jumpStrength = 6;
     const float MAX_Y_VEL = 10f;
     const float MIN_Y_VEL = -6f;
-    const float MAX_X_VEL = 4f;
+    const float MAX_X_VEL = 2f;
     bool isGrounded = true;
     bool isMoving = false;
     bool hasLeftMarkPos = false;

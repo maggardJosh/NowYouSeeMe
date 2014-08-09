@@ -13,6 +13,7 @@ public class Enemy : FContainer
     private float xMove;
     private float yMove;
 
+    private State nextState = State.PATROL;
     private State currentState = State.PATROL;
     private bool isFacingLeft = false;
 
@@ -33,19 +34,13 @@ public class Enemy : FContainer
         enemySprite.addAnimation(new FAnimation("idle", new int[] { 1 }, 200, true));
         enemySprite.addAnimation(new FAnimation("walk", new int[] { 1, 2 }, 200, true));
         enemySprite.addAnimation(new FAnimation("chase", new int[] { 2, 3 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3, 1, 3, 1 }, 200, true));
+        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3 , 1 }, 200, false));
         enemySprite.play("idle");
         this.AddChild(enemySprite);
     }
 
-    const float MAX_Y_VEL = 10f;
-    const float MIN_Y_VEL = -6f;
-    const float MAX_X_VEL = 4f;
-
     public void Update(Player p)
     {
-
-
         string animToPlay = "";
         switch (currentState)
         {
@@ -61,9 +56,12 @@ public class Enemy : FContainer
                 animToPlay = "chase";
                 break;
             case State.CONFUSED:
-
-                break;
+                ConfuseLogic(p);
+                return;
         }
+
+        if (currentState == State.CONFUSED)
+            return;
 
         if (xMove > 0)
             tryMoveRight(xMove * Time.deltaTime);
@@ -77,13 +75,20 @@ public class Enemy : FContainer
 
     }
 
+    private void Shock(State newState)
+    {
+        enemySprite.pause(true);
+        enemySprite.play("confusion", true);
+        currentState = State.CONFUSED;
+        this.nextState = newState;
+    }
 
-
+    private const float LOSE_SIGHT_DIST = 12 * 15;
     private float chaseSpeed = 100;
     private float patrolSpeed = 50;
     private float turnCount = 0;
     private float turnMax = .8f;
-    private float seeDist = 12 * 1;
+    private float seeDist = 12 * 4;
     private void PatrolLogic(Player p)
     {
         xMove = (isFacingLeft ? -1 : 1) * (turnCount <= 0 ? patrolSpeed : 0);
@@ -98,6 +103,8 @@ public class Enemy : FContainer
             }
         }
 
+        if (p.currentState == Player.State.VANISHING)
+            return;
         if (this.y - collisionHeight / 2 < p.y &&
             this.y + collisionHeight / 2 > p.y)
         {
@@ -107,13 +114,31 @@ public class Enemy : FContainer
             else
                 sawPlayer = this.x + seeDist > p.x && this.x < p.x;
             if (sawPlayer)
-                currentState = State.CHASE;
+                Shock(State.CHASE);
         }
     }
 
     private void ChaseLogic(Player p)
     {
-        xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .2f);
+        switch(p.currentState)
+        {
+            case Player.State.VANISHING:
+                Shock(State.PATROL);
+                return;
+        }
+        if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST)
+        {
+            Shock(State.PATROL);
+            return;
+        }
+        xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .1f);
+        isFacingLeft = p.x < this.x;
+    }
+
+    private void ConfuseLogic(Player p)
+    {
+        if (enemySprite.IsStopped)
+            currentState = nextState;
     }
 
     private void turn()

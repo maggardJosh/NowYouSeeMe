@@ -50,6 +50,7 @@ public class World : FContainer
         enemyList.Clear();
         bgLayer.RemoveAllChildren();
         fgLayer.RemoveAllChildren();
+        playerLayer.RemoveAllChildren();
         objectLayer.RemoveAllChildren();
         if (player == null)
             player = new Player(this);
