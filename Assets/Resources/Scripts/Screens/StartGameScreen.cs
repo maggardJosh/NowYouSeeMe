@@ -7,14 +7,20 @@ using UnityEngine;
 public class StartGameScreen : BaseScreen
 {
     private ShadowLabel pressEnter;
+    private FSprite enterBG;
     public StartGameScreen()
     {
         FSprite splashScreen = new FSprite("splashScreen");
         this.AddChild(splashScreen);
 
-        pressEnter = new ShadowLabel("PRESS ENTER");
-        pressEnter.y = -Futile.screen.halfHeight + 25;
+        pressEnter = new ShadowLabel("PRESS A");
+        pressEnter.y = -Futile.screen.halfHeight + 30;
         pressEnter.isVisible = false;
+
+        enterBG = new FSprite("textBG");
+        enterBG.SetPosition(pressEnter.GetPosition());
+        enterBG.width = pressEnter.textRect.width * 1.4f;
+        this.AddChild(enterBG);
         this.AddChild(pressEnter);
 
         ShadowLabel versionNumber = new ShadowLabel(C.versionNumber);
@@ -29,7 +35,8 @@ public class StartGameScreen : BaseScreen
         if (transitioningOff)
             return;
         count += Time.deltaTime;
-        pressEnter.isVisible = count > 1.0f && ((int)count) % 3 != 0;
+        pressEnter.isVisible = count > 2.0f && ((int)(count* 2)) % 4 != 0;
+        enterBG.isVisible = pressEnter.isVisible;
         if (Input.GetKeyUp(C.ACTION_KEY))
         {
             World world = World.getInstance();
