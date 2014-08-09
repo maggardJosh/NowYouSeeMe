@@ -79,7 +79,7 @@ public class Switch : InteractableObject
         }
         for (int x = 0; x < numParticles; x++)
         {
-            VanishParticle particle = VanishParticle.getParticle();
+            Particle particle = Particle.VanishParticle.getParticle();
             float angle = (RXRandom.Float() * Mathf.PI * 2);
             Vector2 pos = this.GetPosition() + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);

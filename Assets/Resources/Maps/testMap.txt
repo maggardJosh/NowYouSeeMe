@@ -155,7 +155,7 @@
    </properties>
   </object>
   <object name="Chest" gid="22" x="564" y="120"/>
-  <object name="Container" gid="23" x="396" y="312">
+  <object name="Container" gid="23" x="564" y="312">
    <properties>
     <property name="Money" value="200"/>
     <property name="Type" value="1"/>
@@ -264,5 +264,8 @@
   </object>
   <object gid="27" x="528" y="432"/>
   <object gid="27" x="168" y="156"/>
+  <object type="Stairwell" x="406" y="443">
+   <polyline points="2,1 2,-143"/>
+  </object>
  </objectgroup>
 </map>

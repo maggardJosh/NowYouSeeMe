@@ -236,7 +236,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         cashCounter.addAmount(amount);
-        LabelIndicator cashInd = new LabelIndicator( (amount > 0 ? "+" : "-" ) + "$" + Math.Abs(amount),"moneyInd", amount < 0);
+        LabelIndicator cashInd = new LabelIndicator((amount > 0 ? "+" : "-") + "$" + Math.Abs(amount), "moneyInd", amount < 0);
         cashInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(cashInd);
     }
@@ -246,7 +246,7 @@ public class Player : FContainer
         if (amount == 0)
             return;
         panacheCounter.addAmount(amount);
-        LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount),"panacheInd", amount < 0);
+        LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount), "panacheInd", amount < 0);
         panacheInd.SetPosition(this.GetPosition() + Vector2.up * 10);
         this.container.AddChild(panacheInd);
 
@@ -674,12 +674,11 @@ public class Player : FContainer
     {
         if (!isGrounded)
             return;
-        float particleXSpeed = 20;
-        float particleYSpeed = 20;
-
+        float particleXSpeed = 150;
+        float particleYSpeed = 150;
         for (int x2 = 0; x2 < numParticles; x2++)
         {
-            VanishParticle particle = VanishParticle.getParticle();
+            Particle particle = Particle.SparkleParticle.getParticle();
             float angle = (RXRandom.Float() * Mathf.PI * 2);
             Vector2 pos = this.GetPosition() + disp - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
@@ -691,6 +690,11 @@ public class Player : FContainer
     private void spawnFootParticles(int numParticles)
     {
         spawnFootParticles(numParticles, Vector2.zero);
+    }
+
+    private void SpawnSparkleParticles()
+    {
+
     }
 
     private void tryMoveDown(float yMove)

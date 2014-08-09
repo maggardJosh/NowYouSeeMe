@@ -21,8 +21,8 @@ public class Enemy : FContainer
     public enum State
     {
         PATROL,
-        CHASE,
         SEE_PLAYER,
+        CHASE,
         CONFUSED,
         CATCHING
     }

@@ -59,7 +59,7 @@ public class Door : InteractableObject
         }
         for (int x = 0; x < numParticles; x++)
         {
-            VanishParticle particle = VanishParticle.getParticle();
+            Particle particle = Particle.VanishParticle.getParticle();
 
             Vector2 pos = this.GetPosition() + new Vector2(0, RXRandom.Float() * 32 - 16);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);

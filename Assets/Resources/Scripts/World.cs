@@ -57,9 +57,9 @@ public class World : FContainer
             player = new Player(this);
         else
             player.clearVars();
-        
 
-            map = new FTmxMap();
+
+        map = new FTmxMap();
         map.clipNode = C.getCameraInstance();
         map.LoadTMX("Maps/" + mapName);
         C.getCameraInstance().setWorldBounds(new Rect(0, -map.height, map.width, map.height));
@@ -91,6 +91,15 @@ public class World : FContainer
                         break;
                     case ENEMY_IND:
                         parseEnemy(node);
+                        break;
+                }
+            }
+            if (node.attributes.ContainsKey("type"))
+            {
+                switch (node.attributes["type"].ToLower())
+                {
+                    case "stairwell":
+                        parseStairwell(node);
                         break;
                 }
             }
@@ -278,6 +287,29 @@ public class World : FContainer
 
         enemyList.Add(e);
         playerLayer.AddChild(e);
+    }
+
+    private void parseStairwell(XMLNode node)
+    {
+        if (node.children.Count > 0)
+        {
+            XMLNode polyLine = (XMLNode)node.children[0];
+            string[] points = polyLine.attributes["points"].Split(' ');
+            if (points.Length != 2)
+                return;
+            Vector2 disp = new Vector2(float.Parse(node.attributes["x"]), -float.Parse(node.attributes["y"]) + map.tileHeight / 2);
+            Vector2[] stairwellPositions = new Vector2[2];
+            for (int x = 0; x < 2; x++)
+            {
+                string[] xyStrings = points[x].Split(',');
+                stairwellPositions[x] = (disp - new Vector2(float.Parse(xyStrings[0]), float.Parse(xyStrings[1])));
+            }
+            Stairwell s = new Stairwell(stairwellPositions[0], stairwellPositions[1]);
+            interactObjectList.Add(s.individualStairwells[0]);
+            interactObjectList.Add(s.individualStairwells[1]);
+            objectLayer.AddChild(s);
+        }
+        
     }
 
     public bool getMoveable(float xPos, float yPos)
