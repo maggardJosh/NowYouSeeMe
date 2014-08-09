@@ -36,6 +36,8 @@ public class Player : FContainer
     bool isMarking = false;
     bool isInteracting = false;
 
+    private float markCount = 0;
+
     public GUICounter cashCounter;
     public GUICounter panacheCounter;
 
@@ -56,8 +58,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hat_air_down", new int[] { 6 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hat_loot", new int[] { 15 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hat_interact", new int[] { 2 }, 250, false));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 5, 6, 5, 6 }, 250, false));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 5, 6, 5, 6 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 17,18,19 }, 150, false));
+        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 20,21,22 }, 150, false));
         playerSprite.addAnimation(new FAnimation("hatless_idle", new int[] { 14 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_walk", new int[] { 7, 8, 9, 10 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_run", new int[] { 7, 8, 9, 10 }, animSpeed / 2, true));
@@ -65,8 +67,8 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hatless_air_down", new int[] { 12 }, animSpeed, true));
         playerSprite.addAnimation(new FAnimation("hatless_loot", new int[] { 16 }, 500, false));
         playerSprite.addAnimation(new FAnimation("hatless_interact", new int[] { 8 }, 250, true));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellEnter", new int[] { 11, 12, 11, 12 }, 250, false));
-        playerSprite.addAnimation(new FAnimation("hat_stairwellExit", new int[] { 11, 12, 11, 12 }, 250, false));
+        playerSprite.addAnimation(new FAnimation("hatless_stairwellEnter", new int[] { 23,24,25 }, 150, false));
+        playerSprite.addAnimation(new FAnimation("hatless_stairwellExit", new int[] { 26,27,28}, 150, false));
 
         playerSprite.addAnimation(new FAnimation("endLevel", new int[] { 5, 6, 5, 6 }, animSpeed, false));
 
@@ -102,11 +104,11 @@ public class Player : FContainer
     public float GetVanishPercent()
     {
         if (isMarking)
-            return hasLeftMarkPos ? 1 - stateCount / MARK_MAX_COUNT : 1;
+            return hasLeftMarkPos ? 1 - markCount / MARK_MAX_COUNT : 1;
         switch (currentState)
         {
             case State.VANISHING: return 0;
-            case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
+            case State.COOLDOWN: return markCount / HAT_RETURN_COUNT;
             default: return 1.0f;
         }
     }
@@ -230,11 +232,17 @@ public class Player : FContainer
 
     public void enterStairwell(IndividualStairwell inStair, IndividualStairwell outStair)
     {
-        this.SetPosition(inStair.GetPosition());
-        this.scaleX = inStair.scaleX;
+        if (isMarking)
+            hasLeftMarkPos = true;
+        this.SetPosition(inStair.GetPosition() + Vector2.up * collisionHeight/2 );
+        playerSprite.scaleX = inStair.scaleX;
         this.inStairwell = inStair;
         this.outStairwell = outStair;
+        xMove = 0;
+        yMove = 0;
+
         playerSprite.play(getHatAnimPrefix() + "stairwellEnter");
+        currentState = State.ENTERING_STAIRWELL;
 
     }
 
@@ -281,8 +289,8 @@ public class Player : FContainer
         if (isMarking)
         {
             if (!hasLeftMarkPos)
-                stateCount = 0;
-            if (stateCount >= MARK_MAX_COUNT)
+                markCount = 0;
+            if (markCount >= MARK_MAX_COUNT)
                 MarkTimeOut();
             else
                 if (!Input.GetKey(C.ACTION_KEY))
@@ -308,6 +316,11 @@ public class Player : FContainer
             case State.SPAWNING:
             case State.ENTERING_STAIRWELL:
             case State.EXITING_STAIRWELL:
+                if (isMarking)
+                    markCount += Time.deltaTime;
+                interactInd.isVisible = false;
+                isInteracting = false;
+                return;
             case State.TRANSITION_STAIRWELL:
                 interactInd.isVisible = false;
                 isInteracting = false;
@@ -337,6 +350,8 @@ public class Player : FContainer
             }
         }
         stateCount += Time.deltaTime;
+        if (isMarking)
+            markCount += Time.deltaTime;
 
 
         if (Input.GetKeyDown(KeyCode.T))
@@ -425,7 +440,7 @@ public class Player : FContainer
                 {
                     currentState = State.TRANSITION_STAIRWELL;
                     this.isVisible = false;
-                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "exitStairwell", true); currentState = State.EXITING_STAIRWELL; }));
+                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y + collisionHeight/2).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "stairwellExit", true); currentState = State.EXITING_STAIRWELL; }));
                 }
                 return;
             case State.TRANSITION_STAIRWELL:

@@ -95,8 +95,16 @@ public class Enemy : FContainer
 
     private void checkPlayerCaught(Player p)
     {
-        if (p.currentState == Player.State.VANISHING || p.currentState == Player.State.SPAWNING || p.currentState == Player.State.GETTING_CAUGHT)
-            return;
+        switch(p.currentState)
+        {
+            case Player.State.VANISHING:
+            case Player.State.SPAWNING:
+            case Player.State.GETTING_CAUGHT:
+            case Player.State.ENTERING_STAIRWELL:
+            case Player.State.EXITING_STAIRWELL:
+            case Player.State.TRANSITION_STAIRWELL:
+                return;
+        }
         if (p.x - Player.collisionWidth / 2 < this.x + collisionWidth / 2 &&
             p.x + Player.collisionWidth / 2 > this.x - collisionWidth / 2 &&
             p.y + Player.collisionHeight / 2 > this.y - collisionHeight / 2 &&
@@ -188,6 +196,10 @@ public class Enemy : FContainer
                 return;
             case Player.State.GETTING_CAUGHT:
                 currentState = State.PATROL;
+                return;
+
+            case Player.State.ENTERING_STAIRWELL:
+                //Enter stairwell here
                 return;
         }
         if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST ||
