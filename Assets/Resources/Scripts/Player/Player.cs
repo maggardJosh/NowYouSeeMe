@@ -337,7 +337,7 @@ public class Player : FContainer
                     this.playerSprite.play("interact", true);
                     isInteracting = true;
                     currentInteractable.interact(this);
-                    spawnFootParticles(2, new Vector2(isFacingLeft ? -15 : 15, 5));
+                    spawnVanishParticles(2, new Vector2(isFacingLeft ? -15 : 15, 0));
                     break;
             }
             return;
@@ -407,7 +407,7 @@ public class Player : FContainer
         if (isLooting)
         {
             if (RXRandom.Float() < .7f)
-                spawnFootParticles(1, new Vector2(0, collisionHeight / 5), 8, true);
+                spawnVanishParticles(1, Vector2.zero - Vector2.up * collisionHeight/4, 8, true);
             if (playerSprite.IsStopped)
             {
                 currentInteractable.interact(this);
@@ -425,7 +425,7 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove > MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnFootParticles(1, Vector2.right * 10);
+                    spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * collisionHeight/2);
                 }
             }
             if (xMove > -MAX_X_VEL / 2)
@@ -443,7 +443,7 @@ public class Player : FContainer
                 xAcc *= 4;
                 if (xMove < -MAX_X_VEL / 2 && isGrounded)
                 {
-                    spawnFootParticles(1, Vector2.right * -10);
+                    spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * collisionHeight / 2);
                 }
             }
             if (xMove < MAX_X_VEL / 2)
@@ -465,7 +465,7 @@ public class Player : FContainer
             else
             {
                 if (RXRandom.Float() < .3f)
-                    spawnFootParticles(1);
+                    spawnSparkleParticles(1, -Vector2.up * collisionHeight / 2);
             }
             if ((xMove > 0 && Input.GetKey(C.RIGHT_KEY)) ||
                (xMove < 0 && Input.GetKey(C.LEFT_KEY)))
@@ -473,7 +473,7 @@ public class Player : FContainer
                 if (maxVelTime > 1.0f)
                 {
                     if (RXRandom.Float() < .8f)
-                        spawnFootParticles(1);
+                        spawnSparkleParticles(1, -Vector2.up * collisionHeight / 2);
                     xMove *= 1.2f;
                     isSprinting = true;
                     wasSprinting = true;
@@ -522,9 +522,9 @@ public class Player : FContainer
                     xMove *= highVelFriction;
                 if (wasSprinting || (wasMaxSpeed && RXRandom.Float() < .3f))
                     if (xMove > 0)
-                        spawnFootParticles(1, Vector2.right * 10);
+                        spawnSparkleParticles(1, Vector2.right * 10 - Vector2.up * collisionHeight / 2);
                     else if (xMove < 0)
-                        spawnFootParticles(1, Vector2.right * -10);
+                        spawnSparkleParticles(1, Vector2.right * -10 - Vector2.up * collisionHeight / 2);
 
             }
             else
@@ -670,32 +670,51 @@ public class Player : FContainer
         }
     }
 
-    private void spawnFootParticles(int numParticles, Vector2 disp, float particleDist = 2, bool spawnBehindPlayer = false)
+    private void spawnSparkleParticles(int numParticles, Vector2 disp, float particleDist = 0, bool spawnBehindPlayer = false)
     {
         if (!isGrounded)
             return;
-        float particleXSpeed = 150;
-        float particleYSpeed = 150;
+        float particleXSpeed = 20;
+        float particleYSpeed = 20;
         for (int x2 = 0; x2 < numParticles; x2++)
         {
             Particle particle = Particle.SparkleParticle.getParticle();
             float angle = (RXRandom.Float() * Mathf.PI * 2);
-            Vector2 pos = this.GetPosition() + disp - Vector2.up * collisionHeight / 2 + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+            Vector2 pos = this.GetPosition() + disp + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
             this.container.AddChild(particle);
             if (spawnBehindPlayer)
                 particle.MoveToBack();
         }
     }
-    private void spawnFootParticles(int numParticles)
+    private void spawnSparkleParticles(int numParticles)
     {
-        spawnFootParticles(numParticles, Vector2.zero);
+        spawnSparkleParticles(numParticles, Vector2.zero);
     }
 
-    private void SpawnSparkleParticles()
-    {
 
+    private void spawnVanishParticles(int numParticles, Vector2 disp, float particleDist = 0, bool spawnBehindPlayer = false)
+    {
+        if (!isGrounded)
+            return;
+        float particleXSpeed = 30;
+        float particleYSpeed = 30;
+        for (int x2 = 0; x2 < numParticles; x2++)
+        {
+            Particle particle = Particle.VanishParticle.getParticle();
+            float angle = (RXRandom.Float() * Mathf.PI * 2);
+            Vector2 pos = this.GetPosition() + disp + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+            particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
+            this.container.AddChild(particle);
+            if (spawnBehindPlayer)
+                particle.MoveToBack();
+        }
     }
+    private void spawnVanishParticles(int numParticles)
+    {
+        spawnVanishParticles(numParticles, Vector2.zero);
+    }
+
 
     private void tryMoveDown(float yMove)
     {
@@ -727,7 +746,7 @@ public class Player : FContainer
                 if (!isGrounded)
                 {
                     isGrounded = true;
-                    spawnFootParticles(4);
+                    spawnSparkleParticles(4, -Vector2.up * collisionHeight / 2);
                 }
             }
         }
