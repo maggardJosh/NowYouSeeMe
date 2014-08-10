@@ -205,7 +205,7 @@ public class Player : FContainer
         currentState = State.VANISHING;
         Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight / 3).setEaseType(EaseType.CircInOut).onComplete((a) =>
         {
-            this.addCash(-cashCounter.actualValue / 2);
+            this.addPanache(-panacheCounter.actualValue, true);
             isFacingLeft = false;
             tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer(this);
         }));
@@ -255,9 +255,9 @@ public class Player : FContainer
         interactInd.isVisible = false;
     }
 
-    public void addCash(int amount)
+    public void addCash(int amount, bool forcedDisplay = false)
     {
-        if (amount == 0)
+        if (amount == 0 || forcedDisplay)
             return;
         cashCounter.addAmount(amount);
         LabelIndicator cashInd = new LabelIndicator((amount > 0 ? "+" : "-") + "$" + Math.Abs(amount), "moneyInd", amount < 0);
@@ -265,9 +265,9 @@ public class Player : FContainer
         this.container.AddChild(cashInd);
     }
 
-    public void addPanache(int amount)
+    public void addPanache(int amount, bool forcedDisplay = false)
     {
-        if (amount == 0)
+        if (amount == 0 || forcedDisplay)
             return;
         panacheCounter.addAmount(amount);
         LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount), "panacheInd", amount < 0);
@@ -847,7 +847,7 @@ public class Player : FContainer
         if (isMarking)
             CancelVanish();
         currentState = Player.State.GETTING_CAUGHT;
-        this.addPanache(-panacheCounter.actualValue);
+        this.addCash(-cashCounter.actualValue / 2, true);
         this.isVisible = false;
     }
 }

@@ -36,6 +36,7 @@ public class World : FContainer
     private const int SWITCH_IND = 4;
     private const int PRESSURE_PLATE_IND = 5;
     private const int ENEMY_IND = 6;
+    private const int DECORATION_IND = 7;
 
     private World()
     {
@@ -91,6 +92,9 @@ public class World : FContainer
                         break;
                     case ENEMY_IND:
                         parseEnemy(node);
+                        break;
+                    case DECORATION_IND:
+                        parseDecoration(node);
                         break;
                 }
             }
@@ -310,6 +314,25 @@ public class World : FContainer
             objectLayer.AddChild(s);
         }
         
+    }
+
+    private void parseDecoration(XMLNode node)
+    {
+        int type = 1;
+        if (node.children.Count > 0)
+            foreach (XMLNode property in ((XMLNode)node.children[0]).children)
+            {
+                if (property.attributes.ContainsKey("name"))
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "type":
+                            int.TryParse(property.attributes["value"], out type);
+                            break;
+                    }
+            }
+        Decoration d = new Decoration(type);
+        d.SetPosition(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth/2, -float.Parse(node.attributes["y"]) + map.tileHeight/2));
+        objectLayer.AddChild(d);
     }
 
     public bool getMoveable(float xPos, float yPos)
