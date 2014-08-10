@@ -173,13 +173,7 @@ public class Player : FContainer
 
     private void CancelVanish()
     {
-        VanishCloud cloud = new VanishCloud(false);
-        cloud.SetPosition(this.GetPosition());
-        this.container.AddChild(cloud);
-
-        VanishCloud newPosCloud = new VanishCloud(false);
-        newPosCloud.SetPosition(hat.GetPosition());
-        this.container.AddChild(newPosCloud);
+        spawnVanishParticles(3, Vector2.up * 10);
 
         hat.disappear();
         isMarking = false;

@@ -14,6 +14,7 @@ public class Enemy : FContainer
     private float yMove;
 
     private int panacheLeft = 500;
+    private int panache2Left = 500;
 
     private State currentState = State.PATROL;
     private bool isFacingLeft = false;
@@ -128,7 +129,7 @@ public class Enemy : FContainer
                 }
                 break;
             case State.ENTERING_STAIRWELL:
-               
+
                 enemySprite.scaleX = inStair.scaleX;
                 if (enemySprite.IsStopped)
                 {
@@ -281,7 +282,7 @@ public class Enemy : FContainer
     private float patrolSpeed = 50;
     private float turnCount = 0;
     private float turnMax = .8f;
-    private float seeDist = 12 * 4;
+    private float seeDist = 12 * 6;
     private void PatrolLogic(Player p)
     {
         xMove = (isFacingLeft ? -1 : 1) * (turnCount <= 0 ? patrolSpeed : 0);
@@ -315,20 +316,27 @@ public class Enemy : FContainer
             }
         }
     }
-
-    public const float PANACHE_X_DIST = 12 * 4;
+    public const float PANACHE_X_DIST_2 = 12 * 3;
+    public const float PANACHE_X_DIST = 12 * 2;
     public const float PANACHE_Y_DIST = 12 * 2;
     private void checkVanishPanache(Player p)
     {
+        int panacheToAdd = 0;
         foreach (VanishCloud v in world.panacheEnabledClouds)
         {
-            if (Math.Abs(v.x - this.x) < PANACHE_X_DIST &&
-                Math.Abs(v.y - this.y) < PANACHE_Y_DIST)
-            {
-                p.addPanache(panacheLeft);
-                panacheLeft = 0;
-            }
+            if (Math.Abs(v.y - this.y) < PANACHE_Y_DIST)
+                if (Math.Abs(v.x - this.x) < PANACHE_X_DIST_2)
+                {
+                    panacheToAdd += panacheLeft;
+                    panacheLeft = 0;
+                    if (Math.Abs(v.x - this.x) < PANACHE_X_DIST)
+                    {
+                        panacheToAdd += panache2Left;
+                        panache2Left = 0;
+                    }
+                }
         }
+        p.addPanache(panacheToAdd);
     }
 
     private void ChaseLogic(Player p)
@@ -356,7 +364,7 @@ public class Enemy : FContainer
             return;
         }
         xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .3f);
-      
+
         isFacingLeft = p.x < this.x;
     }
 
@@ -393,6 +401,12 @@ public class Enemy : FContainer
             outStair = p.outStairwell;
             return;
         }
+        if (p.currentState == Player.State.VANISHING)
+        {
+            Confuse();
+            return;
+        }
+
         if (enemySprite.IsStopped)
             currentState = State.CHASE;
     }
