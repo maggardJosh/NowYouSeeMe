@@ -33,6 +33,7 @@ public class Enemy : FContainer
 
     IndividualStairwell inStair;
     IndividualStairwell outStair;
+    bool chaseAfterStair = false;
     bool isMoving = false;
     World world;
     public Enemy(World world, bool faceLeft)
@@ -68,6 +69,7 @@ public class Enemy : FContainer
         switch (currentState)
         {
             case State.PATROL:
+                chaseAfterStair = false;
                 PatrolLogic(p);
                 if (xMove == 0)
                     animToPlay = "idle";
@@ -88,6 +90,7 @@ public class Enemy : FContainer
                 CatchPlayerLogic(p);
                 return;
             case State.FINDING_STAIRWELL:
+                chaseAfterStair = true;
                 animToPlay = "chase";
                 if (Math.Abs(inStair.x - this.x) > MIN_STAIR_DIST)
                 {
@@ -98,10 +101,12 @@ public class Enemy : FContainer
                     this.x = inStair.x;
                     currentState = State.ENTERING_STAIRWELL;
                     enemySprite.play("enterStairwell", true);
+                    enemySprite.scaleX = inStair.scaleX;
                     return;
                 }
                 break;
             case State.ENTERING_STAIRWELL:
+                enemySprite.scaleX = inStair.scaleX;
                 if (enemySprite.IsStopped)
                 {
                     currentState = State.TRANSITION_STAIRWELL;
@@ -121,7 +126,10 @@ public class Enemy : FContainer
                 if (enemySprite.IsStopped)
                 {
                     xMove = 0;
-                    currentState = State.CHASE;
+                    if (chaseAfterStair)
+                        currentState = State.CHASE;
+                    else
+                        currentState = State.PATROL;
                 }
                 return;
         }
@@ -136,7 +144,19 @@ public class Enemy : FContainer
             case State.CATCHING:
                 return;
         }
-
+        if (Math.Abs(xMove) > chaseSpeed / 2)
+        {
+            if (RXRandom.Float() < .8f)
+                spawnSparkleParticles(1, -Vector2.up * enemySprite.height / 2);
+        }
+        else
+        {
+            if (Math.Abs(xMove) > chaseSpeed / 3)
+            {
+                if (RXRandom.Float() < .05f)
+                    spawnSparkleParticles(3, -Vector2.up * enemySprite.height / 2);
+            }
+        }
         if (xMove > 0)
             tryMoveRight(xMove * Time.deltaTime);
         else if (xMove < 0)
@@ -169,7 +189,7 @@ public class Enemy : FContainer
             case Player.State.TRANSITION_STAIRWELL:
                 return;
         }
-        switch(currentState)
+        switch (currentState)
         {
             case State.EXITING_STAIRWELL:
             case State.ENTERING_STAIRWELL:
@@ -292,6 +312,7 @@ public class Enemy : FContainer
             return;
         }
         xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .3f);
+      
         isFacingLeft = p.x < this.x;
     }
 
@@ -404,43 +425,24 @@ public class Enemy : FContainer
     }
 
 
-    private void tryMoveDown(float yMove)
+    private void spawnSparkleParticles(int numParticles, Vector2 disp, float particleDist = 0, bool spawnBehindPlayer = false)
     {
-        //  bool onOneWay = world.getOneWay(x, y - playerSprite.height / 2 + yMove);
-        //  PressurePlate p = world.checkPlates(this.x, this.y - playerSprite.height / 2 + yMove);
-        //  if (p != null)
-        //  {
-        //      this.y = p.y - 6 + collisionHeight / 2 + PressurePlate.PRESSED_HEIGHT;
-        //      this.yMove = 0;
-        //      this.isGrounded = true;
-        //      this.jumpsLeft = 1;
-        //      return;
-        //  }
-        //  if (world.getMoveable(x - collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) &&
-        //      world.getMoveable(x + collisionWidth * .9f / 2, y - playerSprite.height / 2 + yMove) && !onOneWay)
-        //  {
-        //      this.y += yMove;
-        //      isGrounded = false;
-        //
-        //
-        //
-        //  }
-        //  else
-        //  {
-        //      if (onOneWay && downJumpCount > 0)
-        //          this.y += yMove;
-        //      else
-        //      {
-        //          this.y = Mathf.CeilToInt((this.y - playerSprite.height / 2 + yMove) / world.collision.tileHeight) * world.collision.tileHeight + playerSprite.height / 2;
-        //          this.yMove = 0;
-        //          this.jumpsLeft = 1;
-        //          if (!isGrounded)
-        //          {
-        //              isGrounded = true;
-        //              spawnFootParticles(4);
-        //          }
-        //      }
-        //  }
+        float particleXSpeed = 20;
+        float particleYSpeed = 20;
+        for (int x2 = 0; x2 < numParticles; x2++)
+        {
+            Particle particle = Particle.SparkleParticle.getParticle();
+            float angle = (RXRandom.Float() * Mathf.PI * 2);
+            Vector2 pos = this.GetPosition() + disp + new Vector2(Mathf.Cos(angle) * particleDist, Mathf.Sin(angle) * particleDist);
+            particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, RXRandom.Float() * particleYSpeed * 2 - particleYSpeed), Vector2.zero, 360);
+            this.container.AddChild(particle);
+            if (spawnBehindPlayer)
+                particle.MoveToBack();
+        }
+    }
+    private void spawnSparkleParticles(int numParticles)
+    {
+        spawnSparkleParticles(numParticles, Vector2.zero);
     }
 }
 
