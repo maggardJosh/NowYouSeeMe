@@ -36,8 +36,9 @@ public class Chest : InteractableObject
         interactSprite.play("uninteractable");
     }
 
-    public void spawnPlayer()
+    public void spawnPlayer(Player p)
     {
+        this.p = p;
         C.isSpawning = true;
         Futile.instance.SignalUpdate += Update;
         interactSprite.play("spawnPlayer", true);
@@ -47,6 +48,7 @@ public class Chest : InteractableObject
     {
         if (interactSprite.IsStopped)
         {
+            p.stopSpawning();
             C.isSpawning = false;
             interactSprite.play("uninteractable", true);
             Futile.instance.SignalUpdate -= Update;

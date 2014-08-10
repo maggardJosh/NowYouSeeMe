@@ -41,13 +41,13 @@ public class Enemy : FContainer
         this.world = world;
         enemySprite = new FAnimatedSprite("enemy01");
         enemySprite.addAnimation(new FAnimation("idle", new int[] { 1 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("walk", new int[] { 1, 2 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("chase", new int[] { 2, 3 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("seePlayer", new int[] { 3, 2, 1, 3 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3, 1, 3, 1, 3, 1 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("enterStairwell", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("exitStairwell", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("walk", new int[] { 3,4,5,6 }, 200, true));
+        enemySprite.addAnimation(new FAnimation("chase", new int[] { 7,8,9,10 }, 200, true));
+        enemySprite.addAnimation(new FAnimation("seePlayer", new int[] { 2, 2, 2, 2 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 2,2,2,2,2,2,2 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 11,12,11,12 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("enterStairwell", new int[] { 13,14,15 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("exitStairwell", new int[] { 16,17,18 }, 200, false));
         enemySprite.play("idle");
         this.AddChild(enemySprite);
     }

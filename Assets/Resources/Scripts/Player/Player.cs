@@ -212,7 +212,8 @@ public class Player : FContainer
         Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight / 3).setEaseType(EaseType.CircInOut).onComplete((a) =>
         {
             this.addCash(-cashCounter.actualValue / 2);
-            tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer();
+            isFacingLeft = false;
+            tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer(this);
         }));
     }
 
@@ -225,7 +226,8 @@ public class Player : FContainer
             this.y = activatedChest.y;
             tryMoveDown(-.1f);
             this.isVisible = false;
-            activatedChest.spawnPlayer();
+            isFacingLeft = false;
+            activatedChest.spawnPlayer(this);
         }
         else
             throw new Exception("No Activated Chest");
@@ -437,11 +439,6 @@ public class Player : FContainer
             case State.VANISHING:
                 return;
             case State.SPAWNING:
-                if (!C.isSpawning)
-                {
-                    currentState = State.IDLE;
-                    this.isVisible = true;
-                }
                 return;
             case State.ENDING_LEVEL:
                 return;
@@ -645,6 +642,15 @@ public class Player : FContainer
                 hasLeftMarkPos = true;
 
         updateWorld();
+    }
+
+    public void stopSpawning()
+    {
+        this.isVisible = true;
+        currentState = State.IDLE;
+        playerSprite.isVisible = true;
+        playerSprite.play("hat_idle", true);
+        playerSprite.scaleX = 1;
     }
 
     private string getHatAnimPrefix()
