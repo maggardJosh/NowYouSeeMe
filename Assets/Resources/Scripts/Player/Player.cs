@@ -351,6 +351,8 @@ public class Player : FContainer
                 return;
             case State.SUICIDE:
                 return;
+            case State.ENDING_LEVEL:
+                return;
         }
         if (isInteracting)
         {
@@ -369,9 +371,6 @@ public class Player : FContainer
         if (isMarking)
             markCount += Time.deltaTime;
 
-
-        if (Input.GetKeyDown(KeyCode.T))
-            respawn();
         if (C.getUpPress() && currentInteractable != null)
         {
             switch (currentInteractable.interactType)
@@ -464,9 +463,9 @@ public class Player : FContainer
                     spawnVanishParticles(1, Vector2.zero - Vector2.up * collisionHeight / 4, 8, true);
                 if (playerSprite.IsStopped)
                 {
+                    currentState = State.IDLE;
                     currentInteractable.interact(this);
                     currentInteractable = null;
-                    currentState = State.IDLE;
                 }
                 return;
             case State.SUICIDE:

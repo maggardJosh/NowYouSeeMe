@@ -81,7 +81,7 @@ public class FOverlayBlendShader : FShader
 
     public FOverlayBlendShader() : base("OverlayBlendShader", Shader.Find("Custom/OverlayBlend"))
     {
-        _overlayColor = new Color(.3f, .6f, .1f);
+        _overlayColor = new Color(0.6549f, 0.505882f, 0.25f);
         needsApply = true;
     }
     public FOverlayBlendShader(Color overlayColor)
