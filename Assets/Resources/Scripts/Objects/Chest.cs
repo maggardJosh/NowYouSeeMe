@@ -28,14 +28,21 @@ public class Chest : InteractableObject
     {
         interactable = true;
         interactSprite.play("interactable");
+        Futile.instance.SignalUpdate -= ActiveUpdate;
     }
 
     public void activate()
     {
         interactable = false;
         interactSprite.play("uninteractable");
+        Futile.instance.SignalUpdate += ActiveUpdate;
     }
 
+    private void ActiveUpdate()
+    {
+        if (RXRandom.Float() < .1)
+            spawnSparkleParticles(1, 10);
+    }
     public void spawnPlayer(Player p)
     {
         this.p = p;
@@ -131,6 +138,23 @@ public class Chest : InteractableObject
         spawnVanishParticles(numParticles, Vector2.zero);
     }
 
+    private void spawnSparkleParticles(int numParticles, float particleDist = 0, bool spawnBehindPlayer = false)
+    {
+
+        float particleXSpeed = 20;
+        float particleYSpeed = 20;
+        for (int x2 = 0; x2 < numParticles; x2++)
+        {
+            Particle particle = Particle.SparkleParticle.getParticle();
+            float angle = (RXRandom.Float() * Mathf.PI * 2);
+            Vector2 pos = this.GetPosition() + new Vector2(Mathf.Cos(angle) * particleDist, 3);
+            particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, 10 + RXRandom.Float() * particleYSpeed), Vector2.zero, 360);
+            particle.currentAnim.delay = 200;
+            this.container.AddChild(particle);
+            if (spawnBehindPlayer)
+                particle.MoveToBack();
+        }
+    }
 
 }
 

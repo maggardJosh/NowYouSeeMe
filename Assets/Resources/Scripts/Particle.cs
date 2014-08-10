@@ -10,6 +10,8 @@ public class Particle : FAnimatedSprite
     float rot;
     Vector2 accel;
     public bool isActive = false;
+    int animRandom = 180;
+    int animBaseSpeed = 100;
     private Particle(string elementName)
         : base(elementName)
     {
@@ -25,6 +27,7 @@ public class Particle : FAnimatedSprite
         this.rot = rot;
         this.accel = accel;
         this.play("active", true);
+        this.currentAnim.delay = animBaseSpeed + (int)(RXRandom.Float() * animRandom);
     }
 
     public override void Update()
@@ -45,12 +48,12 @@ public class Particle : FAnimatedSprite
     }
     public class VanishParticle : Particle
     {
-        int animRandom = 180;
-        int animBaseSpeed = 100;
+        
         private static VanishParticle[] particleList;
         const int MAX_PARTICLES = 100;
         public static VanishParticle getParticle()
         {
+
             if (particleList == null)
                 particleList = new VanishParticle[MAX_PARTICLES];
             for (int x = 0; x < particleList.Length; x++)
@@ -72,6 +75,9 @@ public class Particle : FAnimatedSprite
 
         private VanishParticle() : base("vanishParticle0" + (RXRandom.Int(3) + 1))
         {
+
+            this.animRandom = 180;
+            this.animBaseSpeed = 100;
             this.addAnimation(new FAnimation("active", new int[] { 1, 2, 3, 4 }, animBaseSpeed + (int)(RXRandom.Float() * animRandom), false)); 
         }
     }
@@ -79,8 +85,6 @@ public class Particle : FAnimatedSprite
 
     public class SparkleParticle : Particle
     {
-        int animRandom = 10;
-        int animBaseSpeed = 100;
         private static SparkleParticle[] particleList;
         const int MAX_PARTICLES = 100;
         public static SparkleParticle getParticle()
@@ -107,6 +111,8 @@ public class Particle : FAnimatedSprite
         private SparkleParticle()
             : base("sparkleParticle")
         {
+            this.animBaseSpeed = 100;
+            this.animRandom = 10;
             this.addAnimation(new FAnimation("active", new int[] { 1, 2, 3, 4, 5}, animBaseSpeed + (int)(RXRandom.Float() * animRandom), false));
         }
     }
