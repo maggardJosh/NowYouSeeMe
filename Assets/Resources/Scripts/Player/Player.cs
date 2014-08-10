@@ -44,8 +44,8 @@ public class Player : FContainer
 
     const float INDICATOR_Y = 20;
     const float INDICATOR_BOUNCE = 5;
-    IndividualStairwell inStairwell = null;
-    IndividualStairwell outStairwell = null;
+    public IndividualStairwell inStairwell = null;
+    public IndividualStairwell outStairwell = null;
 
     int animSpeed = 200;
     string nextLevel = "";
@@ -109,7 +109,7 @@ public class Player : FContainer
         switch (currentState)
         {
             case State.VANISHING: return 0;
-            case State.COOLDOWN: return markCount / HAT_RETURN_COUNT;
+            case State.COOLDOWN: return stateCount / HAT_RETURN_COUNT;
             default: return 1.0f;
         }
     }
@@ -168,6 +168,7 @@ public class Player : FContainer
         this.container.AddChild(newPosCloud);
 
         hat.disappear();
+        isMarking = false;
         currentState = State.COOLDOWN;
     }
 
@@ -282,11 +283,6 @@ public class Player : FContainer
     float interactCount = 0;
     private void ControlUpdate()
     {
-        if (currentState != lastState)
-            stateCount = 0;
-
-        lastState = currentState;
-
         if (isMarking)
         {
             if (!hasLeftMarkPos)
@@ -303,6 +299,11 @@ public class Player : FContainer
                 }
 
         }
+        if (currentState != lastState)
+            stateCount = 0;
+
+        lastState = currentState;
+
         switch (currentState)
         {
             case State.IDLE:
@@ -425,7 +426,7 @@ public class Player : FContainer
     bool isSprinting = false;
     bool wasSprinting = false;
     bool wasMaxSpeed = false;
-    const float STAIR_TRANS_TIME = 1.0f;
+    public const float STAIR_TRANS_TIME = 1.0f;
     float lastXInc = 0;
     private void Update()
     {

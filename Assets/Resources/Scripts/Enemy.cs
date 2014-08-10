@@ -24,9 +24,15 @@ public class Enemy : FContainer
         SEE_PLAYER,
         CHASE,
         CONFUSED,
-        CATCHING
+        CATCHING,
+        FINDING_STAIRWELL,
+        ENTERING_STAIRWELL,
+        TRANSITION_STAIRWELL,
+        EXITING_STAIRWELL
     }
 
+    IndividualStairwell inStair;
+    IndividualStairwell outStair;
     bool isMoving = false;
     World world;
     public Enemy(World world, bool faceLeft)
@@ -40,14 +46,25 @@ public class Enemy : FContainer
         enemySprite.addAnimation(new FAnimation("seePlayer", new int[] { 3, 2, 1, 3 }, 200, false));
         enemySprite.addAnimation(new FAnimation("confusion", new int[] { 3, 1, 3, 1, 3, 1, 3, 1 }, 200, false));
         enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("enterStairwell", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("exitStairwell", new int[] { 1, 2, 3, 1, 2, 3 }, 200, false));
         enemySprite.play("idle");
         this.AddChild(enemySprite);
     }
 
+    private State lastState = State.PATROL;
+    private float stateCount = 0;
+    const float MIN_STAIR_DIST = 12;
     public void Update(Player p)
     {
+        if (lastState != currentState)
+        {
+            lastState = currentState;
+            stateCount = 0;
+        }
         checkPlayerCaught(p);
         string animToPlay = "";
+        stateCount += Time.deltaTime;
         switch (currentState)
         {
             case State.PATROL:
@@ -69,6 +86,42 @@ public class Enemy : FContainer
                 return;
             case State.CATCHING:
                 CatchPlayerLogic(p);
+                return;
+            case State.FINDING_STAIRWELL:
+                animToPlay = "chase";
+                if (Math.Abs(inStair.x - this.x) > MIN_STAIR_DIST)
+                {
+                    xMove = Mathf.Lerp(xMove, inStair.x < this.x ? -chaseSpeed : chaseSpeed, .1f);
+                }
+                else
+                {
+                    this.x = inStair.x;
+                    currentState = State.ENTERING_STAIRWELL;
+                    enemySprite.play("enterStairwell", true);
+                    return;
+                }
+                break;
+            case State.ENTERING_STAIRWELL:
+                if (enemySprite.IsStopped)
+                {
+                    currentState = State.TRANSITION_STAIRWELL;
+                    enemySprite.isVisible = false;
+                }
+                return;
+            case State.TRANSITION_STAIRWELL:
+                if (stateCount > Player.STAIR_TRANS_TIME)
+                {
+                    currentState = State.EXITING_STAIRWELL;
+                    enemySprite.isVisible = true;
+                    this.SetPosition(outStair.GetPosition() + Vector2.up * ( collisionHeight / 2 - 6) );
+                    enemySprite.play("exitStairwell", true);
+                }
+                return;
+            case State.EXITING_STAIRWELL:
+                if (enemySprite.IsStopped)
+                {
+                    currentState = State.CHASE;
+                }
                 return;
         }
 
@@ -93,9 +146,19 @@ public class Enemy : FContainer
 
     }
 
+    public void enterStairwell(IndividualStairwell inStair, IndividualStairwell outStair)
+    {
+        this.inStair = inStair;
+        this.outStair = outStair;
+        this.SetPosition(inStair.GetPosition() + Vector2.up * collisionHeight / 2);
+        isFacingLeft = inStair.scaleX == 1 ? false : true;
+        enemySprite.play("enterStairwell", true);
+        currentState = State.ENTERING_STAIRWELL;
+    }
+
     private void checkPlayerCaught(Player p)
     {
-        switch(p.currentState)
+        switch (p.currentState)
         {
             case Player.State.VANISHING:
             case Player.State.SPAWNING:
@@ -199,7 +262,9 @@ public class Enemy : FContainer
                 return;
 
             case Player.State.ENTERING_STAIRWELL:
-                //Enter stairwell here
+                currentState = State.FINDING_STAIRWELL;
+                inStair = p.inStairwell;
+                outStair = p.outStairwell;
                 return;
         }
         if (Math.Abs(p.x - this.x) > LOSE_SIGHT_DIST ||
