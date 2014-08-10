@@ -92,12 +92,34 @@ public class Enemy : FContainer
             case State.FINDING_STAIRWELL:
                 chaseAfterStair = true;
                 animToPlay = "chase";
+                enemySprite.scaleX = inStair.x - this.x < 0 ? -1 : 1;
                 if (Math.Abs(inStair.x - this.x) > MIN_STAIR_DIST)
                 {
                     xMove = Mathf.Lerp(xMove, inStair.x < this.x ? -chaseSpeed : chaseSpeed, .1f);
                 }
                 else
                 {
+                    switch (p.currentState)
+                    {
+                        case Player.State.ENTERING_STAIRWELL:
+                            if (p.outStairwell == this.inStair)
+                            {
+                                if (chaseAfterStair)
+                                {
+                                    p.getCaught();
+                                    p.SetPosition(this.GetPosition());
+                                    this.currentState = State.CATCHING;
+                                    enemySprite.play("catchPlayer", true);
+                                    return;
+                                }
+                                else
+                                {
+                                    outStair = inStair;
+                                    chaseAfterStair = true;
+                                }
+                            }
+                            break;
+                    }
                     this.x = inStair.x;
                     currentState = State.ENTERING_STAIRWELL;
                     enemySprite.play("enterStairwell", true);
@@ -106,6 +128,7 @@ public class Enemy : FContainer
                 }
                 break;
             case State.ENTERING_STAIRWELL:
+               
                 enemySprite.scaleX = inStair.scaleX;
                 if (enemySprite.IsStopped)
                 {
@@ -123,6 +146,27 @@ public class Enemy : FContainer
                 }
                 return;
             case State.EXITING_STAIRWELL:
+                switch (p.currentState)
+                {
+                    case Player.State.ENTERING_STAIRWELL:
+                        if (p.inStairwell == this.outStair)
+                        {
+                            if (chaseAfterStair)
+                            {
+                                p.getCaught();
+                                p.SetPosition(this.GetPosition());
+                                this.currentState = State.CATCHING;
+                                enemySprite.play("catchPlayer", true);
+                                return;
+                            }
+                            else
+                            {
+                                SeePlayer();
+                                return;
+                            }
+                        }
+                        break;
+                }
                 if (enemySprite.IsStopped)
                 {
                     xMove = 0;
