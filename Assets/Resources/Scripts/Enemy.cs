@@ -41,13 +41,13 @@ public class Enemy : FContainer
         this.world = world;
         enemySprite = new FAnimatedSprite("enemy01");
         enemySprite.addAnimation(new FAnimation("idle", new int[] { 1 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("walk", new int[] { 3,4,5,6 }, 200, true));
-        enemySprite.addAnimation(new FAnimation("chase", new int[] { 7,8,9,10 }, 200, true));
+        enemySprite.addAnimation(new FAnimation("walk", new int[] { 3, 4, 5, 6 }, 200, true));
+        enemySprite.addAnimation(new FAnimation("chase", new int[] { 7, 8, 9, 10 }, 200, true));
         enemySprite.addAnimation(new FAnimation("seePlayer", new int[] { 2, 2, 2, 2 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 2,2,2,2,2,2,2 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 11,12,11,12 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("enterStairwell", new int[] { 13,14,15 }, 200, false));
-        enemySprite.addAnimation(new FAnimation("exitStairwell", new int[] { 16,17,18 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("confusion", new int[] { 2, 2, 2, 2, 2, 2, 2 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("catchPlayer", new int[] { 11, 12, 11, 12 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("enterStairwell", new int[] { 13, 14, 15 }, 200, false));
+        enemySprite.addAnimation(new FAnimation("exitStairwell", new int[] { 16, 17, 18 }, 200, false));
         enemySprite.play("idle");
         this.AddChild(enemySprite);
     }
@@ -113,13 +113,14 @@ public class Enemy : FContainer
                 {
                     currentState = State.EXITING_STAIRWELL;
                     enemySprite.isVisible = true;
-                    this.SetPosition(outStair.GetPosition() + Vector2.up * ( collisionHeight / 2 - 6) );
+                    this.SetPosition(outStair.GetPosition() + Vector2.up * (collisionHeight / 2 - 6));
                     enemySprite.play("exitStairwell", true);
                 }
                 return;
             case State.EXITING_STAIRWELL:
                 if (enemySprite.IsStopped)
                 {
+                    xMove = 0;
                     currentState = State.CHASE;
                 }
                 return;
@@ -168,16 +169,33 @@ public class Enemy : FContainer
             case Player.State.TRANSITION_STAIRWELL:
                 return;
         }
+        switch(currentState)
+        {
+            case State.EXITING_STAIRWELL:
+            case State.ENTERING_STAIRWELL:
+            case State.TRANSITION_STAIRWELL:
+                return;
+        }
+        if (currentState == State.SEE_PLAYER)
+            return;
         if (p.x - Player.collisionWidth / 2 < this.x + collisionWidth / 2 &&
             p.x + Player.collisionWidth / 2 > this.x - collisionWidth / 2 &&
             p.y + Player.collisionHeight / 2 > this.y - collisionHeight / 2 &&
             p.y - Player.collisionHeight / 2 < this.y + collisionHeight / 2)
         {
-            p.getCaught();
-            this.x = p.x;   //Put our x to the player's
-            p.y = this.y;   //Put the player on the ground
-            this.currentState = State.CATCHING;
-            enemySprite.play("catchPlayer", true);
+            if (currentState == State.PATROL)
+            {
+                SeePlayer();
+            }
+            else
+            {
+
+                p.getCaught();
+                this.x = p.x;   //Put our x to the player's
+                p.y = this.y;   //Put the player on the ground
+                this.currentState = State.CATCHING;
+                enemySprite.play("catchPlayer", true);
+            }
         }
     }
 
@@ -195,7 +213,7 @@ public class Enemy : FContainer
 
     private const float LOSE_SIGHT_DIST = 12 * 15;
     private const float LOSE_SIGHT_Y_DIST = 12 * 5;
-    private float chaseSpeed = 100;
+    private float chaseSpeed = 130;
     private float patrolSpeed = 50;
     private float turnCount = 0;
     private float turnMax = .8f;
@@ -273,7 +291,7 @@ public class Enemy : FContainer
             Confuse();
             return;
         }
-        xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .1f);
+        xMove = Mathf.Lerp(xMove, p.x < this.x ? -chaseSpeed : chaseSpeed, .3f);
         isFacingLeft = p.x < this.x;
     }
 
@@ -303,6 +321,13 @@ public class Enemy : FContainer
 
     private void SeePlayerLogic(Player p)
     {
+        if (p.currentState == Player.State.ENTERING_STAIRWELL)
+        {
+            currentState = State.FINDING_STAIRWELL;
+            inStair = p.inStairwell;
+            outStair = p.outStairwell;
+            return;
+        }
         if (enemySprite.IsStopped)
             currentState = State.CHASE;
     }
