@@ -8,6 +8,7 @@ public class Chest : InteractableObject
 {
     bool isEnd = false;
     string nextMap = "";
+
     public Chest(Vector2 pos)
         : base()
     {
@@ -17,7 +18,8 @@ public class Chest : InteractableObject
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, false));
         interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, false));
         interactSprite.addAnimation(new FAnimation("hover", new int[] { 1, 3 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 4, 5,6,7,8,9,10,11,12 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("spawnPlayer", new int[] { 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 100, false));
+        interactSprite.addAnimation(new FAnimation("endLevel", new int[] { 12, 11, 10, 9, 8, 7, 6, 5, 4 }, 100, false));
         this.AddChild(interactSprite);
         this.interactType = InteractType.LOOT;
     }
@@ -54,9 +56,11 @@ public class Chest : InteractableObject
     float particleYSpeed = 30;
     int numParticles = 20;
 
+    Player p;
     float particleDist = 15;
     public override void interact(Player p)
     {
+        this.p = p;
         if (!isEnd)
         {
             p.activateChest(this);
@@ -71,7 +75,19 @@ public class Chest : InteractableObject
         }
         else
         {
-            p.endLevel(nextMap);
+            Futile.instance.SignalUpdate += EndUpdate;
+            interactSprite.play("endLevel", true);
+            interactable = false;
+            p.endLevel();
+        }
+    }
+
+    private void EndUpdate()
+    {
+        if (interactSprite.IsStopped)
+        {
+            World.getInstance().nextLevel(nextMap);
+            Futile.instance.SignalUpdate -= EndUpdate;
         }
     }
 

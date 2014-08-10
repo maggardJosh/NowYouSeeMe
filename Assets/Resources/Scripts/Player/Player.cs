@@ -48,7 +48,6 @@ public class Player : FContainer
     public IndividualStairwell outStairwell = null;
 
     int animSpeed = 200;
-    string nextLevel = "";
     public Player(World world)
     {
         playerSprite = new FAnimatedSprite("player");
@@ -71,7 +70,7 @@ public class Player : FContainer
         playerSprite.addAnimation(new FAnimation("hatless_stairwellEnter", new int[] { 23, 24, 25 }, 150, false));
         playerSprite.addAnimation(new FAnimation("hatless_stairwellExit", new int[] { 26, 27, 28 }, 150, false));
 
-        playerSprite.addAnimation(new FAnimation("suicide", new int[] { 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 30,30,30, 30, 31, 32, 33, 34, 35, 36, 37, 38 }, animSpeed / 4, false));
+        playerSprite.addAnimation(new FAnimation("suicide", new int[] { 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 30, 30, 30, 30, 31, 32, 33, 34, 35, 36, 37, 38 }, animSpeed / 4, false));
 
 
         playerSprite.play("hat_idle");
@@ -290,7 +289,7 @@ public class Player : FContainer
             if (markCount >= MARK_MAX_COUNT)
                 MarkTimeOut();
             else
-                if (!Input.GetKey(C.ACTION_KEY))
+                if (!C.getActionPressed())
                 {
                     if (hasLeftMarkPos)
                         Vanish();
@@ -309,9 +308,9 @@ public class Player : FContainer
             case State.IDLE:
                 if (!isMarking)
                 {
-                    if (Input.GetKey(C.ACTION_KEY))
+                    if (C.getActionPressed())
                     {
-                        if (isGrounded && Input.GetKey(C.DOWN_KEY))
+                        if (isGrounded && C.getDownPressed())
                         {
                             currentState = State.SUICIDE;
                             playerSprite.play("suicide", true);
@@ -371,7 +370,7 @@ public class Player : FContainer
 
         if (Input.GetKeyDown(KeyCode.T))
             respawn();
-        if (Input.GetKeyDown(C.UP_KEY) && currentInteractable != null)
+        if (C.getUpPress() && currentInteractable != null)
         {
             switch (currentInteractable.interactType)
             {
@@ -393,11 +392,11 @@ public class Player : FContainer
         }
         if (downJumpCount > 0)
             downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
-        if (Input.GetKeyDown(C.JUMP_KEY) && jumpsLeft > 0)
+        if (C.getJumpPress() && jumpsLeft > 0)
         {
-            if (Input.GetKey(C.DOWN_KEY))
+            if (C.getDownPressed())
                 downJumpCount = DOWN_JUMP_TIME;
-            yMove = jumpStrength * (Input.GetKey(C.DOWN_KEY) ? .4f : 1);
+            yMove = jumpStrength * (C.getDownPressed() ? .4f : 1);
             jumpsLeft--;
         }
     }
@@ -445,11 +444,6 @@ public class Player : FContainer
                 }
                 return;
             case State.ENDING_LEVEL:
-                if (playerSprite.IsStopped && !String.IsNullOrEmpty(nextLevel))
-                {
-                    world.nextLevel(nextLevel);
-                    nextLevel = "";
-                }
                 return;
             case State.ENTERING_STAIRWELL:
                 if (playerSprite.IsStopped)
@@ -480,7 +474,7 @@ public class Player : FContainer
                 return;
             case State.SUICIDE:
                 this.x -= lastXInc;
-                if (!Input.GetKey(C.DOWN_KEY) || !Input.GetKey(C.ACTION_KEY))
+                if (!C.getDownPressed() || !C.getActionPressed())
                 {
                     currentState = State.IDLE;
                 }
@@ -504,7 +498,7 @@ public class Player : FContainer
                 return;
         }
 
-        if (Input.GetKey(C.LEFT_KEY))
+        if (C.getLeftPressed())
         {
             xAcc = isGrounded ? -speed : -airSpeed;
             if (xMove > 0)
@@ -522,7 +516,7 @@ public class Player : FContainer
             }
             isFacingLeft = true;
         }
-        if (Input.GetKey(C.RIGHT_KEY))
+        if (C.getRightPressed())
         {
             xAcc = isGrounded ? speed : airSpeed;
             if (xMove < 0)
@@ -554,8 +548,8 @@ public class Player : FContainer
                 if (RXRandom.Float() < .3f)
                     spawnSparkleParticles(1, -Vector2.up * playerSprite.height / 2);
             }
-            if ((xMove > 0 && Input.GetKey(C.RIGHT_KEY)) ||
-               (xMove < 0 && Input.GetKey(C.LEFT_KEY)))
+            if ((xMove > 0 && C.getRightPressed()) ||
+               (xMove < 0 && C.getLeftPressed()))
             {
                 if (maxVelTime > 1.0f)
                 {
@@ -835,12 +829,13 @@ public class Player : FContainer
         }
     }
 
-    internal void endLevel(string nextMap)
+    internal void endLevel()
     {
-        this.nextLevel = nextMap;
         this.currentState = State.ENDING_LEVEL;
-        this.playerSprite.play("endLevel", true);
+        this.isVisible = false;
     }
+
+
 
     internal void clearVars()
     {

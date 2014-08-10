@@ -51,7 +51,7 @@ public class LevelEnd : BaseScreen
         cashLabel.text = "Cash: $" + cashCount;
         panacheLabel.text = "Panache: " + panacheCount;
         scoreLabel.text = "Score: " + cashCount + " X " +((panacheCount + 1000) / 1000) + " = " + cashCount * ((panacheCount + 1000) /1000);
-        if (Input.GetKeyDown(C.ACTION_KEY) && !isTransOff)
+        if (C.getActionPressed() && !isTransOff)
         {
             
             if (!countersDone)

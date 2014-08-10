@@ -13,7 +13,7 @@ public class StartGameScreen : BaseScreen
         FSprite splashScreen = new FSprite("splashScreen");
         this.AddChild(splashScreen);
 
-        pressEnter = new ShadowLabel("PRESS A");
+        pressEnter = new ShadowLabel("PRESS Z or J");
         pressEnter.y = -Futile.screen.halfHeight + 30;
         pressEnter.isVisible = false;
 
@@ -37,7 +37,7 @@ public class StartGameScreen : BaseScreen
         count += Time.deltaTime;
         pressEnter.isVisible = count > 2.0f && ((int)(count* 2)) % 4 != 0;
         enterBG.isVisible = pressEnter.isVisible;
-        if (Input.GetKeyUp(C.ACTION_KEY))
+        if (C.getActionPressed())
         {
             World world = World.getInstance();
             world.LoadMap("testMap");
