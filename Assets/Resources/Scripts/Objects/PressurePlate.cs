@@ -18,8 +18,12 @@ public class PressurePlate : Switch
         interactSprite.RemoveFromContainer();
         interactSprite = new FAnimatedSprite("PressurePlate/pressurePlate");
         interactSprite.addAnimation(new FAnimation("up", new int[] { 1 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("down", new int[] { 2 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("lock", new int[] { 2 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("down", new int[] { 3 }, 100, true));
 
+        if (actionType.CompareTo("close") == 0 && time <= 0)
+            interactSprite.play("lock");
+        else
         interactSprite.play("up");
         this.AddChild(interactSprite);
     }
@@ -38,7 +42,11 @@ public class PressurePlate : Switch
     public void unpress()
     {
         pressed = false;
-        interactSprite.play("up");
+
+        if (actionType.CompareTo("close") == 0 && time <= 0)
+            interactSprite.play("lock");
+        else
+            interactSprite.play("up");
     }
 
 }

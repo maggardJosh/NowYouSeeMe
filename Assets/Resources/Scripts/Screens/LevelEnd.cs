@@ -29,6 +29,8 @@ public class LevelEnd : BaseScreen
         this.x = bg.width;
         this.cash = cash;
         this.panache = panache;
+        Go.killAllTweensWithTarget(FSoundManager.musicSource);
+        Go.to(FSoundManager.musicSource, C.sceneTransitionTime, new TweenConfig().floatProp("volume", .1f));
         Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", 0).setEaseType(EaseType.BackOut).onComplete((b) =>
         {
             onScreen = true;
@@ -100,10 +102,11 @@ public class LevelEnd : BaseScreen
             }
             else
             {
+                playBlip();
                 isDone = true; 
                 isTransOff = true;
                 World.getInstance().LoadMap(nextLevel);
-                Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setDelay(C.sceneTransitionTime).setEaseType(EaseType.BackOut).onComplete((a) => { this.RemoveFromContainer(); }));
+                Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setDelay(C.sceneTransitionTime).setEaseType(EaseType.BackOut).onComplete((a) => { World.getInstance().player.spawn(); this.RemoveFromContainer(); }));
             }
         }
         base.Update();

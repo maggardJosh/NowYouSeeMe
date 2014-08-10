@@ -8,8 +8,8 @@ public class Switch : InteractableObject
 {
     private string[] doorNames;
     private List<Door> doors;
-    private string actionType;
-    private float time;
+    protected string actionType;
+    protected float time;
     protected float timeCount = 0;
     FRadialWipeSprite timer;
     public Switch(Vector2 pos, string doorName, string actionType, float time)

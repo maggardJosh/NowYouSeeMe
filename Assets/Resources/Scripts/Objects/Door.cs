@@ -39,6 +39,7 @@ public class Door : InteractableObject
     }
     public override void interact(Player p)
     {
+        FSoundManager.PlaySound("DoorInteract");
         on = !on;
         if (p.x > this.x)
             interactSprite.scaleX = -1;

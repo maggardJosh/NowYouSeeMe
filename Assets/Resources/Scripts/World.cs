@@ -7,7 +7,7 @@ using UnityEngine;
 public class World : FContainer
 {
     public FTmxMap map;
-    Player player;
+    public Player player;
 
     private static World instance;
     public static World getInstance()
@@ -127,7 +127,7 @@ public class World : FContainer
         this.AddChild(objectLayer);
         this.AddChild(playerLayer);
         this.AddChild(fgLayer);
-        player.spawn();
+        player.preSpawn();
 
     }
 

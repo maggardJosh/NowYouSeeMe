@@ -121,6 +121,7 @@ public class Enemy : FContainer
                             }
                             break;
                     }
+                    FSoundManager.PlaySound("Stairwell");
                     this.x = inStair.x;
                     currentState = State.ENTERING_STAIRWELL;
                     enemySprite.play("enterStairwell", true);
@@ -144,6 +145,7 @@ public class Enemy : FContainer
                     enemySprite.isVisible = true;
                     this.SetPosition(outStair.GetPosition() + Vector2.up * (collisionHeight / 2 - 6));
                     enemySprite.play("exitStairwell", true);
+                    FSoundManager.PlaySound("Stairwell");
                 }
                 return;
             case State.EXITING_STAIRWELL:
@@ -266,12 +268,14 @@ public class Enemy : FContainer
 
     private void SeePlayer()
     {
+        FSoundManager.PlaySound("GuardSeePlayer");
         enemySprite.play("seePlayer", true);
         currentState = State.SEE_PLAYER;
     }
 
     private void Confuse()
     {
+        FSoundManager.PlaySound("GuardConfuse");
         enemySprite.play("confusion", true);
         currentState = State.CONFUSED;
     }
@@ -341,6 +345,7 @@ public class Enemy : FContainer
 
     private void ChaseLogic(Player p)
     {
+      
         switch (p.currentState)
         {
             case Player.State.VANISHING:

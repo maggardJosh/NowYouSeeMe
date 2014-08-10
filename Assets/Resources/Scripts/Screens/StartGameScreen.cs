@@ -39,12 +39,14 @@ public class StartGameScreen : BaseScreen
         enterBG.isVisible = pressEnter.isVisible;
         if (Input.GetKeyDown(KeyCode.Return))
         {
+            playBlip();
             World world = World.getInstance();
             world.LoadMap("testMap");
             Futile.stage.AddChild(world);
             transitioningOff = true;
             C.getCameraInstance().MoveToFront();
-            Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setEaseType(EaseType.BackIn).onComplete((a) => { C.getCameraInstance().MoveToFront(); isDone = true; this.RemoveFromContainer(); }));
+            Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setEaseType(EaseType.BackIn).onComplete((a) => { C.getCameraInstance().MoveToFront(); isDone = true; World.getInstance().player.spawn(); this.RemoveFromContainer(); }));
+            
         }
         base.Update();
     }

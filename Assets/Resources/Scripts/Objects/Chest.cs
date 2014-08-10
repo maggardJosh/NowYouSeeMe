@@ -41,6 +41,7 @@ public class Chest : InteractableObject
         this.p = p;
         C.isSpawning = true;
         Futile.instance.SignalUpdate += Update;
+        FSoundManager.PlaySound("Spawn");
         interactSprite.play("spawnPlayer", true);
     }
 
@@ -92,6 +93,7 @@ public class Chest : InteractableObject
         {
             if (endCount == 0)
             {
+                FSoundManager.PlaySound("EndLevel");
                 spawnVanishParticles(40, new Vector2(0, -8), 10);
             }
             if (endCount > END_WAIT)

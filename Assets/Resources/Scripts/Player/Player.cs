@@ -153,9 +153,10 @@ public class Player : FContainer
 
         jumpsLeft = 0;
 
+        FSoundManager.PlaySound("VanishCloud");
         currentState = State.VANISHING;
         isMarking = false;
-        Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
+        Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; FSoundManager.PlaySound("VanishCloud"); hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
     }
 
     private void MarkTimeOut()
@@ -191,6 +192,7 @@ public class Player : FContainer
         activatedChest = chest;
     }
 
+    
     public void respawn()
     {
         if (isMarking)
@@ -203,6 +205,7 @@ public class Player : FContainer
         cloud.SetPosition(this.GetPosition());
         this.container.AddChild(cloud);
         this.isVisible = false;
+        FSoundManager.PlaySound("VanishCloud");
 
         currentState = State.VANISHING;
         Go.to(this, VANISH_DURATION * 2, new TweenConfig().floatProp("x", activatedChest.x).floatProp("y", activatedChest.y + collisionHeight / 3).setEaseType(EaseType.CircInOut).onComplete((a) =>
@@ -210,9 +213,18 @@ public class Player : FContainer
             this.addPanache(-panacheCounter.actualValue, true);
             isFacingLeft = false;
             tryMoveDown(-.1f); currentState = State.SPAWNING; activatedChest.spawnPlayer(this);
+            
         }));
     }
-
+    internal void preSpawn()
+    {
+        currentState = State.SPAWNING;
+        this.isVisible = false;
+        this.x = activatedChest.x;
+        this.y = activatedChest.y;
+        tryMoveDown(-.1f);
+        isFacingLeft = false;
+    }
     public void spawn()
     {
         currentState = State.SPAWNING;
@@ -240,6 +252,7 @@ public class Player : FContainer
         xMove = 0;
         yMove = 0;
 
+        FSoundManager.PlaySound("Stairwell");
         playerSprite.play(getHatAnimPrefix() + "stairwellEnter");
         currentState = State.ENTERING_STAIRWELL;
 
@@ -377,6 +390,7 @@ public class Player : FContainer
                 case InteractableObject.InteractType.LOOT:
                     this.x = currentInteractable.x;
                     currentState = State.LOOTING;
+                    FSoundManager.PlaySound("Loot");
                     this.playerSprite.play(getHatAnimPrefix() + "loot", true);
                     xMove = 0;
                     yMove = 0;
@@ -394,6 +408,7 @@ public class Player : FContainer
             downJumpCount = Math.Max(0, downJumpCount - Time.deltaTime);
         if (C.getJumpPress() && jumpsLeft > 0)
         {
+            FSoundManager.PlaySound("Jump");
             if (C.getDownPressed())
                 downJumpCount = DOWN_JUMP_TIME;
             yMove = jumpStrength * (C.getDownPressed() ? .4f : 1);
@@ -445,7 +460,7 @@ public class Player : FContainer
                 {
                     currentState = State.TRANSITION_STAIRWELL;
                     this.isVisible = false;
-                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y + collisionHeight / 2).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "stairwellExit", true); currentState = State.EXITING_STAIRWELL; }));
+                    Go.to(this, STAIR_TRANS_TIME, new TweenConfig().floatProp("x", outStairwell.x).floatProp("y", outStairwell.y + collisionHeight / 2).setEaseType(EaseType.CircInOut).onComplete((a) => { this.isVisible = true; playerSprite.play(getHatAnimPrefix() + "stairwellExit", true); FSoundManager.PlaySound("Stairwell"); currentState = State.EXITING_STAIRWELL; }));
                 }
                 return;
             case State.TRANSITION_STAIRWELL:
@@ -676,6 +691,7 @@ public class Player : FContainer
     private void TrampolineBounce(Trampoline t)
     {
         t.bounce();
+        FSoundManager.PlaySound("Trampoline");
         this.yMove = Mathf.Clamp(Math.Abs(yMove) * 2, 2, 10);
     }
 
@@ -831,6 +847,7 @@ public class Player : FContainer
                 {
                     isGrounded = true;
                     spawnSparkleParticles(4, -Vector2.up * playerSprite.height / 2);
+                    FSoundManager.PlaySound("HitGround");
                 }
             }
         }
@@ -839,6 +856,7 @@ public class Player : FContainer
     internal void endLevel()
     {
         this.currentState = State.ENDING_LEVEL;
+        FSoundManager.PlaySound("Spawn");
         this.isVisible = false;
     }
 
@@ -854,9 +872,11 @@ public class Player : FContainer
     {
         if (isMarking)
             CancelVanish();
+        FSoundManager.PlaySound("Catch");
         currentState = Player.State.GETTING_CAUGHT;
         this.addCash(-cashCounter.actualValue / 2, true);
         this.isVisible = false;
     }
+
 }
 

@@ -36,8 +36,10 @@ public class PreLevel : BaseScreen
         if (C.getStartPressed() && !isTransOff)
         {
             isTransOff = true;
+            Go.killAllTweensWithTarget(FSoundManager.musicSource);
+            Go.to(FSoundManager.musicSource, C.sceneTransitionTime, new TweenConfig().floatProp("volume", 1));
             Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setEaseType(EaseType.BackIn).onComplete((a) => { isDone = true; this.RemoveFromContainer(); }));
-
+            playBlip();
         }
         base.Update();
     }

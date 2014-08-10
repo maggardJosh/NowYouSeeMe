@@ -25,6 +25,8 @@ public class GameScript : MonoBehaviour
         Futile.atlasManager.LoadFont(C.smallFontName, "smallFont_0", "Atlases/smallFont", 0, 0);
         Futile.atlasManager.LoadFont(C.smallDarkFontName, "smallFont_1", "Atlases/smallFontDark", 0, 0);
 
+        FSoundManager.PlayMusic("NowYouSeeMe");
+
         C.getCameraInstance().startGame();
     }
 

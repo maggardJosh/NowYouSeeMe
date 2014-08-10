@@ -28,5 +28,9 @@ public class BaseScreen : FContainer
     {
 
     }
+    protected void playBlip()
+    {
+        FSoundManager.PlaySound("MenuBlip");
+    }
 }
 
