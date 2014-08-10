@@ -29,7 +29,7 @@ public class PlayerGUI : FCamObject
         cashCounter = new ShadowLabel("$0");
         cashCounter.anchorX = 1;
         this.AddChild(cashCounter);
-        cashCounter.SetPosition(cashBG.GetPosition() + new Vector2(22, - 5));
+        cashCounter.SetPosition(cashBG.GetPosition() + new Vector2(22, -5));
 
         vanishBarBG = new FSprite("vanishBar_01");
         markCounter = new FWipeSprite("vanishBar_02");
@@ -44,7 +44,7 @@ public class PlayerGUI : FCamObject
         this.AddChild(panacheBG);
 
         panacheAnim = new FAnimatedSprite("panacheBar");
-        panacheAnim.addAnimation(new FAnimation("idle", new int[] { 1, 2, 3, 4, 5, 6, 7, 1}, 100, false));
+        panacheAnim.addAnimation(new FAnimation("idle", new int[] { 1, 2, 3, 4, 5, 6, 7, 1 }, 100, false));
         panacheAnim.play("idle");
         panacheAnim.SetPosition(panacheBG.GetPosition());
         this.AddChild(panacheAnim);
@@ -62,7 +62,14 @@ public class PlayerGUI : FCamObject
         currentScreen = new LevelEnd(nextLevel, p.cashCounter.actualValue, p.panacheCounter.actualValue);
         this.AddChild(currentScreen);
         C.isTransitioning = true;
-        
+
+    }
+
+    public void showPreLevel()
+    {
+        currentScreen = new PreLevel();
+        this.AddChild(currentScreen);
+        C.isTransitioning = true;
     }
 
     public void setPlayer(Player p)
@@ -78,22 +85,29 @@ public class PlayerGUI : FCamObject
         {
             if (currentScreen != null && currentScreen.isDone)
             {
-                currentScreen.RemoveFromContainer();
-                C.isTransitioning = false;
+                if (currentScreen is LevelEnd)
+                {
+                    showPreLevel();
+                }
+                else
+                {
+
+                    C.isTransitioning = false;
+                }
             }
             return;
         }
         if (p == null)
             return;
         cashCounter.text = "$" + p.cashCounter.value.ToString();
-        panacheCounter .text = p.panacheCounter.value.ToString();
+        panacheCounter.text = p.panacheCounter.value.ToString();
 
         if (lastPanache < p.panacheCounter.actualValue)
         {
             lastPanache = p.panacheCounter.actualValue;
             panacheAnim.play("idle", true);
         }
-      
+
 
         markCounter.wipeLeftAmount = p.GetVanishPercent();
     }

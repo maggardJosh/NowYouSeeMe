@@ -44,7 +44,7 @@ public class StartGameScreen : BaseScreen
             Futile.stage.AddChild(world);
             transitioningOff = true;
             C.getCameraInstance().MoveToFront();
-            Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setEaseType(EaseType.BackIn).onComplete((a) => { C.getCameraInstance().MoveToFront(); isDone = true; }));
+            Go.to(this, C.sceneTransitionTime, new TweenConfig().floatProp("x", -Futile.screen.width).setEaseType(EaseType.BackIn).onComplete((a) => { C.getCameraInstance().MoveToFront(); isDone = true; this.RemoveFromContainer(); }));
         }
         base.Update();
     }

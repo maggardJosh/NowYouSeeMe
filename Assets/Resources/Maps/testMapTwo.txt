@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="60" height="40" tilewidth="12" tileheight="12">
+ <properties>
+  <property name="mapName" value="Level Two"/>
+ </properties>
  <tileset firstgid="1" name="tilemap" tilewidth="12" tileheight="12">
   <image source="TiledGraphics/tilemap.png" width="72" height="36"/>
  </tileset>
@@ -7,7 +10,7 @@
   <image source="TiledGraphics/collision.png" width="24" height="12"/>
  </tileset>
  <tileset firstgid="21" name="objects" tilewidth="12" tileheight="12">
-  <image source="TiledGraphics/objects.png" width="72" height="12"/>
+  <image source="TiledGraphics/objects.png" width="96" height="12"/>
  </tileset>
  <layer name="Background" width="60" height="40">
   <data encoding="csv">

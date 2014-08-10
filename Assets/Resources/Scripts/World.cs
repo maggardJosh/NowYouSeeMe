@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class World : FContainer
 {
-    FTmxMap map;
+    public FTmxMap map;
     Player player;
 
     private static World instance;
@@ -306,7 +306,7 @@ public class World : FContainer
             for (int x = 0; x < 2; x++)
             {
                 string[] xyStrings = points[x].Split(',');
-                stairwellPositions[x] = (disp - new Vector2(float.Parse(xyStrings[0]), float.Parse(xyStrings[1])));
+                stairwellPositions[x] = (disp + new Vector2(float.Parse(xyStrings[0]), -float.Parse(xyStrings[1])));
             }
             Stairwell s = new Stairwell(stairwellPositions[0], stairwellPositions[1]);
             interactObjectList.Add(s.individualStairwells[0]);

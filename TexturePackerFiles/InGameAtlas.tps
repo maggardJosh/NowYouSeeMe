@@ -190,6 +190,11 @@
             <filename>VanishBar</filename>
             <filename>PanacheBar</filename>
             <filename>moneyBar_01.png</filename>
+            <filename>Enemy</filename>
+            <filename>panacheInd.png</filename>
+            <filename>moneyInd.png</filename>
+            <filename>SparkleParticles</filename>
+            <filename>preLevel.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

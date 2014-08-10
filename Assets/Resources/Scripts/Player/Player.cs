@@ -151,6 +151,8 @@ public class Player : FContainer
         newPosCloud.SetPosition(hat.GetPosition());
         playerSprite.isVisible = false;
 
+        jumpsLeft = 0;
+
         currentState = State.VANISHING;
         isMarking = false;
         Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
@@ -257,7 +259,7 @@ public class Player : FContainer
 
     public void addCash(int amount, bool forcedDisplay = false)
     {
-        if (amount == 0 || forcedDisplay)
+        if (amount == 0 && !forcedDisplay)
             return;
         cashCounter.addAmount(amount);
         LabelIndicator cashInd = new LabelIndicator((amount > 0 ? "+" : "-") + "$" + Math.Abs(amount), "moneyInd", amount < 0);
@@ -267,7 +269,7 @@ public class Player : FContainer
 
     public void addPanache(int amount, bool forcedDisplay = false)
     {
-        if (amount == 0 || forcedDisplay)
+        if (amount == 0 && !forcedDisplay)
             return;
         panacheCounter.addAmount(amount);
         LabelIndicator panacheInd = new LabelIndicator((amount > 0 ? "+" : "-") + Math.Abs(amount), "panacheInd", amount < 0);
@@ -342,6 +344,9 @@ public class Player : FContainer
                 return;
             case State.LOOTING:
                 interactInd.isVisible = false;
+                if (isMarking)
+                    markCount += Time.deltaTime;
+
                 return;
             case State.SUICIDE:
                 return;
@@ -581,7 +586,10 @@ public class Player : FContainer
             tryMoveDown(yMove);
 
         if (yMove > 0)
+        {
             isGrounded = false;
+            jumpsLeft = 0;
+        }
 
         if (xAcc == 0)
         {

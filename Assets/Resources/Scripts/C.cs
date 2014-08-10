@@ -58,4 +58,9 @@ public class C
                 return true;
         return false;
     }
+
+    internal static bool getStartPressed()
+    {
+        return Input.GetKey(KeyCode.Return);
+    }
 }
