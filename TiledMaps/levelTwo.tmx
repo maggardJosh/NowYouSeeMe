@@ -390,16 +390,16 @@
     <property name="type" value="1"/>
    </properties>
   </object>
-  <object x="324" y="1056">
+  <object type="Stairwell" x="324" y="1056">
    <polyline points="24,0 24,-108"/>
   </object>
-  <object x="504" y="948">
+  <object type="Stairwell" x="504" y="948">
    <polyline points="0,0 0,108"/>
   </object>
-  <object x="168" y="948">
+  <object type="Stairwell" x="168" y="948">
    <polyline points="0,0 0,-108"/>
   </object>
-  <object x="576" y="732">
+  <object type="Stairwell" x="576" y="732">
    <polyline points="0,0 0,-108"/>
   </object>
   <object gid="80" x="390" y="276">
