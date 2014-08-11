@@ -10,10 +10,10 @@ public class LevelEnd : BaseScreen
     ShadowLabel scoreLabel;
     ShadowLabel cashLabel;
     ShadowLabel panacheLabel;
-    FSprite enterBG;
     FSprite scoreBG;
     FSprite panacheBG;
     FSprite cashBG;
+    FSprite enterBG;
     ShadowLabel pressEnter;
     int cash;
     int panache;
@@ -46,7 +46,7 @@ public class LevelEnd : BaseScreen
         enterBG.SetPosition(pressEnter.GetPosition());
         enterBG.width = pressEnter.textRect.width * 1.4f;
         enterBG.isVisible = false;
-        this.AddChild(enterBG);
+      //  this.AddChild(enterBG);
         this.AddChild(pressEnter);
 
         cashBG = new FSprite("textBG");
@@ -66,11 +66,8 @@ public class LevelEnd : BaseScreen
         scoreBG.width = textBGWidth;
         scoreBG.SetPosition(scoreLabel.GetPosition());
 
-        this.AddChild(cashBG);
         this.AddChild(cashLabel);
-        this.AddChild(scoreBG);
         this.AddChild(scoreLabel);
-        this.AddChild(panacheBG);
         this.AddChild(panacheLabel);
 
 

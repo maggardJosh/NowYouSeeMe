@@ -150,7 +150,8 @@ public class Chest : InteractableObject
             Vector2 pos = this.GetPosition() + new Vector2(Mathf.Cos(angle) * particleDist, 3);
             particle.activate(pos, new Vector2(RXRandom.Float() * particleXSpeed * 2 - particleXSpeed, 10 + RXRandom.Float() * particleYSpeed), Vector2.zero, 360);
             particle.currentAnim.delay = 200;
-            this.container.AddChild(particle);
+            if (this.container != null)
+                this.container.AddChild(particle);
             if (spawnBehindPlayer)
                 particle.MoveToBack();
         }

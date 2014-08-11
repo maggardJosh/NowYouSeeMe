@@ -24,7 +24,7 @@ public class PressurePlate : Switch
         if (actionType.CompareTo("close") == 0 && time <= 0)
             interactSprite.play("lock");
         else
-        interactSprite.play("up");
+            interactSprite.play("up");
         this.AddChild(interactSprite);
     }
 

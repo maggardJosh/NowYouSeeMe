@@ -21,8 +21,8 @@ public class Switch : InteractableObject
         this.time = time;
         interactSprite = new FAnimatedSprite("Switch/switch");
         interactSprite.addAnimation(new FAnimation("interactable", new int[] { 1 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 2 }, 100, true));
-        interactSprite.addAnimation(new FAnimation("hover", new int[] { 3 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("uninteractable", new int[] { 3 }, 100, true));
+        interactSprite.addAnimation(new FAnimation("hover", new int[] { 1, 2 }, 100, true));
 
         this.AddChild(interactSprite);
         if (time > 0)

@@ -183,14 +183,7 @@ public class Enemy : FContainer
 
         //Flip if facing left
         enemySprite.scaleX = isFacingLeft ? -1 : 1;
-        //Test for new state
-        switch (currentState)
-        {
-            case State.CONFUSED:
-            case State.SEE_PLAYER:
-            case State.CATCHING:
-                return;
-        }
+
         if (Math.Abs(xMove) > chaseSpeed / 2)
         {
             if (RXRandom.Float() < .8f)
@@ -208,7 +201,14 @@ public class Enemy : FContainer
             tryMoveRight(xMove * Time.deltaTime);
         else if (xMove < 0)
             tryMoveLeft(xMove * Time.deltaTime);
-
+        //Test for new state
+        switch (currentState)
+        {
+            case State.CONFUSED:
+            case State.SEE_PLAYER:
+            case State.CATCHING:
+                return;
+        }
         enemySprite.play(animToPlay, false);
 
 
@@ -443,6 +443,9 @@ public class Enemy : FContainer
                 if (doorCollision != null)
                 {
                     this.turn();
+                    this.x = doorCollision.x - collisionWidth / 2 - Door.DOOR_COLLISION_WIDTH / 2;
+                    if (currentState == State.CHASE)
+                        Confuse();
                     return;
                 }
                 else
@@ -471,6 +474,9 @@ public class Enemy : FContainer
                 if (doorCollision != null)
                 {
                     this.turn();
+                    this.x = doorCollision.x + collisionWidth / 2 + Door.DOOR_COLLISION_WIDTH / 2;
+                    if (currentState == State.CHASE)
+                        Confuse();
                     return;
                 }
                 else

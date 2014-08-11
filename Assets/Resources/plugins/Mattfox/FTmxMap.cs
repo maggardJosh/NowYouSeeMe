@@ -23,6 +23,7 @@ public class FTmxMap : FContainer
     public int tileHeight;
     public string actualMapName;
     public string mapName;
+    public string mapDescription;
 
     public FTmxMap()
     {
@@ -66,8 +67,16 @@ public class FTmxMap : FContainer
             {
                 foreach (XMLNode property in child.children)
                 {
-                    if (property.attributes["name"].ToLower().CompareTo("mapname") == 0)
-                        this.mapName = property.attributes["value"];
+                    switch (property.attributes["name"].ToLower())
+                    {
+                        case "mapname":
+                            this.mapName = property.attributes["value"];
+                            break;
+                        case "mapdescription":
+                            this.mapDescription = property.attributes["value"];
+                            break;
+                    }
+
                 }
             }
             // save references to tilesets
@@ -265,7 +274,7 @@ public class FTmxMap : FContainer
 
         // find name of tileset being used, assumes all tiles are from the same tileset
         string baseName = this.getTilesetNameForID(firstID);
-        
+
 
         // do stuff with properties
         foreach (XMLNode property in properties.children)
@@ -295,7 +304,7 @@ public class FTmxMap : FContainer
             tilemap.clipNode = _clipNode;
         }
 
-        tilemap.LoadText(csvText, skipZero, draw, getTilesetFirstIDForID(firstID)-1);
+        tilemap.LoadText(csvText, skipZero, draw, getTilesetFirstIDForID(firstID) - 1);
         return tilemap;
 
     }

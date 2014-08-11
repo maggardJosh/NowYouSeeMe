@@ -41,7 +41,7 @@ public class StartGameScreen : BaseScreen
         {
             playBlip();
             World world = World.getInstance();
-            world.LoadMap("testMap");
+            world.LoadMap("tutorial");
             Futile.stage.AddChild(world);
             transitioningOff = true;
             C.getCameraInstance().MoveToFront();

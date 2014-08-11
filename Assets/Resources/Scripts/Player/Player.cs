@@ -34,7 +34,7 @@ public class Player : FContainer
     public float yMove = 0;
     float stateCount = 0;
     bool isFacingLeft = false;
-    bool isMarking = false;
+    public bool isMarking = false;
     bool isInteracting = false;
 
     private float markCount = 0;
@@ -431,7 +431,7 @@ public class Player : FContainer
     const float MAX_X_VEL = 2f;
     bool isGrounded = true;
     bool isMoving = false;
-    bool hasLeftMarkPos = false;
+    public bool hasLeftMarkPos = false;
     const float MARK_MIN_DIST = 20;     //Distance from mark that causes the timer to start
     const float MIN_MOVEMENT_X = .1f;
     public const float Gravity = -.3f;
@@ -502,6 +502,7 @@ public class Player : FContainer
                     if (playerSprite.IsStopped)
                     {
                         spawnVanishParticles(20);
+                        this.addCash(-cashCounter.actualValue / 2, true);
                         respawn();
                     }
                 }

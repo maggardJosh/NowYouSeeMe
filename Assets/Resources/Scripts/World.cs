@@ -23,6 +23,7 @@ public class World : FContainer
     public List<InteractableObject> interactObjectList = new List<InteractableObject>();
     public List<Enemy> enemyList = new List<Enemy>();
     public List<VanishCloud> panacheEnabledClouds = new List<VanishCloud>();
+    public List<TutorialText> tutorialTexts = new List<TutorialText>();
 
     private FContainer bgLayer = new FContainer();
     private FContainer objectLayer = new FContainer();
@@ -38,6 +39,8 @@ public class World : FContainer
     private const int ENEMY_IND = 6;
     private const int DECORATION_IND = 7;
 
+    public int availableCash = 0;
+
     private World()
     {
         Futile.instance.SignalUpdate += Update;
@@ -45,11 +48,15 @@ public class World : FContainer
 
     public void LoadMap(string mapName)
     {
+        availableCash = 0;
         trampolineList.Clear();
         interactObjectList.Clear();
         doorList.Clear();
         plateList.Clear();
         enemyList.Clear();
+        foreach (TutorialText t in tutorialTexts)
+            t.RemoveFromContainer();
+        tutorialTexts.Clear();
         bgLayer.RemoveAllChildren();
         fgLayer.RemoveAllChildren();
         playerLayer.RemoveAllChildren();
@@ -105,6 +112,15 @@ public class World : FContainer
                     case "stairwell":
                         parseStairwell(node);
                         break;
+                }
+            }
+            if (node.attributes.ContainsKey("name"))
+            {
+                if (node.attributes["name"].ToLower().CompareTo("tutorialtext") == 0)
+                {
+                    TutorialText t = new TutorialText(node);
+                    tutorialTexts.Add(t);
+                    C.getCameraInstance().AddChild(t);
                 }
             }
         }
@@ -183,6 +199,7 @@ public class World : FContainer
                             break;
                     }
             }
+        availableCash += money;
 
         Container container = new Container(new Vector2(float.Parse(node.attributes["x"]) + map.tileWidth / 2, -float.Parse(node.attributes["y"]) + map.tileHeight / 2), type, money);
         interactObjectList.Add(container);
@@ -361,7 +378,8 @@ public class World : FContainer
     {
         return p.x - PressurePlate.COLLISION_WIDTH / 2 < xPos &&
             p.x + PressurePlate.COLLISION_WIDTH / 2 > xPos &&
-            p.y - map.tileHeight / 2 + PressurePlate.COLLISION_HEIGHT > yPos;
+            p.y - map.tileHeight / 2 + PressurePlate.COLLISION_HEIGHT > yPos &&
+            p.y - map.tileHeight / 2 - PressurePlate.COLLISION_HEIGHT < yPos;
     }
 
     public bool getOneWay(float xPos, float yPos)
@@ -379,6 +397,8 @@ public class World : FContainer
             player.setInteractObject(obj);
         foreach (Enemy e in enemyList)
             e.Update(player);
+        foreach (TutorialText t in tutorialTexts)
+            t.Update(player);
     }
 
     public PressurePlate checkPlates(float xPos, float yPos)
@@ -446,5 +466,14 @@ public class World : FContainer
     internal void nextLevel(string nextLevel)
     {
         C.getCameraInstance().endLevel(nextLevel);
+    }
+
+    internal void openDoor(string door)
+    {
+        foreach (Door d in doorList)
+        {
+            if (d.name.CompareTo(door) == 0)
+                d.setState(true, this.player);
+        }
     }
 }

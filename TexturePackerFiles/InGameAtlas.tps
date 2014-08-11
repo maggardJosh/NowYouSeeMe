@@ -195,6 +195,7 @@
             <filename>moneyInd.png</filename>
             <filename>SparkleParticles</filename>
             <filename>preLevel.png</filename>
+            <filename>Tutorial</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
