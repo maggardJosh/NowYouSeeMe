@@ -312,9 +312,32 @@ public class Enemy : FContainer
 
                 bool sawPlayer = false;
                 if (isFacingLeft)
+                {
+
                     sawPlayer = this.x - seeDist < p.x && this.x > p.x;
+                    if (sawPlayer)
+                        for (float xDist = this.x; xDist > p.x; xDist -= World.getInstance().map.tileWidth / 2)
+                        {
+                            if (!world.getMoveable(xDist, this.y))
+                            {
+                                sawPlayer = false;
+                                return;
+                            }
+                        }
+                }
                 else
+                {
                     sawPlayer = this.x + seeDist > p.x && this.x < p.x;
+                    if (sawPlayer)
+                        for (float xDist = this.x; xDist < p.x; xDist += World.getInstance().map.tileWidth / 2)
+                        {
+                            if (!world.getMoveable( xDist, this.y))
+                            {
+                                sawPlayer = false;
+                                return;
+                            }
+                        }
+                }
                 if (sawPlayer)
                     SeePlayer();
             }
@@ -345,7 +368,7 @@ public class Enemy : FContainer
 
     private void ChaseLogic(Player p)
     {
-      
+
         switch (p.currentState)
         {
             case Player.State.VANISHING:
