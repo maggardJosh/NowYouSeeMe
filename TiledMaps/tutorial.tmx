@@ -174,7 +174,7 @@
   </object>
   <object gid="76" x="12" y="108">
    <properties>
-    <property name="end" value="testMap"/>
+    <property name="end" value="levelTwo"/>
    </properties>
   </object>
   <object gid="76" x="564" y="204"/>
