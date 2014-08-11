@@ -156,6 +156,10 @@ public class Player : FContainer
         FSoundManager.PlaySound("VanishCloud");
         currentState = State.VANISHING;
         isMarking = false;
+        if (yMove > 0)
+        {
+            yMove = Math.Max(yMove, jumpStrength);
+        }
         Go.to(this, VANISH_DURATION, new TweenConfig().floatProp("x", hat.x).floatProp("y", hat.y).setEaseType(EaseType.CircInOut).onComplete((a) => { currentState = State.COOLDOWN; FSoundManager.PlaySound("VanishCloud"); hat.disappear(); playerSprite.isVisible = true; this.container.AddChild(newPosCloud); }));
     }
 

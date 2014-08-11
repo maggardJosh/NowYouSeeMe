@@ -459,7 +459,7 @@ public class Enemy : FContainer
         while (xMove > 0)
         {
             float xStep = Math.Min(xMove, world.collision.tileWidth);
-            if (world.getMoveable(x + collisionWidth / 2 + xStep, y) &&
+            if (world.getMoveable(x + collisionWidth / 2 + xStep, y - collisionHeight / 4) &&
                 !(world.getMoveable(x + collisionWidth / 2 + xStep, y - collisionHeight / 2 - world.collision.tileHeight / 2) && !world.getOneWay(x + collisionWidth / 2 + xStep, y - collisionHeight / 2 - world.collision.tileHeight / 2)))
             {
                 Door doorCollision = world.checkDoor(x, x + collisionWidth / 2 + xStep, y);
@@ -490,7 +490,7 @@ public class Enemy : FContainer
         while (xMove < 0)
         {
             float xStep = Math.Max(xMove, -world.collision.tileWidth);
-            if (world.getMoveable(x - collisionWidth / 2 + xStep, y) &&
+            if (world.getMoveable(x - collisionWidth / 2 + xStep, y - collisionHeight / 4) &&
                 !(world.getMoveable(x - collisionWidth / 2 + xStep, y - collisionHeight / 2 - world.collision.tileHeight / 2) && !world.getOneWay(x - collisionWidth / 2 + xStep, y - collisionHeight / 2 - world.collision.tileHeight / 2)))
             {
                 Door doorCollision = world.checkDoor(x, x - collisionWidth / 2 + xStep, y);

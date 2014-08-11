@@ -250,5 +250,10 @@
     <property name="tutorial" value="hatJump"/>
    </properties>
   </object>
+  <object name="tutorialText" x="490" y="209" width="174" height="131">
+   <properties>
+    <property name="tutorial" value="enemy"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

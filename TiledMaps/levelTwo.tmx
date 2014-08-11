@@ -306,11 +306,13 @@
   <object gid="78" x="252" y="948"/>
   <object name="doorOne" gid="78" x="396" y="840">
    <properties>
+    <property name="locked" value=""/>
     <property name="open" value=""/>
    </properties>
   </object>
   <object name="doorTwo" gid="78" x="408" y="264">
    <properties>
+    <property name="locked" value=""/>
     <property name="open" value=""/>
    </properties>
   </object>

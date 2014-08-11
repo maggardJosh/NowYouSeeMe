@@ -73,6 +73,9 @@ public class TutorialText : FContainer
                                 case "hatjump":
                                     text.SetElementByName("tutorialHatJump");
                                     break;
+                                case "enemy":
+                                    text.SetElementByName("tutorialGuards");
+                                    break;
 
                             }
                             break;
