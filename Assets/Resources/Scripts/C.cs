@@ -61,6 +61,6 @@ public class C
 
     internal static bool getStartPressed()
     {
-        return Input.GetKey(KeyCode.Return);
+        return Input.GetKeyDown(KeyCode.Return);
     }
 }

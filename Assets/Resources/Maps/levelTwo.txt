@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="75" height="90" tilewidth="12" tileheight="12">
  <properties>
-  <property name="mapDescription" value="A lofty building filled with lots/nof offices, and lots of money./nBe aware, it's heavily patrolled/nand security has heard of/n your tricks!"/>
+  <property name="mapDescription" value="A lofty building filled with lots\nof offices, and lots of money.\nBe aware, it's heavily patrolled\nand security has heard of\nyour tricks!"/>
   <property name="mapName" value="The Office Complex"/>
  </properties>
  <tileset firstgid="1" name="tilemap" tilewidth="12" tileheight="12">
