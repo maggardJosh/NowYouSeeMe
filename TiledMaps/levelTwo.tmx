@@ -327,7 +327,11 @@
     <property name="spawn" value=""/>
    </properties>
   </object>
-  <object gid="76" x="840" y="1068"/>
+  <object gid="76" x="840" y="1068">
+   <properties>
+    <property name="end" value="tutorial"/>
+   </properties>
+  </object>
   <object name="Container" gid="77" x="204" y="960">
    <properties>
     <property name="type" value="1"/>

@@ -72,6 +72,13 @@ public class PlayerGUI : FCamObject
         C.isTransitioning = true;
     }
 
+    public void showCredits()
+    {
+        currentScreen = new Credits();
+        this.AddChild(currentScreen);
+        C.isTransitioning = true;
+    }
+
     public void setPlayer(Player p)
     {
         this.p = p;
@@ -87,7 +94,10 @@ public class PlayerGUI : FCamObject
             {
                 if (currentScreen is LevelEnd)
                 {
-                    showPreLevel();
+                    if (((LevelEnd)currentScreen).nextLevel.CompareTo("tutorial") == 0)
+                        showCredits();
+                    else
+                        showPreLevel();
                 }
                 else
                 {

@@ -19,7 +19,7 @@ public class LevelEnd : BaseScreen
     int panache;
     public int cashCount { get; set; }
     public int panacheCount { get; set; }
-    string nextLevel = "";
+    public string nextLevel = "";
     bool onScreen = false;
     float textBGWidth = 130;
     public LevelEnd(string nextLevel, int cash, int panache)
