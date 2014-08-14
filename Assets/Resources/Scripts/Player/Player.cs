@@ -101,6 +101,14 @@ public class Player : FContainer
             return Mathf.Atan2(-yMove, xMove) * 180.0f / Mathf.PI;
     }
 
+    internal float getVelocityScale()
+    {
+        if (xMove == 0 && yMove == 0)
+            return 0;     //If we aren't moving just scale the hat normal
+        else
+            return Math.Min(Math.Max(0, new Vector2(xMove, -yMove).magnitude), 3);
+    }
+
     public float GetVanishPercent()
     {
         if (isMarking)
@@ -422,14 +430,14 @@ public class Player : FContainer
 
 
     float downJumpCount = 0;
-    const float DOWN_JUMP_TIME = .4f;       //Time to allow a down jump
+    const float DOWN_JUMP_TIME = .7f;       //Time to allow a down jump
 
     float speed = .1f;
     float airSpeed = .1f;
     float highVelFriction = .9f;
     float normalFriction = .8f;
     float airFriction = .99f;
-    float jumpStrength = 6;
+    float jumpStrength = 5;
     const float MAX_Y_VEL = 10f;
     const float MIN_Y_VEL = -6f;
     const float MAX_X_VEL = 2f;
@@ -438,7 +446,7 @@ public class Player : FContainer
     public bool hasLeftMarkPos = false;
     const float MARK_MIN_DIST = 20;     //Distance from mark that causes the timer to start
     const float MIN_MOVEMENT_X = .1f;
-    public const float Gravity = -.3f;
+    public const float Gravity = -.2f;
     bool hitMaxXVel = false;
     float maxVelTime = 0;
     bool isSprinting = false;
@@ -882,6 +890,7 @@ public class Player : FContainer
         this.addCash(-cashCounter.actualValue / 2, true);
         this.isVisible = false;
     }
+
 
 }
 

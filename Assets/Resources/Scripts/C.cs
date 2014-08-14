@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class C
 {
-    public const string versionNumber = "v1.01";
+    public const string versionNumber = "v1.02b";
 
     public static float sceneTransitionTime = 1.5f;
     public static bool isSpawning = false;
