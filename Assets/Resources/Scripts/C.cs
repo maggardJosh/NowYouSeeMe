@@ -33,15 +33,21 @@ public class C
     public static readonly KeyCode[] JUMP_KEY = new KeyCode[] { KeyCode.X, KeyCode.L };
     public static readonly KeyCode[] ACTION_KEY = new KeyCode[] { KeyCode.Z, KeyCode.K };
 
-    public static bool getLeftPressed() { return getKey(LEFT_KEY); }
-    public static bool getRightPressed() { return getKey(RIGHT_KEY); }
-    public static bool getUpPressed() { return getKey(UP_KEY); }
-    public static bool getDownPressed() { return getKey(DOWN_KEY); }
-    public static bool getJumpPressed() { return getKey(JUMP_KEY); }
-    public static bool getActionPressed() { return getKey(ACTION_KEY); }
+    public static bool getLeftPressed() { return Input.GetAxisRaw("Horizontal") < 0; }
+    public static bool getRightPressed() { return Input.GetAxisRaw("Horizontal") > 0; }
+    public static bool getUpPressed() { return Input.GetAxisRaw("Vertical") < 0; }
+    public static bool getDownPressed() { return Input.GetAxisRaw("Vertical") > 0; }
+    public static bool getJumpPressed() { return Input.GetButton("Jump"); }
+    public static bool getActionPressed() { return Input.GetButton("Hat"); }
 
-    public static bool getUpPress() { return getKeyDown(UP_KEY); }
-    public static bool getJumpPress() { return getKeyDown(JUMP_KEY); }
+    private static float lastVerticalValue = 0;
+    public static bool getUpPress()
+    {
+        bool upPressed = lastVerticalValue >= 0 && Input.GetAxis("Vertical") < 0;
+        lastVerticalValue = Input.GetAxis("Vertical");
+        return upPressed || Input.GetButtonDown("Action");
+    }
+    public static bool getJumpPress() { return Input.GetButtonDown("Jump"); }
 
     private static bool getKey(KeyCode[] keys)
     {
@@ -61,6 +67,6 @@ public class C
 
     internal static bool getStartPressed()
     {
-        return Input.GetKeyDown(KeyCode.Return);
+        return Input.GetButtonDown("Start");
     }
 }

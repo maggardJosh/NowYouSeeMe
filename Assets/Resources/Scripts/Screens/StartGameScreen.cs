@@ -37,7 +37,7 @@ public class StartGameScreen : BaseScreen
         count += Time.deltaTime;
         pressEnter.isVisible = count > 2.0f && ((int)(count* 2)) % 4 != 0;
         enterBG.isVisible = pressEnter.isVisible;
-        if (Input.GetKeyDown(KeyCode.Return))
+        if (C.getStartPressed())
         {
             playBlip();
             World world = World.getInstance();
